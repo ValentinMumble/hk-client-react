@@ -1,0 +1,34 @@
+{
+  "name": "hk-react",
+  "homepage": "https://vmumble.ddns.net/hkr/",
+  "version": "0.1.0",
+  "main": "index.js",
+  "author": "Valentin Dijkstra",
+  "license": "MIT",
+  "dependencies": {
+    "@fortawesome/fontawesome": "^1.1.5",
+    "@fortawesome/fontawesome-free-solid": "^5.0.9",
+    "@fortawesome/react-fontawesome": "^0.0.18",
+    "dotenv": "^8.0.0",
+    "query-string": "^6.8.2",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0",
+    "react-loader-spinner": "^3.1.2",
+    "react-router": "^5.0.1",
+    "react-router-dom": "^5.0.1",
+    "react-scripts": "^3.1.1",
+    "socket.io-client": "^2.2.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
+}

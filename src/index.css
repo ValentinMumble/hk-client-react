@@ -1,0 +1,10 @@
+:root {
+	--gray: #777;
+	--gray-active: #444;
+	--gray-dark: #222;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
