@@ -1,0 +1,96 @@
+.App {
+  display: grid;
+  height: 100vh;
+  background-color: black;
+  color: var(--gray);
+  font-family: monospace;
+  font-size: 50pt;
+}
+
+.dark {
+  color: var(--gray-active);
+}
+
+main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.Container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.Artwork {
+  max-width: 400px;
+  margin-bottom: 16px;
+}
+
+.Title {
+  margin: 0;
+  margin-bottom: 16px;
+  text-align: center;
+  font-size: .3em;
+}
+
+.Controls {
+  margin-bottom: 32px;
+  display: flex;
+  align-items: center;
+}
+
+.Controls > * {
+  margin: 0 1rem;
+  cursor: pointer;
+}
+
+.ProgressBar {
+  position: relative;
+  width: 90%;
+  height: 10px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--gray-dark);
+}
+
+.Progress {
+  position: absolute;
+  border-radius: 4px;
+  height: 100%;
+  left: 0;
+  top: 0;
+  background: var(--gray-active);
+}
+
+.Volume {
+  width: 90%;
+}
+
+input[type=range] {
+	-webkit-appearance: none;
+	width: 100%;
+	margin: 0 auto;
+}
+
+input[type=range]:focus {
+	outline: none;
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+	height: 10px;
+	cursor: pointer;
+	background: var(--gray-dark);
+}
+
+input[type=range]::-webkit-slider-thumb {
+	height: 40px;
+	width: 40px;
+	border-radius: 50%;
+	background: var(--gray);
+	cursor: pointer;
+	-webkit-appearance: none;
+	margin-top: -15px;
+}
