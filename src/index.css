@@ -1,10 +1,13 @@
 :root {
-	--gray: #777;
-	--gray-active: #444;
-	--gray-dark: #222;
+  --gray: #777;
+  --gray-active: #444;
+  --gray-dark: #222;
 }
 
 body {
   margin: 0;
   padding: 0;
+  background-color: black;
+  color: var(--gray);
+  font-family: monospace;
 }

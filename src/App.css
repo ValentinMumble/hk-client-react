@@ -1,13 +1,10 @@
 .App {
   display: grid;
   height: 100vh;
-  background-color: black;
-  color: var(--gray);
-  font-family: monospace;
-  font-size: 50pt;
+  font-size: 40pt;
 }
 
-.dark {
+.Dark {
   color: var(--gray-active);
 }
 
@@ -17,80 +14,114 @@ main {
   align-items: center;
 }
 
+main>.Container {
+  height: 100%;
+}
+
 .Container {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-evenly;
   align-items: center;
 }
 
 .Artwork {
-  max-width: 400px;
-  margin-bottom: 16px;
-}
-
-.Title {
-  margin: 0;
-  margin-bottom: 16px;
-  text-align: center;
-  font-size: .3em;
-}
-
-.Controls {
-  margin-bottom: 32px;
-  display: flex;
-  align-items: center;
-}
-
-.Controls > * {
-  margin: 0 1rem;
-  cursor: pointer;
-}
-
-.ProgressBar {
   position: relative;
-  width: 90%;
-  height: 10px;
-  border-radius: 4px;
+  display: flex;
+  width: 350px;
+  height: 200px;
   overflow: hidden;
-  background: var(--gray-dark);
+}
+
+.Artwork img {
+  height: 350px;
+  border-radius: 50%;
 }
 
 .Progress {
   position: absolute;
-  border-radius: 4px;
   height: 100%;
-  left: 0;
   top: 0;
-  background: var(--gray-active);
+  right: 0;
+  background: black;
+  opacity: .4;
+}
+
+.Title {
+  text-align: center;
+  font-size: .3em;
+  white-space: nowrap;
+}
+
+.Controls {
+  display: flex;
+  align-items: center;
+}
+
+.Controls>* {
+  margin: 0 1rem;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.Controls>*:active {
+  transform: scale(.9);
 }
 
 .Volume {
-  width: 90%;
+  width: 80%;
+  margin: 0 auto;
+}
+
+.Authorise>* {
+  cursor: pointer;
+}
+
+.Colors>div {
+  margin: 0 .5rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.Colors>div:nth-child(1) {
+  background-color: white;
+}
+
+.Colors>div:nth-child(2) {
+  background-color: #ffaa71;
+}
+
+.Colors>div:nth-child(4) {
+  background-color: #01A7C2;
+}
+
+.Colors>div:nth-child(5) {
+  background-color: #FF96CA;
 }
 
 input[type=range] {
-	-webkit-appearance: none;
-	width: 100%;
-	margin: 0 auto;
+  -webkit-appearance: none;
+  width: 100%;
 }
 
 input[type=range]:focus {
-	outline: none;
+  outline: none;
 }
 
 input[type=range]::-webkit-slider-runnable-track {
-	height: 10px;
-	cursor: pointer;
-	background: var(--gray-dark);
+  height: 10px;
+  cursor: pointer;
+  background: var(--gray-dark);
 }
 
 input[type=range]::-webkit-slider-thumb {
-	height: 40px;
-	width: 40px;
-	border-radius: 50%;
-	background: var(--gray);
-	cursor: pointer;
-	-webkit-appearance: none;
-	margin-top: -15px;
+  height: 40px;
+  width: 40px;
+  border-radius: 50%;
+  background: var(--gray);
+  cursor: pointer;
+  -webkit-appearance: none;
+  margin-top: -15px;
 }

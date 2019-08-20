@@ -2,23 +2,29 @@ import React, { Component } from 'react'
 import './App.css'
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css"
 import Loader from 'react-loader-spinner'
-import { checkToken, getToken, login } from './auth'
+import { checkToken, refreshToken, getToken, login, post } from './auth'
 import openSocket from 'socket.io-client'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faSpotify } from '@fortawesome/free-brands-svg-icons'
+import { faSpotify, faBluetoothB } from '@fortawesome/free-brands-svg-icons'
 import {
   faStepBackward,
   faStepForward,
   faPlay,
   faPause,
   faMagic,
-  faHeart
+  faHeart,
+  faVolumeDown,
+  faVolumeUp,
+  faMusic,
+  faBroadcastTower,
+  faLightbulb,
+  faPowerOff,
+  faCompactDisc
 } from '@fortawesome/free-solid-svg-icons'
 
 class App extends Component {
   state = {
     authorised: checkToken(),
-    eventLog: []
   }
   componentDidMount() {
     if (checkToken()) {
@@ -76,8 +82,9 @@ class App extends Component {
     }
   }
   onError = error => {
+    console.log(error.name)
     if (error.name === 'NoActiveDeviceError') {//TODO
-      this.io.emit('transfer_playback', { id: process.env.REACT_APP_PI_ID })
+      this.emit('transfer_playback', { id: process.env.REACT_APP_PI_ID })
     } else {
       this.setState({ error: error.message || error })
     }
@@ -114,6 +121,12 @@ class App extends Component {
     wrappedHandler('connect_error', this.onError)
 
     this.io = io
+
+    window.setInterval(() => {
+      refreshToken((accessToken) => {
+        this.emit('access_token', accessToken)
+      })
+    }, 55 * 60 * 1000) // 55 minutes
   }
   render() {
     const {
@@ -127,72 +140,125 @@ class App extends Component {
     return (
       <div className="App">
         <main>
-          {authorised ? (
-            playerReady ? (
-              <div className="Container">
-                <img
-                  className="Artwork"
-                  src={activeTrack.album.images[0].url}
-                  alt={`${activeTrack.name} - ${activeTrack.artists[0].name}`}
-                />
-                <h4 className="Title">
-                  {activeTrack.name} <span className="dark">by</span> {activeTrack.artists[0].name}
-                </h4>
-                <div className="Controls">
-                  <FontAwesomeIcon
-                    onClick={() => this.emit('play', {context_uri: process.env.REACT_APP_DISCOVER_WEEKLY})}
-                    size="xs"
-                    icon={faMagic}
-                  />
-                  <FontAwesomeIcon
-                    onClick={() => this.emit('previous_track')}
-                    icon={faStepBackward}
-                  />
-                  <FontAwesomeIcon
-                    onClick={() => this.emit(isPlaying ? 'pause' : 'play')}
-                    size="lg"
-                    icon={isPlaying ? faPause : faPlay}
-                  />
-                  <FontAwesomeIcon
-                    onClick={() => this.emit('next_track')}
-                    icon={faStepForward}
-                  />
-                  <FontAwesomeIcon
-                    onClick={() => this.emit('play', {context_uri: process.env.REACT_APP_LIKES})}
-                    size="xs"
-                    icon={faHeart}
-                  />
-                </div>
-                <div className="ProgressBar">
-                  <div
-                    style={{ width: `${this.state.progressPercent}%` }}
-                    className="Progress"
-                  >
-                    <span />
+          <div className="Container">
+            <div className="Controls Colors">
+              <div
+                onClick={() => post(process.env.REACT_APP_HUE_API, { state: true, 'color': '#ffffff' })}></div>
+              <div
+                onClick={() => post(process.env.REACT_APP_HUE_API, { state: true, 'color': '#ffaa71' })}></div>
+              <FontAwesomeIcon
+                onClick={() => post(process.env.REACT_APP_HUE_API, { state: false })}
+                size="xs"
+                icon={faLightbulb}
+              />
+              <div
+                onClick={() => post(process.env.REACT_APP_HUE_API, { state: true, 'color': '#01A7C2' })}></div>
+              <div
+                onClick={() => post(process.env.REACT_APP_HUE_API, { state: true, 'color': '#FF96CA' })}></div>
+            </div>
+            <div className="Controls">
+              <FontAwesomeIcon
+                onClick={() => post(process.env.REACT_APP_HK_API, { func: 'selectSource', param: 'Radio' })}
+                size="xs"
+                icon={faBroadcastTower}
+              />
+              <FontAwesomeIcon
+                onClick={() => post(process.env.REACT_APP_HK_API, { func: 'selectSource', param: 'TV' })}
+                size="xs"
+                icon={faMusic}
+              />
+              <FontAwesomeIcon
+                onClick={() => post(process.env.REACT_APP_S_API)}
+                size="xs"
+                icon={faBluetoothB}
+              />
+              <FontAwesomeIcon
+                onClick={() => post(process.env.REACT_APP_HK_API, { func: 'off' })}
+                size="xs"
+                icon={faPowerOff}
+              />
+            </div>
+            <div className="Controls">
+              <FontAwesomeIcon
+                onClick={() => post(process.env.REACT_APP_HK_API, { func: 'volumeDown' })}
+                size="lg"
+                icon={faVolumeDown}
+              />
+              <FontAwesomeIcon
+                onClick={() => post(process.env.REACT_APP_HK_API, { func: 'volumeUp' })}
+                size="lg"
+                icon={faVolumeUp}
+              />
+            </div>
+            {authorised ? (
+              playerReady ? (
+                <div className="Container">
+                  <div className="Artwork">
+                    {activeTrack.album.images.length > 0 ? (
+                      <img src={activeTrack.album.images[0].url}
+                        alt={`${activeTrack.name} - ${activeTrack.artists[0].name}`}
+                      />) : (
+                        <FontAwesomeIcon
+                          icon={faCompactDisc}
+                          size="8x"
+                        />
+                      )}
+                    <div
+                      style={{ width: `${100 - this.state.progressPercent}%` }}
+                      className="Progress"
+                    ></div>
+                  </div>
+                  <h4 className="Title">
+                    {activeTrack.name}<br /><span className="Dark">by</span> {activeTrack.artists[0].name}
+                  </h4>
+                  <div className="Controls">
+                    <FontAwesomeIcon
+                      onClick={() => this.emit('play', { context_uri: process.env.REACT_APP_DISCOVER_WEEKLY })}
+                      size="xs"
+                      icon={faMagic}
+                    />
+                    <FontAwesomeIcon
+                      onClick={() => this.emit('previous_track')}
+                      icon={faStepBackward}
+                    />
+                    <FontAwesomeIcon
+                      onClick={() => this.emit(isPlaying ? 'pause' : 'play')}
+                      size="lg"
+                      icon={isPlaying ? faPause : faPlay}
+                    />
+                    <FontAwesomeIcon
+                      onClick={() => this.emit('next_track')}
+                      icon={faStepForward}
+                    />
+                    <FontAwesomeIcon
+                      onClick={() => this.emit('play', { context_uri: process.env.REACT_APP_LIKES })}
+                      size="xs"
+                      icon={faHeart}
+                    />
+                  </div>
+                  <div className="Volume">
+                    <input
+                      type="range" min="0" max="100" value={volume}
+                      onChange={(e) => this.emit('set_volume', e.target.value)}
+                    />
                   </div>
                 </div>
-                <div className="Volume">
-                  <input 
-                    type="range" min="0" max="100" value={volume}
-                    onChange={(e) => this.emit('set_volume', e.target.value)}
-                  />
-                </div>
-              </div>
-            ) : error ? (
-              <div className="Container">{error}</div>
+              ) : error ? (
+                <div className="Container">{error}</div>
+              ) : (
+                    <div>
+                      <Loader type="ThreeDots" color="#222" />
+                    </div>
+                  )
             ) : (
-                  <div className="Container">
-                    <Loader type="ThreeDots" color="#222" />
-                  </div>
-                )
-          ) : (
-              <div className="Container">
-                <FontAwesomeIcon
-                  onClick={this.authorise}
-                  icon={faSpotify}
-                />
-              </div>
-            )}
+                <div className="Authorise">
+                  <FontAwesomeIcon
+                    onClick={this.authorise}
+                    size="lg"
+                    icon={faSpotify}
+                  />
+                </div>
+              )}</div>
         </main>
       </div>
     )
