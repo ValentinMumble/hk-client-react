@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import './App.css'
-import "react-loader-spinner/dist/loader/css/react-spinner-loader.css"
+import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css'
 import Loader from 'react-loader-spinner'
 import { checkToken, refreshToken, getToken, login, post } from './auth'
 import openSocket from 'socket.io-client'
@@ -250,7 +250,7 @@ class App extends Component {
                 <div className="Container">{error}</div>
               ) : (
                     <div>
-                      <Loader type="ThreeDots" color="#222" />
+                      <Loader type="MutatingDots" color="#222" />
                     </div>
                   )
             ) : (

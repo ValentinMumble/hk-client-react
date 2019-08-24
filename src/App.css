@@ -28,13 +28,13 @@ main>.Container {
 .Artwork {
   position: relative;
   display: flex;
-  width: 350px;
-  height: 200px;
+  width: 400px;
+  height: 250px;
   overflow: hidden;
 }
 
 .Artwork img {
-  height: 350px;
+  height: 400px;
   border-radius: 50%;
 }
 
@@ -82,18 +82,19 @@ main>.Container {
 }
 
 .Volume .MuiSlider-rail, .Volume .MuiSlider-track {
-  height: 4px;
+  height: 7px;
 }
 
 .Volume .MuiSlider-thumb {
-  width: 20px;
-  height: 20px;
-  margin-top: -8px;
-  margin-left: -10px;
+  width: 36px;
+  height: 36px;
+  margin-top: -15px;
+  margin-left: -18px;
 }
 
 .Volume .MuiSlider-valueLabel {
-  left: calc(-50% + 4px);
+  left: calc(-50% + 19px);
+  font-family: inherit;
 }
 
 .Authorise>* {
@@ -125,29 +126,4 @@ main>.Container {
 
 .Colors>div:nth-child(5) {
   background-color: #FF96CA;
-}
-
-input[type=range] {
-  -webkit-appearance: none;
-  width: 100%;
-}
-
-input[type=range]:focus {
-  outline: none;
-}
-
-input[type=range]::-webkit-slider-runnable-track {
-  height: 10px;
-  cursor: pointer;
-  background: var(--gray-dark);
-}
-
-input[type=range]::-webkit-slider-thumb {
-  height: 40px;
-  width: 40px;
-  border-radius: 50%;
-  background: var(--gray);
-  cursor: pointer;
-  -webkit-appearance: none;
-  margin-top: -15px;
 }
