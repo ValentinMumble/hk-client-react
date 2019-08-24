@@ -4,6 +4,7 @@ import "react-loader-spinner/dist/loader/css/react-spinner-loader.css"
 import Loader from 'react-loader-spinner'
 import { checkToken, refreshToken, getToken, login, post } from './auth'
 import openSocket from 'socket.io-client'
+import Slider from '@material-ui/core/Slider';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSpotify, faBluetoothB } from '@fortawesome/free-brands-svg-icons'
 import {
@@ -17,7 +18,6 @@ import {
   faVolumeUp,
   faMusic,
   faBroadcastTower,
-  faLightbulb,
   faPowerOff,
   faCompactDisc
 } from '@fortawesome/free-solid-svg-icons'
@@ -82,12 +82,18 @@ class App extends Component {
     }
   }
   onError = error => {
-    console.log(error.name)
     if (error.name === 'NoActiveDeviceError') {//TODO
       this.emit('transfer_playback', { id: process.env.REACT_APP_PI_ID })
+    } else if (error === 'The access token expired') {
+      this.refreshToken();
     } else {
       this.setState({ error: error.message || error })
     }
+  }
+  refreshToken = () => {
+    refreshToken((accessToken) => {
+      this.emit('access_token', accessToken)
+    })
   }
   setupConnect = () => {
     const io = openSocket(process.env.REACT_APP_SOCKET_URL)
@@ -122,11 +128,7 @@ class App extends Component {
 
     this.io = io
 
-    window.setInterval(() => {
-      refreshToken((accessToken) => {
-        this.emit('access_token', accessToken)
-      })
-    }, 55 * 60 * 1000) // 55 minutes
+    window.setInterval(this.refreshToken, 55 * 60 * 1000) // 55 minutes
   }
   render() {
     const {
@@ -143,14 +145,11 @@ class App extends Component {
           <div className="Container">
             <div className="Controls Colors">
               <div
+                onClick={() => post(process.env.REACT_APP_HUE_API, { state: false })}></div>
+              <div
                 onClick={() => post(process.env.REACT_APP_HUE_API, { state: true, 'color': '#ffffff' })}></div>
               <div
                 onClick={() => post(process.env.REACT_APP_HUE_API, { state: true, 'color': '#ffaa71' })}></div>
-              <FontAwesomeIcon
-                onClick={() => post(process.env.REACT_APP_HUE_API, { state: false })}
-                size="xs"
-                icon={faLightbulb}
-              />
               <div
                 onClick={() => post(process.env.REACT_APP_HUE_API, { state: true, 'color': '#01A7C2' })}></div>
               <div
@@ -204,12 +203,12 @@ class App extends Component {
                         />
                       )}
                     <div
-                      style={{ width: `${100 - this.state.progressPercent}%` }}
+                      style={{ transform: `rotate(${-180 + this.state.progressPercent * 180 / 100}deg)` }}
                       className="Progress"
                     ></div>
                   </div>
                   <h4 className="Title">
-                    {activeTrack.name}<br /><span className="Dark">by</span> {activeTrack.artists[0].name}
+                    {activeTrack.name}<br /><span className="Dark">{activeTrack.artists[0].name}</span>
                   </h4>
                   <div className="Controls">
                     <FontAwesomeIcon
@@ -237,9 +236,13 @@ class App extends Component {
                     />
                   </div>
                   <div className="Volume">
-                    <input
-                      type="range" min="0" max="100" value={volume}
-                      onChange={(e) => this.emit('set_volume', e.target.value)}
+                    <Slider
+                      value={volume}
+                      valueLabelDisplay="auto"
+                      min={0}
+                      max={100}
+                      onChange={(e, v) => this.setVolume(v)}
+                      onChangeCommitted={(e, v) => this.emit('set_volume', v)}
                     />
                   </div>
                 </div>
