@@ -1,26 +1,24 @@
 import React, { Component } from 'react'
 import './App.css'
-import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css'
-import Loader from 'react-loader-spinner'
 import { checkToken, refreshToken, getToken, login, post } from './auth'
 import openSocket from 'socket.io-client'
-import Slider from '@material-ui/core/Slider';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faSpotify, faBluetoothB } from '@fortawesome/free-brands-svg-icons'
+import { Slider, CircularProgress } from '@material-ui/core'
 import {
-  faStepBackward,
-  faStepForward,
-  faPlay,
-  faPause,
-  faMagic,
-  faHeart,
-  faVolumeDown,
-  faVolumeUp,
-  faMusic,
-  faBroadcastTower,
-  faPowerOff,
-  faCompactDisc
-} from '@fortawesome/free-solid-svg-icons'
+  RadioRounded,
+  AlbumRounded,
+  FavoriteRounded,
+  MusicNoteRounded,
+  BluetoothRounded,
+  PowerSettingsNewRounded,
+  VolumeDownRounded,
+  VolumeUpRounded,
+  NewReleasesRounded,
+  SkipPreviousRounded,
+  PlayArrowRounded,
+  PauseRounded,
+  SkipNextRounded,
+  LockRounded
+} from '@material-ui/icons'
 
 class App extends Component {
   state = {
@@ -44,24 +42,16 @@ class App extends Component {
     })
   }
   setPlaybackState = isPlaying => {
-    this.setState({
-      isPlaying
-    })
+    this.setState({ isPlaying })
   }
   setDevice = device => {
-    this.setState({
-      device
-    })
+    this.setState({ device })
   }
   setVolume = volume => {
-    this.setState({
-      volume
-    })
+    this.setState({ volume })
   }
   setTrack = activeTrack => {
-    this.setState({
-      activeTrack
-    })
+    this.setState({ activeTrack })
   }
   emit = (event, value) => {
     this.io.emit(event, value)
@@ -82,10 +72,12 @@ class App extends Component {
     }
   }
   onError = error => {
-    if (error.name === 'NoActiveDeviceError') {//TODO
+    if (error.name === 'NoAccessToken') {
+      this.io.emit('initiate', { accessToken: getToken() })
+    } else if (error.name === 'NoActiveDeviceError') {
       this.emit('transfer_playback', { id: process.env.REACT_APP_PI_ID })
     } else if (error === 'The access token expired') {
-      this.refreshToken();
+      this.refreshToken()
     } else {
       this.setState({ error: error.message || error })
     }
@@ -143,7 +135,7 @@ class App extends Component {
       <div className="App">
         <main>
           <div className="Container">
-            <div className="Controls Colors">
+            <div className="Colors Controls">
               <div
                 onClick={() => post(process.env.REACT_APP_HUE_API, { state: false })}></div>
               <div
@@ -156,37 +148,25 @@ class App extends Component {
                 onClick={() => post(process.env.REACT_APP_HUE_API, { state: true, 'color': '#FF96CA' })}></div>
             </div>
             <div className="Controls">
-              <FontAwesomeIcon
+              <RadioRounded
                 onClick={() => post(process.env.REACT_APP_HK_API, { func: 'selectSource', param: 'Radio' })}
-                size="xs"
-                icon={faBroadcastTower}
               />
-              <FontAwesomeIcon
+              <MusicNoteRounded
                 onClick={() => post(process.env.REACT_APP_HK_API, { func: 'selectSource', param: 'TV' })}
-                size="xs"
-                icon={faMusic}
               />
-              <FontAwesomeIcon
+              <BluetoothRounded
                 onClick={() => post(process.env.REACT_APP_S_API)}
-                size="xs"
-                icon={faBluetoothB}
               />
-              <FontAwesomeIcon
+              <PowerSettingsNewRounded
                 onClick={() => post(process.env.REACT_APP_HK_API, { func: 'off' })}
-                size="xs"
-                icon={faPowerOff}
               />
             </div>
-            <div className="Controls">
-              <FontAwesomeIcon
+            <div className="Controls Large">
+              <VolumeDownRounded
                 onClick={() => post(process.env.REACT_APP_HK_API, { func: 'volumeDown' })}
-                size="lg"
-                icon={faVolumeDown}
               />
-              <FontAwesomeIcon
+              <VolumeUpRounded
                 onClick={() => post(process.env.REACT_APP_HK_API, { func: 'volumeUp' })}
-                size="lg"
-                icon={faVolumeUp}
               />
             </div>
             {authorised ? (
@@ -197,10 +177,7 @@ class App extends Component {
                       <img src={activeTrack.album.images[0].url}
                         alt={`${activeTrack.name} - ${activeTrack.artists[0].name}`}
                       />) : (
-                        <FontAwesomeIcon
-                          icon={faCompactDisc}
-                          size="8x"
-                        />
+                        <AlbumRounded />
                       )}
                     <div
                       style={{ transform: `rotate(${-180 + this.state.progressPercent * 180 / 100}deg)` }}
@@ -211,28 +188,28 @@ class App extends Component {
                     {activeTrack.name}<br /><span className="Dark">{activeTrack.artists[0].name}</span>
                   </h4>
                   <div className="Controls">
-                    <FontAwesomeIcon
+                    <NewReleasesRounded
                       onClick={() => this.emit('play', { context_uri: process.env.REACT_APP_DISCOVER_WEEKLY })}
-                      size="xs"
-                      icon={faMagic}
                     />
-                    <FontAwesomeIcon
+                    <SkipPreviousRounded
                       onClick={() => this.emit('previous_track')}
-                      icon={faStepBackward}
                     />
-                    <FontAwesomeIcon
-                      onClick={() => this.emit(isPlaying ? 'pause' : 'play')}
-                      size="lg"
-                      icon={isPlaying ? faPause : faPlay}
-                    />
-                    <FontAwesomeIcon
+                    <span className="Large">
+                      {isPlaying ? (
+                        <PauseRounded
+                          onClick={() => this.emit('pause')}
+                        />
+                      ) : (
+                          <PlayArrowRounded
+                            onClick={() => this.emit('play')}
+                          />
+                        )}
+                    </span>
+                    <SkipNextRounded
                       onClick={() => this.emit('next_track')}
-                      icon={faStepForward}
                     />
-                    <FontAwesomeIcon
+                    <FavoriteRounded
                       onClick={() => this.emit('play', { context_uri: process.env.REACT_APP_LIKES })}
-                      size="xs"
-                      icon={faHeart}
                     />
                   </div>
                   <div className="Volume">
@@ -249,17 +226,11 @@ class App extends Component {
               ) : error ? (
                 <div className="Container">{error}</div>
               ) : (
-                    <div>
-                      <Loader type="MutatingDots" color="#222" />
-                    </div>
+                    <CircularProgress color="inherit" size="5rem" />
                   )
             ) : (
-                <div className="Authorise">
-                  <FontAwesomeIcon
-                    onClick={this.authorise}
-                    size="lg"
-                    icon={faSpotify}
-                  />
+                <div className="Controls Large">
+                  <LockRounded onClick={this.authorise} />
                 </div>
               )}</div>
         </main>

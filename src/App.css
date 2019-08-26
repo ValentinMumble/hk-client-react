@@ -4,8 +4,16 @@
   font-size: 40pt;
 }
 
+.App .MuiSvgIcon-root {
+  font-size: inherit;
+}
+
 .Dark {
   color: var(--gray-active);
+}
+
+.Large {
+  font-size: 1.5em;
 }
 
 main {
@@ -28,6 +36,7 @@ main>.Container {
 .Artwork {
   position: relative;
   display: flex;
+  font-size: 400px;
   width: 400px;
   height: 250px;
   overflow: hidden;
@@ -61,11 +70,17 @@ main>.Container {
   align-items: center;
 }
 
-.Controls>* {
-  margin: 0 1rem;
+.App .Controls>* {
+  transition: all .1s ease;
+  display: flex;
+  margin: 0 .7rem;
   cursor: pointer;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
+}
+
+.Controls>*:hover {
+  transform: scale(1.1);
 }
 
 .Controls>*:active {
@@ -81,7 +96,8 @@ main>.Container {
   color: inherit;
 }
 
-.Volume .MuiSlider-rail, .Volume .MuiSlider-track {
+.Volume .MuiSlider-rail,
+.Volume .MuiSlider-track {
   height: 7px;
 }
 
@@ -95,10 +111,6 @@ main>.Container {
 .Volume .MuiSlider-valueLabel {
   left: calc(-50% + 19px);
   font-family: inherit;
-}
-
-.Authorise>* {
-  cursor: pointer;
 }
 
 .Colors>div {
