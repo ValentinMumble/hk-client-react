@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import './App.css'
-import { checkToken, refreshToken, getToken, login, post } from './auth'
+import { checkToken, refreshToken, getAccessToken, login, logout, api } from './auth'
 import openSocket from 'socket.io-client'
 import { Slider, CircularProgress } from '@material-ui/core'
 import {
@@ -30,9 +30,11 @@ class App extends Component {
     }
   }
   authorise = () => {
-    login()
-      .then(() => this.setState({ authorised: true }))
-      .then(this.setupConnect)
+    api(process.env.REACT_APP_SERVER_URL + '/authorise-url').then(data => {
+      login(data.url)
+        .then(() => this.setState({ authorised: true }))
+        .then(this.setupConnect)
+    })
   }
   setProgress = (progress, timestamp) => {
     const trackLength = this.state.activeTrack.duration_ms
@@ -54,6 +56,7 @@ class App extends Component {
     this.setState({ activeTrack })
   }
   emit = (event, value) => {
+    console.info('Emit', event, value)
     this.io.emit(event, value)
 
     // optimistic updates
@@ -73,11 +76,13 @@ class App extends Component {
   }
   onError = error => {
     if (error.name === 'NoAccessToken') {
-      this.io.emit('initiate', { accessToken: getToken() })
+      this.emit('initiate', { accessToken: getAccessToken() })
     } else if (error.name === 'NoActiveDeviceError') {
       this.emit('transfer_playback', { id: process.env.REACT_APP_PI_ID })
     } else if (error === 'The access token expired') {
       this.refreshToken()
+    } else if (error === 'Invalid access token') {
+      logout()
     } else {
       this.setState({ error: error.message || error })
     }
@@ -88,14 +93,13 @@ class App extends Component {
     })
   }
   setupConnect = () => {
-    const io = openSocket(process.env.REACT_APP_SOCKET_URL)
+    const io = openSocket(process.env.REACT_APP_SERVER_URL + '/connect')
     const wrappedHandler = (event, handler) => {
       io.on(event, data => {
         console.info(event, data)
         handler(data)
       })
     }
-    io.emit('initiate', { accessToken: getToken() })
     wrappedHandler('initial_state', state => {
       this.setVolume(state.device.volume_percent)
       this.setDevice(state.device)
@@ -119,6 +123,7 @@ class App extends Component {
     wrappedHandler('connect_error', this.onError)
 
     this.io = io
+    this.emit('initiate', { accessToken: getAccessToken() })
 
     window.setInterval(this.refreshToken, 55 * 60 * 1000) // 55 minutes
   }
@@ -137,36 +142,36 @@ class App extends Component {
           <div className="Container">
             <div className="Colors Controls">
               <div
-                onClick={() => post(process.env.REACT_APP_HUE_API, { state: false })}></div>
+                onClick={() => api(process.env.REACT_APP_HUE_API, { data: { state: false }, method: 'POST' })}></div>
               <div
-                onClick={() => post(process.env.REACT_APP_HUE_API, { state: true, 'color': '#ffffff' })}></div>
+                onClick={() => api(process.env.REACT_APP_HUE_API, { data: { state: true, 'color': '#ffffff' }, method: 'POST' })}></div>
               <div
-                onClick={() => post(process.env.REACT_APP_HUE_API, { state: true, 'color': '#ffaa71' })}></div>
+                onClick={() => api(process.env.REACT_APP_HUE_API, { data: { state: true, 'color': '#ffaa71' }, method: 'POST' })}></div>
               <div
-                onClick={() => post(process.env.REACT_APP_HUE_API, { state: true, 'color': '#01A7C2' })}></div>
+                onClick={() => api(process.env.REACT_APP_HUE_API, { data: { state: true, 'color': '#01A7C2' }, method: 'POST' })}></div>
               <div
-                onClick={() => post(process.env.REACT_APP_HUE_API, { state: true, 'color': '#FF96CA' })}></div>
+                onClick={() => api(process.env.REACT_APP_HUE_API, { data: { state: true, 'color': '#FF96CA' }, method: 'POST' })}></div>
             </div>
             <div className="Controls">
               <RadioRounded
-                onClick={() => post(process.env.REACT_APP_HK_API, { func: 'selectSource', param: 'Radio' })}
+                onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'selectSource', param: 'Radio' }, method: 'POST' })}
               />
               <MusicNoteRounded
-                onClick={() => post(process.env.REACT_APP_HK_API, { func: 'selectSource', param: 'TV' })}
+                onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'selectSource', param: 'TV' }, method: 'POST' })}
               />
               <BluetoothRounded
-                onClick={() => post(process.env.REACT_APP_S_API)}
+                onClick={() => api(process.env.REACT_APP_S_API, { method: 'POST' })}
               />
               <PowerSettingsNewRounded
-                onClick={() => post(process.env.REACT_APP_HK_API, { func: 'off' })}
+                onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'off' }, method: 'POST' })}
               />
             </div>
             <div className="Controls Large">
               <VolumeDownRounded
-                onClick={() => post(process.env.REACT_APP_HK_API, { func: 'volumeDown' })}
+                onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'volumeDown' }, method: 'POST' })}
               />
               <VolumeUpRounded
-                onClick={() => post(process.env.REACT_APP_HK_API, { func: 'volumeUp' })}
+                onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'volumeUp' }, method: 'POST' })}
               />
             </div>
             {authorised ? (
