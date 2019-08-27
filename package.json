@@ -3,7 +3,7 @@
   "description": "HK React",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ValentinMumble/www/tree/master/hk"
+    "url": "https://github.com/ValentinMumble/www/tree/master/hk/react-client"
   },
   "homepage": "https://vmumble.ddns.net/hkr/",
   "version": "0.1.0",
@@ -13,7 +13,6 @@
   "dependencies": {
     "@material-ui/core": "^4.3.3",
     "@material-ui/icons": "^4.2.1",
-    "dotenv": "^8.0.0",
     "query-string": "^6.8.2",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
