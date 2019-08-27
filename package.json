@@ -5,7 +5,7 @@
     "type": "git",
     "url": "https://github.com/ValentinMumble/www/tree/master/hk/react-client"
   },
-  "homepage": "https://vmumble.ddns.net/hkr/",
+  "homepage": "https://vmumble.ddns.net/hk/",
   "version": "0.1.0",
   "main": "index.js",
   "author": "Valentin Dijkstra",
