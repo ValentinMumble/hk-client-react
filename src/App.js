@@ -160,7 +160,7 @@ class App extends Component {
                 onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'selectSource', param: 'TV' }, method: 'POST' })}
               />
               <BluetoothRounded
-                onClick={() => api(process.env.REACT_APP_S_API, { method: 'POST' })}
+                onClick={() => api(process.env.REACT_APP_SERVER_URL + '/bluetooth/reset')}
               />
               <PowerSettingsNewRounded
                 onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'off' }, method: 'POST' })}
