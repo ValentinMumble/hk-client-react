@@ -83,14 +83,16 @@ export const checkToken = () => {//TODO
   return true
 }
 
-export const api = async (url, { data = {}, method = 'GET' } = {}) => {
-  const response = await fetch(url, {
+export const api = async (uri, { data = {}, method = 'GET' } = {}) => {
+  const response = await fetch(uri, {
     method,
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/x-www-form-urlencoded' //Fucking CORS
     },
     body: Object.entries(data).length === 0 ? null : qs.stringify(data)
-  });
-  return await response.json();
+  })
+  const json = await response.json()
+  console.log('api', json)
+  return json
 }

@@ -142,15 +142,15 @@ class App extends Component {
           <div className="Container">
             <div className="Colors Controls">
               <div
-                onClick={() => api(process.env.REACT_APP_HUE_API, { data: { state: false }, method: 'POST' })}></div>
+                onClick={() => api(process.env.REACT_APP_SERVER_URL + '/hue/off')}></div>
               <div
-                onClick={() => api(process.env.REACT_APP_HUE_API, { data: { state: true, 'color': '#ffffff' }, method: 'POST' })}></div>
+                onClick={() => api(process.env.REACT_APP_SERVER_URL + '/hue/on/ffffff')}></div>
               <div
-                onClick={() => api(process.env.REACT_APP_HUE_API, { data: { state: true, 'color': '#ffaa71' }, method: 'POST' })}></div>
+                onClick={() => api(process.env.REACT_APP_SERVER_URL + '/hue/on/ffaa71')}></div>
               <div
-                onClick={() => api(process.env.REACT_APP_HUE_API, { data: { state: true, 'color': '#01A7C2' }, method: 'POST' })}></div>
+                onClick={() => api(process.env.REACT_APP_SERVER_URL + '/hue/on/01A7C2')}></div>
               <div
-                onClick={() => api(process.env.REACT_APP_HUE_API, { data: { state: true, 'color': '#FF96CA' }, method: 'POST' })}></div>
+                onClick={() => api(process.env.REACT_APP_SERVER_URL + '/hue/on/FF96CA')}></div>
             </div>
             <div className="Controls">
               <RadioRounded
