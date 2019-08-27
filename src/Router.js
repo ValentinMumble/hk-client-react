@@ -7,7 +7,7 @@ import Callback from './Callback'
 export default () => (
   <Router basename="/hkr">
     <Switch>
-      <Route exact path="/callback/" component={Callback} />
+      <Route exact path="/callback" component={Callback} />
       <Route exact path="*" component={App} />
     </Switch>
   </Router>
