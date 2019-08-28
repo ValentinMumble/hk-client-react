@@ -1,21 +1,19 @@
 import React from 'react'
 import './index.css'
 import qs from 'query-string'
-import { storeToken, api } from './auth'
+import { api } from './App'
 
 export default () => {
   const parsed = qs.parse(window.location.search)
 
-  api(`${process.env.REACT_APP_SERVER_URL}/access-token/${parsed.code}`).then(data => {
-    const { accessToken, refreshToken, expiration } = data
+  api(`${process.env.REACT_APP_SERVER_URL}/spotify/authorise/${parsed.code}`).then(data => {
     window.addEventListener('message', event => {
       if (event.data === 'login') {
-        event.source.postMessage(qs.stringify({ accessToken, refreshToken, expiration }), event.origin)
+        event.source.postMessage(JSON.stringify(data.accessToken), event.origin)
         window.close()
       }
     })
     window.setTimeout(() => {
-      storeToken(accessToken, refreshToken, expiration)
       window.close()
     }, 1500)
   })
