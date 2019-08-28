@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import './App.css'
 import openSocket from 'socket.io-client'
 import qs from 'query-string'
-import { Slider, CircularProgress } from '@material-ui/core'
+import { Snackbar, Slider, CircularProgress } from '@material-ui/core'
 import {
   RadioRounded,
   AlbumRounded,
@@ -38,7 +38,8 @@ export const api = async (uri, { data = {}, method = 'GET' } = {}) => {
 class App extends Component {
   state = {
     authorised: true,
-    pickerVisible: false
+    pickerVisible: false,
+    snackbar: { opened: false, message: '' }
   }
   componentDidMount() {
     api(process.env.REACT_APP_SERVER_URL + '/spotify/access-token').then(data => {
@@ -154,6 +155,12 @@ class App extends Component {
 
     window.setInterval(this.refreshToken, 55 * 60 * 1000) // 55 minutes
   }
+  snack = message => {
+    if (message) this.setState({ snackbar: { opened: true, message } })
+  }
+  onApi = json => {
+    this.snack(json.error || json.message)
+  }
   render() {
     const {
       error,
@@ -162,48 +169,56 @@ class App extends Component {
       playerReady,
       isPlaying,
       volume,
-      pickerVisible
+      pickerVisible,
+      snackbar
     } = this.state
     return (
       <div className="App">
         <main>
+          <Snackbar
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            open={snackbar.opened}
+            autoHideDuration={3000}
+            onClose={() => this.setState({ snackbar: { ...snackbar, opened: false } })}
+            message={snackbar.message}
+          />
           <div className="Container">
             <div className="Controls Small">
               <RadioRounded
-                onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'selectSource', param: 'Radio' }, method: 'POST' })}
+                onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'selectSource', param: 'Radio' }, method: 'POST' }).then(this.onApi)}
               />
               <MusicNoteRounded
-                onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'selectSource', param: 'TV' }, method: 'POST' })}
+                onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'selectSource', param: 'TV' }, method: 'POST' }).then(this.onApi)}
               />
               <WbIncandescentRounded
                 onClick={() => this.setState({ pickerVisible: !pickerVisible })}
               />
               <BluetoothRounded
-                onClick={() => api(process.env.REACT_APP_SERVER_URL + '/bluetooth/reset')}
+                onClick={() => api(process.env.REACT_APP_SERVER_URL + '/bluetooth/reset').then(this.onApi)}
               />
               <PowerSettingsNewRounded
-                onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'off' }, method: 'POST' })}
+                onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'off' }, method: 'POST' }).then(this.onApi)}
               />
             </div>
             {pickerVisible && (
               <div className="Colors">
                 <div
-                  onClick={() => api(process.env.REACT_APP_SERVER_URL + '/hue/off')}></div>
+                  onClick={() => api(process.env.REACT_APP_SERVER_URL + '/hue/off').then(this.onApi)}></div>
                 <div
-                  onClick={() => api(process.env.REACT_APP_SERVER_URL + '/hue/on/ffffff')}></div>
+                  onClick={() => api(process.env.REACT_APP_SERVER_URL + '/hue/on/ffffff').then(this.onApi)}></div>
                 <div
-                  onClick={() => api(process.env.REACT_APP_SERVER_URL + '/hue/on/ffaa71')}></div>
+                  onClick={() => api(process.env.REACT_APP_SERVER_URL + '/hue/on/ffaa71').then(this.onApi)}></div>
                 <div
-                  onClick={() => api(process.env.REACT_APP_SERVER_URL + '/hue/on/01A7C2')}></div>
+                  onClick={() => api(process.env.REACT_APP_SERVER_URL + '/hue/on/01A7C2').then(this.onApi)}></div>
                 <div
-                  onClick={() => api(process.env.REACT_APP_SERVER_URL + '/hue/on/FF96CA')}></div>
+                  onClick={() => api(process.env.REACT_APP_SERVER_URL + '/hue/on/FF96CA').then(this.onApi)}></div>
               </div>)}
             <div className="Controls Large">
               <VolumeDownRounded
-                onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'volumeDown' }, method: 'POST' })}
+                onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'volumeDown' }, method: 'POST' }).then(this.onApi)}
               />
               <VolumeUpRounded
-                onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'volumeUp' }, method: 'POST' })}
+                onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'volumeUp' }, method: 'POST' }).then(this.onApi)}
               />
             </div>
             {authorised ? (
@@ -222,7 +237,7 @@ class App extends Component {
                     ></div>
                   </div>
                   <h4 className="Title"
-                    onClick={() => api(`${process.env.REACT_APP_SERVER_URL}/spotify/addok/${activeTrack.uri}`)}
+                    onClick={() => api(`${process.env.REACT_APP_SERVER_URL}/spotify/addok/${activeTrack.uri}`).then(this.onApi)}
                   >
                     {activeTrack.name}<br /><span className="Dark">{activeTrack.artists[0].name}</span>
                   </h4>
