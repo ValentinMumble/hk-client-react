@@ -31,7 +31,7 @@ class App extends Component {
       authorized: true,
       //pickerVisible: false,
       snackbar: { opened: false },
-      theme: withPrimary('#777')
+      theme: withPrimary('#000')
     }
     this.fac = new FastAverageColor()
   }
@@ -60,8 +60,12 @@ class App extends Component {
     this.setState({ volume })
   }
   setTrack = activeTrack => {
-    if (activeTrack.album.images.length > 0) fetchImage(activeTrack.album.images[0].url, this.onArtwork)
     this.setState({ activeTrack })
+    if (activeTrack.album.images.length > 0) {
+      fetchImage(activeTrack.album.images[0].url, this.onArtwork)
+    } else {
+      this.setState({ theme: withPrimary('#777') })
+    }
   }
   emit = (event, value) => {
     console.info('Emit', event, value)
@@ -175,46 +179,48 @@ class App extends Component {
               message={snackbar.message}
             />
             <div className="Container">
-              <div className="Controls Small">
-                <IconButton onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'selectSource', param: 'Radio' }, method: 'POST' }).then(this.onApi)}>
-                  <RadioRounded />
-                </IconButton>
-                <IconButton onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'selectSource', param: 'TV' }, method: 'POST' }).then(this.onApi)}>
-                  <MusicNoteRounded />
-                </IconButton>
-                <IconButton onClick={() => this.setState({ pickerVisible: !pickerVisible })}>
-                  <WbIncandescentRounded />
-                </IconButton>
-                <IconButton onClick={() => api(process.env.REACT_APP_SERVER_URL + '/bluetooth/reset').then(this.onApi)}>
-                  <BluetoothRounded />
-                </IconButton>
-                <IconButton onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'off' }, method: 'POST' }).then(this.onApi)}>
-                  <PowerSettingsNewRounded />
-                </IconButton>
-              </div>
-              {pickerVisible && (
-                <div className="Colors">
-                  <div
-                    onClick={() => api(process.env.REACT_APP_SERVER_URL + '/hue/off').then(this.onApi)}></div>
-                  <div
-                    onClick={() => api(process.env.REACT_APP_SERVER_URL + '/hue/on/ffffff').then(this.onApi)}></div>
-                  <div
-                    onClick={() => api(process.env.REACT_APP_SERVER_URL + '/hue/on/ffaa71').then(this.onApi)}></div>
-                  <div
-                    onClick={() => api(process.env.REACT_APP_SERVER_URL + '/hue/on/01A7C2').then(this.onApi)}></div>
-                  <div
-                    onClick={() => api(process.env.REACT_APP_SERVER_URL + '/hue/on/FF96CA').then(this.onApi)}></div>
-                </div>)}
-              <div className="Controls Large">
-                <IconButton onClick={() => this.snack('Coucu', 1000)}>
-                  <VolumeDownRounded />
-                </IconButton>
-                <IconButton onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'volumeDown' }, method: 'POST' }).then(this.onApi)}>
-                  <VolumeDownRounded />
-                </IconButton>
-                <IconButton onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'volumeUp' }, method: 'POST' }).then(this.onApi)}>
-                  <VolumeUpRounded />
-                </IconButton>
+              <div className="Container Top">
+                <div className="Small">
+                  <IconButton onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'selectSource', param: 'Radio' }, method: 'POST' }).then(this.onApi)}>
+                    <RadioRounded />
+                  </IconButton>
+                  <IconButton onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'selectSource', param: 'TV' }, method: 'POST' }).then(this.onApi)}>
+                    <MusicNoteRounded />
+                  </IconButton>
+                  <IconButton onClick={() => this.setState({ pickerVisible: !pickerVisible })}>
+                    <WbIncandescentRounded />
+                  </IconButton>
+                  <IconButton onClick={() => api(process.env.REACT_APP_SERVER_URL + '/bluetooth/reset').then(this.onApi)}>
+                    <BluetoothRounded />
+                  </IconButton>
+                  <IconButton onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'off' }, method: 'POST' }).then(this.onApi)}>
+                    <PowerSettingsNewRounded />
+                  </IconButton>
+                </div>
+                {pickerVisible && (
+                  <div className="Colors">
+                    <div
+                      onClick={() => api(process.env.REACT_APP_SERVER_URL + '/hue/off').then(this.onApi)}></div>
+                    <div
+                      onClick={() => api(process.env.REACT_APP_SERVER_URL + '/hue/on/ffffff').then(this.onApi)}></div>
+                    <div
+                      onClick={() => api(process.env.REACT_APP_SERVER_URL + '/hue/on/ffaa71').then(this.onApi)}></div>
+                    <div
+                      onClick={() => api(process.env.REACT_APP_SERVER_URL + '/hue/on/01A7C2').then(this.onApi)}></div>
+                    <div
+                      onClick={() => api(process.env.REACT_APP_SERVER_URL + '/hue/on/FF96CA').then(this.onApi)}></div>
+                  </div>)}
+                <div className="Large">
+                  <IconButton onClick={() => this.snack('Coucu', 1000)}>
+                    <VolumeDownRounded />
+                  </IconButton>
+                  <IconButton onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'volumeDown' }, method: 'POST' }).then(this.onApi)}>
+                    <VolumeDownRounded />
+                  </IconButton>
+                  <IconButton onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'volumeUp' }, method: 'POST' }).then(this.onApi)}>
+                    <VolumeUpRounded />
+                  </IconButton>
+                </div>
               </div>
               {this.state.authorized ? (
                 this.state.playerReady ? (
@@ -238,7 +244,7 @@ class App extends Component {
                     >
                       {activeTrack.name}<br /><span className="Dark">{activeTrack.artists[0].name}</span>
                     </Typography>
-                    <div className="Controls">
+                    <div>
                       <IconButton onClick={() => this.emit('play', { context_uri: process.env.REACT_APP_SPO_DISCOVER_WEEKLY_URI })}>
                         <NewReleasesRounded />
                       </IconButton>
@@ -276,7 +282,7 @@ class App extends Component {
                 ) : this.state.error ? (
                   <div className="Container">{this.state.error}</div>
                 ) : (
-                      <CircularProgress size="5rem" />
+                      <CircularProgress color="inherit" size="5rem" />
                     )
               ) : (
                   <div className="Controls Large">

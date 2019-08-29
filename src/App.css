@@ -1,7 +1,7 @@
 .App {
   display: grid;
   height: 100vh;
-  font-size: 40pt;
+  font-size: 50pt;
 }
 
 .Dark {
@@ -33,6 +33,10 @@ main>.Container {
   align-items: center;
 }
 
+.Top {
+  height: 150px;
+}
+
 .Artwork {
   position: relative;
   font-size: 400px; /* When no artwork */
@@ -59,17 +63,13 @@ main>.Container {
 
 .Title {
   text-align: center;
-  white-space: nowrap;
-}
-
-.Controls {
-  display: flex;
-  align-items: center;
+  max-width: 400px;
+  height: 50px;
+  display: grid;
 }
 
 .Volume {
   width: 85%;
-  margin-top: 15px;
 }
 
 .Colors {
