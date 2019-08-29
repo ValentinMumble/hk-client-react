@@ -1,9 +1,10 @@
 import React, { Component } from 'react'
 import './App.css'
+import { withPrimary } from './theme'
+import { api, fetchImage } from './util'
 import openSocket from 'socket.io-client'
-import qs from 'query-string'
 import FastAverageColor from 'fast-average-color'
-import { Snackbar, Slider, CircularProgress, createMuiTheme, Typography } from '@material-ui/core'
+import { Snackbar, Slider, CircularProgress, IconButton, Typography } from '@material-ui/core'
 import { ThemeProvider } from '@material-ui/styles';
 import {
   RadioRounded,
@@ -23,53 +24,13 @@ import {
   WbIncandescentRounded
 } from '@material-ui/icons'
 
-export const api = async (uri, { data = {}, method = 'GET' } = {}) => {
-  const response = await fetch(uri, {
-    method,
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/x-www-form-urlencoded' //Fucking CORS
-    },
-    body: Object.entries(data).length === 0 ? null : qs.stringify(data)
-  })
-  const json = await response.json()
-  console.log('api', json)
-  return json
-}
-
-const fetchImage = (url, callback) => {
-  let downloadedImg = new Image()
-  downloadedImg.crossOrigin = 'Anonymous'
-  downloadedImg.src = url
-  downloadedImg.addEventListener('load', () => {
-    let canvas = document.createElement('canvas')
-    let context = canvas.getContext('2d')
-    canvas.width = downloadedImg.width
-    canvas.height = downloadedImg.height
-    context.drawImage(downloadedImg, 0, 0)
-    callback(canvas.toDataURL('image/png'))
-  })
-}
-
-const withPrimary = color => {
-  return createMuiTheme({
-    palette: {
-      primary: { main: color },
-      text: { primary: color }
-    },
-    props: {
-      MuiSvgIcon: { color: 'primary' }
-    }
-  })
-}
-
 class App extends Component {
   constructor(props) {
     super(props)
     this.state = {
       authorized: true,
       //pickerVisible: false,
-      snackbar: { opened: false, message: '' },
+      snackbar: { opened: false },
       theme: withPrimary('#777')
     }
     this.fac = new FastAverageColor()
@@ -185,8 +146,8 @@ class App extends Component {
 
     window.setInterval(this.refreshToken, 55 * 60 * 1000) // 55 minutes
   }
-  snack = message => {
-    if (message) this.setState({ snackbar: { opened: true, message } })
+  snack = (message, duration = 3000) => {
+    if (message) this.setState({ snackbar: { opened: true, message, duration } })
   }
   onApi = json => {
     this.snack(json.error || json.message)
@@ -209,27 +170,32 @@ class App extends Component {
             <Snackbar
               anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
               open={snackbar.opened}
-              autoHideDuration={3000}
+              autoHideDuration={snackbar.duration}
               onClose={() => this.setState({ snackbar: { ...snackbar, opened: false } })}
               message={snackbar.message}
             />
             <div className="Container">
               <div className="Controls Small">
-                <RadioRounded
-                  onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'selectSource', param: 'Radio' }, method: 'POST' }).then(this.onApi)}
-                />
-                <MusicNoteRounded
-                  onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'selectSource', param: 'TV' }, method: 'POST' }).then(this.onApi)}
-                />
-                <WbIncandescentRounded
-                  onClick={() => this.setState({ pickerVisible: !pickerVisible })}
-                />
-                <BluetoothRounded
-                  onClick={() => api(process.env.REACT_APP_SERVER_URL + '/bluetooth/reset').then(this.onApi)}
-                />
-                <PowerSettingsNewRounded
-                  onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'off' }, method: 'POST' }).then(this.onApi)}
-                />
+                <IconButton
+                  onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'selectSource', param: 'Radio' }, method: 'POST' }).then(this.onApi)}>
+                  <RadioRounded />
+                </IconButton>
+                <IconButton
+                  onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'selectSource', param: 'TV' }, method: 'POST' }).then(this.onApi)}>
+                  <MusicNoteRounded />
+                </IconButton>
+                <IconButton
+                  onClick={() => this.setState({ pickerVisible: !pickerVisible })}>
+                  <WbIncandescentRounded />
+                </IconButton>
+                <IconButton
+                  onClick={() => api(process.env.REACT_APP_SERVER_URL + '/bluetooth/reset').then(this.onApi)}>
+                  <BluetoothRounded />
+                </IconButton>
+                <IconButton
+                  onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'off' }, method: 'POST' }).then(this.onApi)}>
+                  <PowerSettingsNewRounded />
+                </IconButton>
               </div>
               {pickerVisible && (
                 <div className="Colors">
@@ -245,12 +211,18 @@ class App extends Component {
                     onClick={() => api(process.env.REACT_APP_SERVER_URL + '/hue/on/FF96CA').then(this.onApi)}></div>
                 </div>)}
               <div className="Controls Large">
-                <VolumeDownRounded
-                  onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'volumeDown' }, method: 'POST' }).then(this.onApi)}
-                />
-                <VolumeUpRounded
-                  onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'volumeUp' }, method: 'POST' }).then(this.onApi)}
-                />
+                <IconButton
+                  onClick={() => this.snack('Coucu', 1000)}>
+                  <VolumeDownRounded />
+                </IconButton>
+                <IconButton
+                  onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'volumeDown' }, method: 'POST' }).then(this.onApi)}>
+                  <VolumeDownRounded />
+                </IconButton>
+                <IconButton
+                  onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'volumeUp' }, method: 'POST' }).then(this.onApi)}>
+                  <VolumeUpRounded />
+                </IconButton>
               </div>
               {this.state.authorized ? (
                 this.state.playerReady ? (
@@ -266,40 +238,41 @@ class App extends Component {
                         className="Progress"
                       ></div>
                     </div>
-                    <h4 className="Title"
+                    <Typography className="Title" variant="h5" color="primary"
                       onClick={() => api(`${process.env.REACT_APP_SERVER_URL}/spotify/addok/${activeTrack.uri}`).then(json => {
                         if (json.data.body.snapshot_id) json.message = activeTrack.name + ' added to playlist OK!'
                         this.onApi(json)
                       })}
                     >
-                      <Typography color="primary">
-                        {activeTrack.name}<br /><span className="Dark">{activeTrack.artists[0].name}</span>
-                      </Typography>
-                    </h4>
+                      {activeTrack.name}<br /><span className="Dark">{activeTrack.artists[0].name}</span>
+                    </Typography>
                     <div className="Controls">
-                      <NewReleasesRounded
-                        onClick={() => this.emit('play', { context_uri: process.env.REACT_APP_SPO_DISCOVER_WEEKLY_URI })}
-                      />
-                      <SkipPreviousRounded
-                        onClick={() => this.emit('previous_track')}
-                      />
-                      <span className="Large">
-                        {this.state.isPlaying ? (
-                          <PauseRounded
-                            onClick={() => this.emit('pause')}
-                          />
-                        ) : (
-                            <PlayArrowRounded
-                              onClick={() => this.emit('play')}
-                            />
-                          )}
+                      <IconButton
+                        onClick={() => this.emit('play', { context_uri: process.env.REACT_APP_SPO_DISCOVER_WEEKLY_URI })}>
+                        <NewReleasesRounded />
+                      </IconButton>
+                      <IconButton
+                        onClick={() => this.emit('previous_track')}>
+                        <SkipPreviousRounded />
+                      </IconButton>
+                      <span >
+                        <IconButton className="Large"
+                          onClick={() => this.emit(this.state.isPlaying ? 'pause' : 'play')}>
+                          {this.state.isPlaying ? (
+                            <PauseRounded />
+                          ) : (
+                              <PlayArrowRounded />
+                            )}
+                        </IconButton>
                       </span>
-                      <SkipNextRounded
-                        onClick={() => this.emit('next_track')}
-                      />
-                      <FavoriteRounded
-                        onClick={() => this.emit('play', { context_uri: process.env.REACT_APP_SPO_LIKES_URI })}
-                      />
+                      <IconButton
+                        onClick={() => this.emit('next_track')}>
+                        <SkipNextRounded />
+                      </IconButton>
+                      <IconButton
+                        onClick={() => this.emit('play', { context_uri: process.env.REACT_APP_SPO_LIKES_URI })}>
+                        <FavoriteRounded />
+                      </IconButton>
                     </div>
                     <div className="Volume">
                       <Slider
@@ -315,7 +288,7 @@ class App extends Component {
                 ) : this.state.error ? (
                   <div className="Container">{this.state.error}</div>
                 ) : (
-                      <CircularProgress color="inherit" size="5rem" />
+                      <CircularProgress size="5rem" />
                     )
               ) : (
                   <div className="Controls Large">
