@@ -13,6 +13,7 @@
   "dependencies": {
     "@material-ui/core": "^4.3.3",
     "@material-ui/icons": "^4.2.1",
+    "fast-average-color": "^5.2.0",
     "query-string": "^6.8.2",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
