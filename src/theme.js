@@ -25,10 +25,14 @@ export const withPrimary = color => {
       },
       MuiIconButton: {
         root: {
-          fontSize: 'inherit'
+          fontSize: 'inherit',
+          transition: 'all .5s ease'
         }
       },
       MuiSlider: {
+        root: {
+          transition: 'all .5s ease'
+        },
         rail: {
           height: 7
         },
@@ -48,7 +52,7 @@ export const withPrimary = color => {
       MuiTypography: {
         h5: {
           fontSize: '.3em',
-          margin: 15
+          margin: '20px 0'
         }
       }
     }
