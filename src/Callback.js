@@ -6,7 +6,7 @@ import { api } from './App'
 export default () => {
   const parsed = qs.parse(window.location.search)
 
-  api(`${process.env.REACT_APP_SERVER_URL}/spotify/authorise/${parsed.code}`).then(data => {
+  api(`${process.env.REACT_APP_SERVER_URL}/spotify/authorize/${parsed.code}`).then(data => {
     window.addEventListener('message', event => {
       if (event.data === 'login') {
         event.source.postMessage(JSON.stringify(data.accessToken), event.origin)

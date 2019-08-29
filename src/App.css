@@ -103,10 +103,6 @@ main>.Container {
   margin-top: 15px;
 }
 
-.Volume .MuiSlider-root {
-  color: inherit;
-}
-
 .Volume .MuiSlider-rail,
 .Volume .MuiSlider-track {
   height: 7px;
