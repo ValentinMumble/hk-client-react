@@ -3,7 +3,7 @@ import './App.css'
 import openSocket from 'socket.io-client'
 import qs from 'query-string'
 import FastAverageColor from 'fast-average-color'
-import { Snackbar, Slider, CircularProgress, createMuiTheme } from '@material-ui/core'
+import { Snackbar, Slider, CircularProgress, createMuiTheme, Typography } from '@material-ui/core'
 import { ThemeProvider } from '@material-ui/styles';
 import {
   RadioRounded,
@@ -54,7 +54,8 @@ const fetchImage = (url, callback) => {
 const withPrimary = color => {
   return createMuiTheme({
     palette: {
-      primary: { main: color }
+      primary: { main: color },
+      text: { primary: color }
     },
     props: {
       MuiSvgIcon: { color: 'primary' }
@@ -271,7 +272,9 @@ class App extends Component {
                         this.onApi(json)
                       })}
                     >
-                      {activeTrack.name}<br /><span className="Dark">{activeTrack.artists[0].name}</span>
+                      <Typography color="primary">
+                        {activeTrack.name}<br /><span className="Dark">{activeTrack.artists[0].name}</span>
+                      </Typography>
                     </h4>
                     <div className="Controls">
                       <NewReleasesRounded
