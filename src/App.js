@@ -176,24 +176,19 @@ class App extends Component {
             />
             <div className="Container">
               <div className="Controls Small">
-                <IconButton
-                  onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'selectSource', param: 'Radio' }, method: 'POST' }).then(this.onApi)}>
+                <IconButton onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'selectSource', param: 'Radio' }, method: 'POST' }).then(this.onApi)}>
                   <RadioRounded />
                 </IconButton>
-                <IconButton
-                  onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'selectSource', param: 'TV' }, method: 'POST' }).then(this.onApi)}>
+                <IconButton onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'selectSource', param: 'TV' }, method: 'POST' }).then(this.onApi)}>
                   <MusicNoteRounded />
                 </IconButton>
-                <IconButton
-                  onClick={() => this.setState({ pickerVisible: !pickerVisible })}>
+                <IconButton onClick={() => this.setState({ pickerVisible: !pickerVisible })}>
                   <WbIncandescentRounded />
                 </IconButton>
-                <IconButton
-                  onClick={() => api(process.env.REACT_APP_SERVER_URL + '/bluetooth/reset').then(this.onApi)}>
+                <IconButton onClick={() => api(process.env.REACT_APP_SERVER_URL + '/bluetooth/reset').then(this.onApi)}>
                   <BluetoothRounded />
                 </IconButton>
-                <IconButton
-                  onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'off' }, method: 'POST' }).then(this.onApi)}>
+                <IconButton onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'off' }, method: 'POST' }).then(this.onApi)}>
                   <PowerSettingsNewRounded />
                 </IconButton>
               </div>
@@ -211,16 +206,13 @@ class App extends Component {
                     onClick={() => api(process.env.REACT_APP_SERVER_URL + '/hue/on/FF96CA').then(this.onApi)}></div>
                 </div>)}
               <div className="Controls Large">
-                <IconButton
-                  onClick={() => this.snack('Coucu', 1000)}>
+                <IconButton onClick={() => this.snack('Coucu', 1000)}>
                   <VolumeDownRounded />
                 </IconButton>
-                <IconButton
-                  onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'volumeDown' }, method: 'POST' }).then(this.onApi)}>
+                <IconButton onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'volumeDown' }, method: 'POST' }).then(this.onApi)}>
                   <VolumeDownRounded />
                 </IconButton>
-                <IconButton
-                  onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'volumeUp' }, method: 'POST' }).then(this.onApi)}>
+                <IconButton onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'volumeUp' }, method: 'POST' }).then(this.onApi)}>
                   <VolumeUpRounded />
                 </IconButton>
               </div>
@@ -247,8 +239,7 @@ class App extends Component {
                       {activeTrack.name}<br /><span className="Dark">{activeTrack.artists[0].name}</span>
                     </Typography>
                     <div className="Controls">
-                      <IconButton
-                        onClick={() => this.emit('play', { context_uri: process.env.REACT_APP_SPO_DISCOVER_WEEKLY_URI })}>
+                      <IconButton onClick={() => this.emit('play', { context_uri: process.env.REACT_APP_SPO_DISCOVER_WEEKLY_URI })}>
                         <NewReleasesRounded />
                       </IconButton>
                       <IconButton
@@ -256,8 +247,7 @@ class App extends Component {
                         <SkipPreviousRounded />
                       </IconButton>
                       <span >
-                        <IconButton className="Large"
-                          onClick={() => this.emit(this.state.isPlaying ? 'pause' : 'play')}>
+                        <IconButton className="Large" onClick={() => this.emit(this.state.isPlaying ? 'pause' : 'play')}>
                           {this.state.isPlaying ? (
                             <PauseRounded />
                           ) : (
@@ -265,12 +255,10 @@ class App extends Component {
                             )}
                         </IconButton>
                       </span>
-                      <IconButton
-                        onClick={() => this.emit('next_track')}>
+                      <IconButton onClick={() => this.emit('next_track')}>
                         <SkipNextRounded />
                       </IconButton>
-                      <IconButton
-                        onClick={() => this.emit('play', { context_uri: process.env.REACT_APP_SPO_LIKES_URI })}>
+                      <IconButton onClick={() => this.emit('play', { context_uri: process.env.REACT_APP_SPO_LIKES_URI })}>
                         <FavoriteRounded />
                       </IconButton>
                     </div>
@@ -292,7 +280,9 @@ class App extends Component {
                     )
               ) : (
                   <div className="Controls Large">
-                    <LockRounded onClick={() => { this.login().then(this.setupConnect) }} />
+                    <IconButton onClick={() => { this.login().then(this.setupConnect) }}>
+                      <LockRounded />
+                    </IconButton>
                   </div>
                 )}</div>
           </main>
