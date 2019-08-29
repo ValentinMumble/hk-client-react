@@ -8,8 +8,12 @@
   font-size: inherit;
 }
 
+.App .MuiTypography-root {
+  font-family: inherit;
+}
+
 .Dark {
-  color: var(--gray-active);
+  opacity: .5;
 }
 
 .Small {
@@ -28,13 +32,13 @@ main {
 }
 
 main>.Container {
-  height: 100%;
+  height: 95%;
 }
 
 .Container {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-around;
   align-items: center;
 }
 
