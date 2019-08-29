@@ -1,7 +1,7 @@
 import React from 'react'
 import './index.css'
 import qs from 'query-string'
-import { api } from './App'
+import { api } from './util'
 
 export default () => {
   const parsed = qs.parse(window.location.search)
