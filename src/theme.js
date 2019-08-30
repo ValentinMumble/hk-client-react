@@ -26,12 +26,12 @@ export const withPrimary = color => {
       MuiIconButton: {
         root: {
           fontSize: 'inherit',
-          transition: 'all .5s ease'
+          transition: 'all .6s ease'
         }
       },
       MuiSlider: {
         root: {
-          transition: 'all .5s ease'
+          transition: 'all .6s ease'
         },
         rail: {
           height: 7
