@@ -39,7 +39,8 @@ main>.Container {
 
 .Artwork {
   position: relative;
-  font-size: 400px; /* When no artwork */
+  /* When no artwork */
+  font-size: 400px;
   width: 400px;
   height: 300px;
   overflow: hidden;
