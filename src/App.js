@@ -4,8 +4,8 @@ import { withPrimary } from './theme'
 import { api, fetchImage } from './util'
 import openSocket from 'socket.io-client'
 import FastAverageColor from 'fast-average-color'
-import { Snackbar, Slider, CircularProgress, IconButton, Typography } from '@material-ui/core'
-import { ThemeProvider } from '@material-ui/styles';
+import { Snackbar, Slider, CircularProgress, IconButton, Typography, SnackbarContent } from '@material-ui/core'
+import { ThemeProvider } from '@material-ui/styles'
 import {
   RadioRounded,
   AlbumRounded,
@@ -148,8 +148,8 @@ class App extends Component {
     this.io = io
     this.emit('initiate', { accessToken: this.state.accessToken })
   }
-  snack = (message, duration = 3000) => {
-    if (message) this.setState({ snackbar: { opened: true, message, duration } })
+  snack = (message, duration = 2000, color = this.state.theme.palette.primary.main) => {
+    if (message) this.setState({ snackbar: { ...this.state.snackbar, opened: true, message, duration, color } })
   }
   onApi = json => {
     this.snack(json.error || json.message)
@@ -173,9 +173,12 @@ class App extends Component {
               anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
               autoHideDuration={snackbar.duration}
               open={snackbar.opened}
-              onClose={() => this.setState({ snackbar: { ...snackbar, opened: false } })}
-              message={snackbar.message}
-            />
+              onClose={() => this.setState({ snackbar: { ...snackbar, opened: false } })}>
+              <SnackbarContent
+                style={{ backgroundColor: snackbar.color }}
+                message={snackbar.message}
+              />
+            </Snackbar>
             {this.state.loaded && (this.state.playerReady || this.state.error) ? (
               <div className="Container">
                 <div className="Container Top">
@@ -186,7 +189,7 @@ class App extends Component {
                     <IconButton onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'selectSource', param: 'TV' }, method: 'POST' }).then(this.onApi)}>
                       <MusicNoteRounded />
                     </IconButton>
-                    <IconButton onClick={() => this.setState({ pickerVisible: !pickerVisible })}>
+                    <IconButton onClick={() => this.snack('TODO', 1000, '#ff0000')}>
                       <WbIncandescentRounded />
                     </IconButton>
                     <IconButton onClick={() => api(process.env.REACT_APP_SERVER_URL + '/bluetooth/reset').then(this.onApi)}>
@@ -221,7 +224,7 @@ class App extends Component {
                 {this.state.authorized ? (
                   this.state.playerReady ? (
                     <div className="Container">
-                      <div className="Artwork" onClick={() => this.snack('Coucu', 1000)}>
+                      <div className="Artwork" onClick={() => this.snack('TODO', 1000)}>
                         {activeTrack.album.images.length > 0 ? (
                           <img id="artwork" src={activeTrack.album.images[0].url} alt={`${activeTrack.name} - ${activeTrack.artists[0].name}`} />
                         ) : (

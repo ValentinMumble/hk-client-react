@@ -1,7 +1,7 @@
 .App {
   display: grid;
   height: 100vh;
-  font-size: 50pt;
+  font-size: 7vh;
 }
 
 .Dark {
@@ -34,14 +34,14 @@ main>.Container {
 }
 
 .Top {
-  height: 150px;
+  height: 100px;
 }
 
 .Artwork {
   position: relative;
   /* When no artwork */
-  font-size: 400px;
-  width: 400px;
+  width: 90vw;
+  max-width: 450px;
   height: 300px;
   overflow: hidden;
 }
