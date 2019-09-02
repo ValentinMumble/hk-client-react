@@ -50,7 +50,7 @@ class App extends Component {
       progressPercent: progress / this.state.activeTrack.duration_ms * 100
     })
   }
-  setPlaybackState = isPlaying => {
+  setPlayback = isPlaying => {
     this.setState({ isPlaying })
   }
   setDevice = device => {
@@ -73,9 +73,9 @@ class App extends Component {
 
     // optimistic updates
     switch (event) {
-      case 'play': this.setPlaybackState(true)
+      case 'play': this.setPlayback(true)
         break
-      case 'pause': this.setPlaybackState(false)
+      case 'pause': this.setPlayback(false)
         break
       default:
         break
@@ -85,7 +85,7 @@ class App extends Component {
     if (error.name === 'NoAccessToken') {
       this.emit('initiate', { accessToken: this.state.accessToken })
     } else if (error.name === 'NoActiveDeviceError') {
-      this.emit('transfer_playback', { id: process.env.REACT_APP_PI_ID })
+      this.emit('transfer_playback', { id: process.env.REACT_APP_SPO_PI_ID })
     } else if (error === 'The access token expired') {
       this.refreshToken()
     } else {
@@ -126,20 +126,20 @@ class App extends Component {
     wrappedHandler('initial_state', state => {
       this.setVolume(state.device.volume_percent)
       this.setDevice(state.device)
-      this.setPlaybackState(state.is_playing)
+      this.setPlayback(state.is_playing)
       this.setTrack(state.item)
       this.setProgress(state.progress_ms)
       this.setState({ playerReady: true })
-      this.progressTimer = window.setInterval(() => {
-        if (this.state.isPlaying) {
-          this.setProgress(this.state.progress + 1000)
-        }
-      }, 1000)
+      // this.progressTimer = window.setInterval(() => { // TODO
+      //   if (this.state.isPlaying) {
+      //     this.setProgress(this.state.progress + 1000)
+      //   }
+      // }, 1000)
     })
     wrappedHandler('track_change', this.setTrack)
     wrappedHandler('seek', this.setProgress)
-    wrappedHandler('playback_started', () => this.setPlaybackState(true))
-    wrappedHandler('playback_paused', () => this.setPlaybackState(false))
+    wrappedHandler('playback_started', () => this.setPlayback(true))
+    wrappedHandler('playback_paused', () => this.setPlayback(false))
     wrappedHandler('device_change', this.setDevice)
     wrappedHandler('volume_change', this.setVolume)
     wrappedHandler('track_end', () => { })
@@ -147,8 +147,6 @@ class App extends Component {
 
     this.io = io
     this.emit('initiate', { accessToken: this.state.accessToken })
-
-    window.setInterval(this.refreshToken, 55 * 60 * 1000) // 55 minutes
   }
   snack = (message, duration = 3000) => {
     if (message) this.setState({ snackbar: { opened: true, message, duration } })
@@ -156,10 +154,10 @@ class App extends Component {
   onApi = json => {
     this.snack(json.error || json.message)
   }
-  onArtwork = data => { //TODO improve this setTimeout bullshit
+  onArtwork = data => {
     let artwork = document.querySelector('#artwork')
     artwork.src = data
-    setTimeout(() => this.setState({ theme: withPrimary(this.fac.getColor(artwork).hex) }), 10)
+    this.fac.getColorAsync(artwork).then(color => this.setState({ theme: withPrimary(color.hex) }))
   }
   render() {
     const {
@@ -173,8 +171,8 @@ class App extends Component {
           <main>
             <Snackbar
               anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-              open={snackbar.opened}
               autoHideDuration={snackbar.duration}
+              open={snackbar.opened}
               onClose={() => this.setState({ snackbar: { ...snackbar, opened: false } })}
               message={snackbar.message}
             />
