@@ -13,11 +13,6 @@ export const withPrimary = color => {
       MuiIconButton: { color: 'primary' }
     },
     overrides: {
-      MuiSnackbarContent: {
-        root: {
-          backgroundColor: color
-        }
-      },
       MuiSvgIcon: {
         root: {
           fontSize: 'inherit'
@@ -52,7 +47,7 @@ export const withPrimary = color => {
       MuiTypography: {
         h5: {
           fontSize: '.3em',
-          margin: '20px 0'
+          margin: '40px 0'
         }
       }
     }
