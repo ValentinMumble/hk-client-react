@@ -4,7 +4,7 @@ import { withPrimary } from './theme'
 import { api, fetchImage } from './util'
 import openSocket from 'socket.io-client'
 import FastAverageColor from 'fast-average-color'
-import { Snackbar, Slider, CircularProgress, IconButton, Typography, SnackbarContent } from '@material-ui/core'
+import { Snackbar, Slider, CircularProgress, IconButton, Typography, SnackbarContent, Popover } from '@material-ui/core'
 import { ThemeProvider } from '@material-ui/styles'
 import {
   RadioRounded,
@@ -28,11 +28,12 @@ class App extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      //pickerVisible: false,
       snackbar: { opened: false },
+      popover: { opened: false },
       theme: withPrimary('#000')
     }
     this.fac = new FastAverageColor()
+    this.colors = ['transparent', '#ffffff', '#ffaa71', '#01A7C2', '#FF96CA']
   }
   componentDidMount() {
     api(process.env.REACT_APP_SERVER_URL + '/spotify/access-token').then(data => {
@@ -159,12 +160,22 @@ class App extends Component {
     artwork.src = data
     this.fac.getColorAsync(artwork).then(color => this.setState({ theme: withPrimary(color.hex) }))
   }
+  onColorClick = color => {
+    if (color === 'transparent') {
+      this.setState({ popover: { ...this.state.popover, opened: false } })
+      api(process.env.REACT_APP_SERVER_URL + '/hue/off').then(this.onApi)
+    } else {
+      api(process.env.REACT_APP_SERVER_URL + '/hue/on/' + color.substring(1)).then(this.onApi)
+    }
+  }
   render() {
     const {
       activeTrack,
-      pickerVisible,
-      snackbar
-    } = this.state
+      snackbar,
+      popover
+    } = this.state,
+    colors = Array.from(this.colors)
+    colors.push(this.state.theme.palette.primary.main)
     return (
       <ThemeProvider theme={this.state.theme}>
         <div className="App">
@@ -176,9 +187,18 @@ class App extends Component {
               onClose={() => this.setState({ snackbar: { ...snackbar, opened: false } })}>
               <SnackbarContent
                 style={{ backgroundColor: snackbar.color }}
-                message={snackbar.message}
-              />
+                message={snackbar.message} />
             </Snackbar>
+            <Popover
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'center', }}
+              transformOrigin={{ vertical: 'top', horizontal: 'center', }}
+              anchorEl={popover.anchorEl}
+              open={popover.opened}
+              onClose={() => this.setState({ popover: { ...popover, opened: false } })}>
+              <div className="Colors">
+                {colors.map((color, i) => <div key={i} style={{ backgroundColor: color }} onClick={() => this.onColorClick(color)}></div>)}
+              </div>
+            </Popover>
             {this.state.loaded && (this.state.playerReady || this.state.error) ? (
               <div className="Container">
                 <div className="Container Top">
@@ -189,7 +209,7 @@ class App extends Component {
                     <IconButton onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'selectSource', param: 'TV' }, method: 'POST' }).then(this.onApi)}>
                       <MusicNoteRounded />
                     </IconButton>
-                    <IconButton onClick={() => this.snack('TODO', 1000, '#ff0000')}>
+                    <IconButton onClick={(e) => this.setState({ popover: { ...popover, opened: !this.state.popover.opened, anchorEl: e.currentTarget } })}>
                       <WbIncandescentRounded />
                     </IconButton>
                     <IconButton onClick={() => api(process.env.REACT_APP_SERVER_URL + '/bluetooth/reset').then(this.onApi)}>
@@ -199,19 +219,6 @@ class App extends Component {
                       <PowerSettingsNewRounded />
                     </IconButton>
                   </div>
-                  {pickerVisible && (
-                    <div className="Colors">
-                      <div
-                        onClick={() => api(process.env.REACT_APP_SERVER_URL + '/hue/off').then(this.onApi)}></div>
-                      <div
-                        onClick={() => api(process.env.REACT_APP_SERVER_URL + '/hue/on/ffffff').then(this.onApi)}></div>
-                      <div
-                        onClick={() => api(process.env.REACT_APP_SERVER_URL + '/hue/on/ffaa71').then(this.onApi)}></div>
-                      <div
-                        onClick={() => api(process.env.REACT_APP_SERVER_URL + '/hue/on/01A7C2').then(this.onApi)}></div>
-                      <div
-                        onClick={() => api(process.env.REACT_APP_SERVER_URL + '/hue/on/FF96CA').then(this.onApi)}></div>
-                    </div>)}
                   <div className="Large">
                     <IconButton onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'volumeDown' }, method: 'POST' }).then(this.onApi)}>
                       <VolumeDownRounded />
@@ -230,10 +237,10 @@ class App extends Component {
                         ) : (
                             <AlbumRounded />
                           )}
-                        <div
+                        {/* <div TODO
                           style={{ transform: `rotate(${-180 + this.state.progressPercent * 180 / 100}deg)` }}
                           className="Progress"
-                        ></div>
+                        ></div> */}
                       </div>
                       <Typography className="Title" variant="h5" color="primary"
                         onClick={() => api(`${process.env.REACT_APP_SERVER_URL}/spotify/addok/${activeTrack.uri}`).then(json => {

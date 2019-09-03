@@ -39,10 +39,9 @@ main>.Container {
 
 .Artwork {
   position: relative;
-  /* When no artwork */
-  width: 90vw;
+  width: 100vw;
   max-width: 450px;
-  height: 300px;
+  height: 40vh;
   overflow: hidden;
 }
 
@@ -73,34 +72,13 @@ main>.Container {
   width: 85%;
 }
 
-.Colors {
-  position: absolute;
-  z-index: 10;
-}
-
 .Colors>div {
-  margin: 0 .5rem;
-  width: 40px;
-  height: 40px;
+  margin: 1em;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
 }
 
-.Colors>div:nth-child(1) {
+.Colors>div:first-child {
   border: 1px dashed var(--gray);
-}
-
-.Colors>div:nth-child(2) {
-  background-color: white;
-}
-
-.Colors>div:nth-child(3) {
-  background-color: #ffaa71;
-}
-
-.Colors>div:nth-child(4) {
-  background-color: #01A7C2;
-}
-
-.Colors>div:nth-child(5) {
-  background-color: #FF96CA;
 }
