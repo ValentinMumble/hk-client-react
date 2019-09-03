@@ -1,14 +1,13 @@
 import React, { Component } from 'react'
 import './App.css'
 import { withPrimary } from './theme'
-import { api, fetchImage } from './util'
+import { api, fetchImage, I } from './util'
 import openSocket from 'socket.io-client'
 import FastAverageColor from 'fast-average-color'
 import { Snackbar, Slider, CircularProgress, IconButton, Typography, SnackbarContent, Popover } from '@material-ui/core'
 import { ThemeProvider } from '@material-ui/styles'
 import {
   RadioRounded,
-  AlbumRounded,
   FavoriteRounded,
   MusicNoteRounded,
   BluetoothRounded,
@@ -30,8 +29,10 @@ class App extends Component {
     this.state = {
       snackbar: { opened: false },
       popover: { opened: false },
-      theme: withPrimary('#000')
+      theme: withPrimary('#000'),
+      artwork: { prev: I.BLACK, current: '' }
     }
+    this.artwork = React.createRef()
     this.fac = new FastAverageColor()
     this.colors = ['transparent', '#ffffff', '#ffaa71', '#01A7C2', '#FF96CA']
   }
@@ -63,9 +64,9 @@ class App extends Component {
   setTrack = activeTrack => {
     this.setState({ activeTrack })
     if (activeTrack.album.images.length > 0) {
-      fetchImage(activeTrack.album.images[0].url, this.onArtwork)
+      fetchImage(activeTrack.album.images[0].url, this.onArtworkData)
     } else {
-      this.setState({ theme: withPrimary('#777') })
+      this.onArtworkData(I.GRAY)
     }
   }
   emit = (event, value) => {
@@ -130,7 +131,6 @@ class App extends Component {
       this.setPlayback(state.is_playing)
       this.setTrack(state.item)
       this.setProgress(state.progress_ms)
-      this.setState({ playerReady: true })
       // this.progressTimer = window.setInterval(() => { // TODO
       //   if (this.state.isPlaying) {
       //     this.setProgress(this.state.progress + 1000)
@@ -153,12 +153,12 @@ class App extends Component {
     if (message) this.setState({ snackbar: { ...this.state.snackbar, opened: true, message, duration, color } })
   }
   onApi = json => {
-    this.snack(json.message || json.error.message)
+    this.snack(json.message || json.error)
   }
-  onArtwork = data => {
-    const artwork = document.querySelector('#artwork')
-    artwork.src = data
-    this.fac.getColorAsync(artwork).then(color => this.setState({ theme: withPrimary(color.hex) }))
+  onArtworkData = data => {
+    this.setState({ artwork: { ...this.state.artwork, current: data, class: 'hidden' } })
+    this.fac.getColorAsync(this.artwork.current).then(color => this.setState({ theme: withPrimary(color.hex) }))
+    setTimeout(() => this.setState({ artwork: { ...this.state.artwork, prev: data, class: '' } }), 600)
   }
   onColorClick = color => {
     if (color === 'transparent') {
@@ -172,9 +172,10 @@ class App extends Component {
     const {
       activeTrack,
       snackbar,
-      popover
+      popover,
+      artwork
     } = this.state,
-    colors = Array.from(this.colors)
+      colors = Array.from(this.colors)
     colors.push(this.state.theme.palette.primary.main)
     return (
       <ThemeProvider theme={this.state.theme}>
@@ -199,7 +200,7 @@ class App extends Component {
                 {colors.map((color, i) => <div key={i} style={{ backgroundColor: color }} onClick={() => this.onColorClick(color)}></div>)}
               </div>
             </Popover>
-            {this.state.loaded && (!this.state.authorized || this.state.playerReady || this.state.error) ? (
+            {this.state.loaded && (!this.state.authorized || this.state.activeTrack || this.state.error) ? (
               <div className="Container">
                 <div className="Container Top">
                   <div className="Small">
@@ -229,14 +230,11 @@ class App extends Component {
                   </div>
                 </div>
                 {this.state.authorized ? (
-                  this.state.playerReady ? (
+                  this.state.activeTrack ? (
                     <div className="Container">
                       <div className="Artwork" onClick={() => this.snack('TODO', 1000)}>
-                        {activeTrack.album.images.length > 0 ? (
-                          <img id="artwork" src={activeTrack.album.images[0].url} alt={`${activeTrack.name} - ${activeTrack.artists[0].name}`} />
-                        ) : (
-                            <AlbumRounded />
-                          )}
+                        <img ref={this.artwork} id="artwork" src={artwork.current} alt="" />
+                        <img className={artwork.class} src={artwork.prev} alt="" />
                         {/* <div TODO
                           style={{ transform: `rotate(${-180 + this.state.progressPercent * 180 / 100}deg)` }}
                           className="Progress"
