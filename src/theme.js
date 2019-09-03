@@ -44,6 +44,9 @@ export const withPrimary = color => {
         }
       },
       MuiTypography: {
+        root: {
+          transition: 'all .6s ease'
+        },
         h5: {
           fontSize: '2.5vh',
           margin: '30px 0',

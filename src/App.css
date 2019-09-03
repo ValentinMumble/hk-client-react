@@ -49,6 +49,12 @@ main>.Container {
 .Artwork img {
   width: 100%;
   border-radius: 50%;
+  position: absolute;
+  transition: all .6s ease;
+}
+
+img.hidden {
+  opacity: 0;
 }
 
 .Progress {
