@@ -38,7 +38,7 @@ class App extends Component {
   componentDidMount() {
     api(process.env.REACT_APP_SERVER_URL + '/spotify/access-token').then(data => {
       if (data.url) {
-        this.setState({ authorized: false, authorizeUrl: data.url })
+        this.setState({ authorized: false, authorizeUrl: data.url, theme: withPrimary('#777') })
       } else {
         this.setupConnect(data.accessToken)
       }
@@ -104,14 +104,14 @@ class App extends Component {
     return new Promise((resolve, reject) => {
       const popup = window.open(this.state.authorizeUrl, '_blank', 'width=500,height=500,location=0,resizable=0')
       const listener = setInterval(() => {
-        if (popup) {
-          popup.postMessage('login', window.location)
-        }
+        if (popup) popup.postMessage('login', window.location)
       }, 1000)
       window.onmessage = event => {
-        clearInterval(listener)
-        window.onmessage = null
-        return resolve(JSON.parse(event.data))
+        if (event.source === popup) {
+          clearInterval(listener)
+          window.onmessage = null
+          return resolve(JSON.parse(event.data))
+        }
       }
     })
   }
@@ -153,10 +153,10 @@ class App extends Component {
     if (message) this.setState({ snackbar: { ...this.state.snackbar, opened: true, message, duration, color } })
   }
   onApi = json => {
-    this.snack(json.error || json.message)
+    this.snack(json.message || json.error.message)
   }
   onArtwork = data => {
-    let artwork = document.querySelector('#artwork')
+    const artwork = document.querySelector('#artwork')
     artwork.src = data
     this.fac.getColorAsync(artwork).then(color => this.setState({ theme: withPrimary(color.hex) }))
   }
@@ -199,7 +199,7 @@ class App extends Component {
                 {colors.map((color, i) => <div key={i} style={{ backgroundColor: color }} onClick={() => this.onColorClick(color)}></div>)}
               </div>
             </Popover>
-            {this.state.loaded && (this.state.playerReady || this.state.error) ? (
+            {this.state.loaded && (!this.state.authorized || this.state.playerReady || this.state.error) ? (
               <div className="Container">
                 <div className="Container Top">
                   <div className="Small">
@@ -243,11 +243,7 @@ class App extends Component {
                         ></div> */}
                       </div>
                       <Typography className="Title" variant="h5" color="primary"
-                        onClick={() => api(`${process.env.REACT_APP_SERVER_URL}/spotify/addok/${activeTrack.uri}`).then(json => {
-                          if (json.data.body.snapshot_id) json.message = activeTrack.name + ' added to playlist OK!'
-                          this.onApi(json)
-                        })}
-                      >
+                        onClick={() => api(`${process.env.REACT_APP_SERVER_URL}/spotify/addok/${activeTrack.uri}`).then(this.onApi)}>
                         {activeTrack.name}<br /><span className="Dark">{activeTrack.artists[0].name}</span>
                       </Typography>
                       <div className="Controls Small">
