@@ -45,8 +45,9 @@ export const withPrimary = color => {
       },
       MuiTypography: {
         h5: {
-          fontSize: '.3em',
-          margin: '40px 0'
+          fontSize: '2.5vh',
+          margin: '30px 0',
+          lineHeight: 'inherit'
         }
       },
       MuiSnackbarContent: {

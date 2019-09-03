@@ -250,7 +250,7 @@ class App extends Component {
                       >
                         {activeTrack.name}<br /><span className="Dark">{activeTrack.artists[0].name}</span>
                       </Typography>
-                      <div>
+                      <div className="Controls Small">
                         <IconButton onClick={() => this.emit('play', { context_uri: process.env.REACT_APP_SPO_DISCOVER_WEEKLY_URI })}>
                           <NewReleasesRounded />
                         </IconButton>
@@ -258,8 +258,8 @@ class App extends Component {
                           onClick={() => this.emit('previous_track')}>
                           <SkipPreviousRounded />
                         </IconButton>
-                        <span >
-                          <IconButton className="Large" onClick={() => this.emit(this.state.isPlaying ? 'pause' : 'play')}>
+                        <span className="Large">
+                          <IconButton onClick={() => this.emit(this.state.isPlaying ? 'pause' : 'play')}>
                             {this.state.isPlaying ? (
                               <PauseRounded />
                             ) : (
