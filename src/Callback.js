@@ -5,7 +5,6 @@ import { api } from './util'
 
 export default () => {
   const parsed = qs.parse(window.location.search)
-
   api(`${process.env.REACT_APP_SERVER_URL}/spotify/authorize/${parsed.code}`).then(data => {
     window.addEventListener('message', event => {
       if (event.data === 'login') {
@@ -17,6 +16,5 @@ export default () => {
       window.close()
     }, 1500)
   })
-
   return <div>Logging in...</div>
 }

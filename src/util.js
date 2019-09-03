@@ -15,15 +15,14 @@ export const api = async (uri, { data = {}, method = 'GET' } = {}) => {
 }
 
 export const fetchImage = (url, callback) => {
-  let downloadedImg = new Image()
+  const downloadedImg = new Image()
   downloadedImg.crossOrigin = 'Anonymous'
   downloadedImg.src = url
   downloadedImg.addEventListener('load', () => {
-    let canvas = document.createElement('canvas')
-    let context = canvas.getContext('2d')
+    const canvas = document.createElement('canvas')
     canvas.width = downloadedImg.width
     canvas.height = downloadedImg.height
-    context.drawImage(downloadedImg, 0, 0)
+    canvas.getContext('2d').drawImage(downloadedImg, 0, 0)
     callback(canvas.toDataURL('image/png'))
   })
 }
