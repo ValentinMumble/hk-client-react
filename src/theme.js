@@ -6,8 +6,7 @@ export const withPrimary = color => {
       fontFamily: 'inherit'
     },
     palette: {
-      primary: { main: color },
-      type: 'dark'
+      primary: { main: color }, type: 'dark'
     },
     props: {
       MuiIconButton: { color: 'primary' }
@@ -48,6 +47,11 @@ export const withPrimary = color => {
         h5: {
           fontSize: '.3em',
           margin: '40px 0'
+        }
+      },
+      MuiSnackbarContent: {
+        root: {
+          maxWidth: '85vw'
         }
       }
     }
