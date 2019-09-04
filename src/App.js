@@ -1,9 +1,8 @@
 import React, { Component } from 'react'
 import './App.css'
 import { withPrimary } from './theme'
-import { api, fetchImage, I } from './util'
+import { api } from './util'
 import openSocket from 'socket.io-client'
-import FastAverageColor from 'fast-average-color'
 import { Snackbar, Slider, CircularProgress, IconButton, Typography, SnackbarContent, Popover } from '@material-ui/core'
 import { ThemeProvider } from '@material-ui/styles'
 import {
@@ -22,6 +21,7 @@ import {
   LockRounded,
   WbIncandescentRounded
 } from '@material-ui/icons'
+import Artwork from './Artwork'
 
 const {
   REACT_APP_SERVER_URL: SERVER,
@@ -34,11 +34,8 @@ class App extends Component {
     this.state = {
       snackbar: { opened: false },
       popover: { opened: false },
-      theme: withPrimary('#000'),
-      artwork: { prev: I.BLACK, current: '' }
+      theme: withPrimary('#000')
     }
-    this.artwork = React.createRef()
-    this.fac = new FastAverageColor()
     this.colors = ['transparent', '#ffffff', '#ffaa71', '#01a7c2', '#ff96ca']
   }
   componentDidMount() {
@@ -50,35 +47,18 @@ class App extends Component {
       }
     })
   }
-  setProgress = (progress, timestamp) => {
-    this.setState({
-      progress: progress,
-      progressPercent: progress / this.state.activeTrack.duration_ms * 100
-    })
-  }
-  setPlayback = isPlaying => {
-    this.setState({ isPlaying })
-  }
-  setDevice = device => {
-    this.setState({ device })
-  }
-  setVolume = volume => {
-    this.setState({ volume })
-  }
-  setTrack = activeTrack => {
-    this.setState({ activeTrack })
-    if (activeTrack.album.images.length > 0) {
-      fetchImage(activeTrack.album.images[0].url, this.onArtworkData)
-    } else {
-      this.onArtworkData(I.GRAY)
-    }
-  }
+  setProgress = (progress, timestamp) => this.setState({
+    progress: progress,
+    progressPercent: progress / this.state.activeTrack.duration_ms * 100
+  })
+  setPlayback = isPlaying => this.setState({ isPlaying })
+  setDevice = device => this.setState({ device })
+  setVolume = volume => this.setState({ volume })
+  setTrack = activeTrack => this.setState({ activeTrack })
   emit = (event, value) => {
     console.info('Emit', event, value)
     this.io.emit(event, value)
-
-    // optimistic updates
-    switch (event) {
+    switch (event) {  // optimistic updates
       case 'play': this.setPlayback(true)
         break
       case 'pause': this.setPlayback(false)
@@ -121,18 +101,17 @@ class App extends Component {
     })
   }
   setupConnect = accessToken => {
-    this.accessToken = accessToken
     this.setState({ authorized: true, loaded: true })
-    const io = openSocket(`${SERVER}/connect`)
+    this.accessToken = accessToken
+    this.io = openSocket(`${SERVER}/connect`)
     const wrappedHandler = (event, handler) => {
-      io.on(event, data => {
+      this.io.on(event, data => {
         console.info(event, data)
         handler(data)
       })
     }
     wrappedHandler('initial_state', state => {
-      this.setState({ volume: state.device.volume_percent, device: state.device, isPlaying: state.is_playing })
-      this.setTrack(state.item)
+      this.setState({ activeTrack: state.item, volume: state.device.volume_percent, device: state.device, isPlaying: state.is_playing })
       // this.setProgress(state.progress_ms)
       // this.progressTimer = window.setInterval(() => { // TODO
       //   if (this.state.isPlaying) {
@@ -148,8 +127,6 @@ class App extends Component {
     wrappedHandler('volume_change', this.setVolume)
     wrappedHandler('track_end', () => { })
     wrappedHandler('connect_error', this.onError)
-
-    this.io = io
     this.emit('initiate', { accessToken: this.accessToken })
   }
   snack = (message, duration = 2000, color = this.state.theme.palette.primary.main) => {
@@ -158,12 +135,7 @@ class App extends Component {
   onApi = json => {
     this.snack(json.message || json.error)
   }
-  onArtworkData = data => {
-    this.setState({ artwork: { ...this.state.artwork, current: data, hidden: 'hidden' } })
-    this.fac.getColorAsync(this.artwork.current).then(color => this.setState({ theme: withPrimary(color.hex) }))
-    setTimeout(() => this.setState({ artwork: { ...this.state.artwork, prev: data, hidden: '' } }), 600)
-  }
-  onColorClick = color => {
+  onHueClick = color => {
     if (color === 'transparent') {
       this.setState({ popover: { ...this.state.popover, opened: false } })
       api(`${SERVER}/hue/off`).then(this.onApi)
@@ -175,8 +147,7 @@ class App extends Component {
     const {
       activeTrack,
       snackbar,
-      popover,
-      artwork
+      popover
     } = this.state,
       colors = Array.from(this.colors)
     colors.push(this.state.theme.palette.primary.main)
@@ -200,7 +171,7 @@ class App extends Component {
               open={popover.opened}
               onClose={() => this.setState({ popover: { ...popover, opened: false } })}>
               <div className="Colors">
-                {colors.map((color, i) => <div key={i} style={{ backgroundColor: color }} onClick={() => this.onColorClick(color)}></div>)}
+                {colors.map((color, i) => <div key={i} style={{ backgroundColor: color }} onClick={() => this.onHueClick(color)}></div>)}
               </div>
             </Popover>
             {this.state.loaded && (!this.state.authorized || this.state.activeTrack || this.state.error) ? (
@@ -235,14 +206,9 @@ class App extends Component {
                 {this.state.authorized ? (
                   this.state.activeTrack ? (
                     <div className="Container">
-                      <div className="Artwork" onClick={() => this.snack('TODO', 1000)}>
-                        <img ref={this.artwork} src={artwork.current} alt="" />
-                        <img className={artwork.hidden} src={artwork.prev} alt="" />
-                        {/* <div TODO
-                          style={{ transform: `rotate(${-180 + this.state.progressPercent * 180 / 100}deg)` }}
-                          className="Progress"
-                        ></div> */}
-                      </div>
+                      <Artwork src={activeTrack.album.images.length > 0 ? activeTrack.album.images[0].url : ''}
+                        onColorChange={color => this.setState({ theme: withPrimary(color) })}
+                      />
                       <Typography className="Title" variant="h5" color="primary"
                         onClick={() => api(`${SERVER}/spotify/addok/${activeTrack.uri}`).then(this.onApi)}>
                         {activeTrack.name}<br /><span className="Dark">{activeTrack.artists[0].name}</span>
@@ -299,5 +265,4 @@ class App extends Component {
     )
   }
 }
-
 export default App

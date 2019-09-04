@@ -1,0 +1,30 @@
+.Artwork {
+  position: relative;
+  width: 100vw;
+  max-width: 450px;
+  height: 40vh;
+  font-size: 450px;
+  overflow: hidden;
+}
+
+.Artwork img {
+  width: 100%;
+  border-radius: 50%;
+  position: absolute;
+  transition: all .6s ease;
+}
+
+img.hidden {
+  opacity: 0;
+}
+
+.Progress {
+  position: absolute;
+  width: 150%;
+  height: 100%;
+  top: 0;
+  right: -25%;
+  background: black;
+  opacity: .4;
+  transform-origin: bottom;
+}
