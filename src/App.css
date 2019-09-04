@@ -8,6 +8,10 @@
   opacity: .5;
 }
 
+.Large, .Small {
+  display: flex;
+}
+
 .Large {
   font-size: 11vh;
 }
@@ -40,9 +44,8 @@ main>.Container {
 
 .Title {
   text-align: center;
-  max-width: 400px;
   height: 50px;
-  display: grid;
+  max-width: 450px;
 }
 
 .Volume {
