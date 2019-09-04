@@ -23,6 +23,11 @@ import {
   WbIncandescentRounded
 } from '@material-ui/icons'
 
+const {
+  REACT_APP_SERVER_URL: SERVER,
+  REACT_APP_HK_API: HK
+} = process.env
+
 class App extends Component {
   constructor(props) {
     super(props)
@@ -34,16 +39,15 @@ class App extends Component {
     }
     this.artwork = React.createRef()
     this.fac = new FastAverageColor()
-    this.colors = ['transparent', '#ffffff', '#ffaa71', '#01A7C2', '#FF96CA']
+    this.colors = ['transparent', '#ffffff', '#ffaa71', '#01a7c2', '#ff96ca']
   }
   componentDidMount() {
-    api(process.env.REACT_APP_SERVER_URL + '/spotify/access-token').then(data => {
+    api(`${SERVER}/spotify/access-token`).then(data => {
       if (data.url) {
-        this.setState({ authorized: false, authorizeUrl: data.url, theme: withPrimary('#777') })
+        this.setState({ loaded: true, authorized: false, authorizeUrl: data.url, theme: withPrimary('#777') })
       } else {
         this.setupConnect(data.accessToken)
       }
-      this.setState({ loaded: true })
     })
   }
   setProgress = (progress, timestamp) => {
@@ -85,7 +89,7 @@ class App extends Component {
   }
   onError = error => {
     if (error.name === 'NoAccessToken') {
-      this.emit('initiate', { accessToken: this.state.accessToken })
+      this.emit('initiate', { accessToken: this.accessToken })
     } else if (error.name === 'NoActiveDeviceError') {
       this.emit('transfer_playback', { id: process.env.REACT_APP_SPO_PI_ID })
     } else if (error === 'The access token expired') {
@@ -96,9 +100,9 @@ class App extends Component {
   }
   refreshToken = () => {
     console.info('Refreshing token...')
-    api(process.env.REACT_APP_SERVER_URL + '/spotify/refresh-token').then(data => {
-      this.setState({ accessToken: data.accessToken })
-      this.emit('access_token', data.accessToken)
+    api(`${SERVER}/spotify/refresh-token`).then(data => {
+      this.accessToken = data.accessToken
+      this.emit('access_token', this.accessToken)
     })
   }
   login = () => {
@@ -117,8 +121,9 @@ class App extends Component {
     })
   }
   setupConnect = accessToken => {
-    this.setState({ accessToken, authorized: true })
-    const io = openSocket(process.env.REACT_APP_SERVER_URL + '/connect')
+    this.accessToken = accessToken
+    this.setState({ authorized: true, loaded: true })
+    const io = openSocket(`${SERVER}/connect`)
     const wrappedHandler = (event, handler) => {
       io.on(event, data => {
         console.info(event, data)
@@ -126,11 +131,9 @@ class App extends Component {
       })
     }
     wrappedHandler('initial_state', state => {
-      this.setVolume(state.device.volume_percent)
-      this.setDevice(state.device)
-      this.setPlayback(state.is_playing)
+      this.setState({ volume: state.device.volume_percent, device: state.device, isPlaying: state.is_playing })
       this.setTrack(state.item)
-      this.setProgress(state.progress_ms)
+      // this.setProgress(state.progress_ms)
       // this.progressTimer = window.setInterval(() => { // TODO
       //   if (this.state.isPlaying) {
       //     this.setProgress(this.state.progress + 1000)
@@ -147,7 +150,7 @@ class App extends Component {
     wrappedHandler('connect_error', this.onError)
 
     this.io = io
-    this.emit('initiate', { accessToken: this.state.accessToken })
+    this.emit('initiate', { accessToken: this.accessToken })
   }
   snack = (message, duration = 2000, color = this.state.theme.palette.primary.main) => {
     if (message) this.setState({ snackbar: { ...this.state.snackbar, opened: true, message, duration, color } })
@@ -156,16 +159,16 @@ class App extends Component {
     this.snack(json.message || json.error)
   }
   onArtworkData = data => {
-    this.setState({ artwork: { ...this.state.artwork, current: data, class: 'hidden' } })
+    this.setState({ artwork: { ...this.state.artwork, current: data, hidden: 'hidden' } })
     this.fac.getColorAsync(this.artwork.current).then(color => this.setState({ theme: withPrimary(color.hex) }))
-    setTimeout(() => this.setState({ artwork: { ...this.state.artwork, prev: data, class: '' } }), 600)
+    setTimeout(() => this.setState({ artwork: { ...this.state.artwork, prev: data, hidden: '' } }), 600)
   }
   onColorClick = color => {
     if (color === 'transparent') {
       this.setState({ popover: { ...this.state.popover, opened: false } })
-      api(process.env.REACT_APP_SERVER_URL + '/hue/off').then(this.onApi)
+      api(`${SERVER}/hue/off`).then(this.onApi)
     } else {
-      api(process.env.REACT_APP_SERVER_URL + '/hue/on/' + color.substring(1)).then(this.onApi)
+      api(`${SERVER}/hue/on/${color.substring(1)}`).then(this.onApi)
     }
   }
   render() {
@@ -204,27 +207,27 @@ class App extends Component {
               <div className="Container">
                 <div className="Container Top">
                   <div className="Small">
-                    <IconButton onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'selectSource', param: 'Radio' }, method: 'POST' }).then(this.onApi)}>
+                    <IconButton onClick={() => api(HK, { data: { func: 'selectSource', param: 'Radio' }, method: 'POST' }).then(this.onApi)}>
                       <RadioRounded />
                     </IconButton>
-                    <IconButton onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'selectSource', param: 'TV' }, method: 'POST' }).then(this.onApi)}>
+                    <IconButton onClick={() => api(HK, { data: { func: 'selectSource', param: 'TV' }, method: 'POST' }).then(this.onApi)}>
                       <MusicNoteRounded />
                     </IconButton>
                     <IconButton onClick={(e) => this.setState({ popover: { ...popover, opened: !this.state.popover.opened, anchorEl: e.currentTarget } })}>
                       <WbIncandescentRounded />
                     </IconButton>
-                    <IconButton onClick={() => api(process.env.REACT_APP_SERVER_URL + '/bluetooth/reset').then(this.onApi)}>
+                    <IconButton onClick={() => api(`${SERVER}/bluetooth/reset`).then(this.onApi)}>
                       <BluetoothRounded />
                     </IconButton>
-                    <IconButton onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'off' }, method: 'POST' }).then(this.onApi)}>
+                    <IconButton onClick={() => api(HK, { data: { func: 'off' }, method: 'POST' }).then(this.onApi)}>
                       <PowerSettingsNewRounded />
                     </IconButton>
                   </div>
                   <div className="Large">
-                    <IconButton onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'volumeDown' }, method: 'POST' }).then(this.onApi)}>
+                    <IconButton onClick={() => api(HK, { data: { func: 'volumeDown' }, method: 'POST' }).then(this.onApi)}>
                       <VolumeDownRounded />
                     </IconButton>
-                    <IconButton onClick={() => api(process.env.REACT_APP_HK_API, { data: { func: 'volumeUp' }, method: 'POST' }).then(this.onApi)}>
+                    <IconButton onClick={() => api(HK, { data: { func: 'volumeUp' }, method: 'POST' }).then(this.onApi)}>
                       <VolumeUpRounded />
                     </IconButton>
                   </div>
@@ -233,15 +236,15 @@ class App extends Component {
                   this.state.activeTrack ? (
                     <div className="Container">
                       <div className="Artwork" onClick={() => this.snack('TODO', 1000)}>
-                        <img ref={this.artwork} id="artwork" src={artwork.current} alt="" />
-                        <img className={artwork.class} src={artwork.prev} alt="" />
+                        <img ref={this.artwork} src={artwork.current} alt="" />
+                        <img className={artwork.hidden} src={artwork.prev} alt="" />
                         {/* <div TODO
                           style={{ transform: `rotate(${-180 + this.state.progressPercent * 180 / 100}deg)` }}
                           className="Progress"
                         ></div> */}
                       </div>
                       <Typography className="Title" variant="h5" color="primary"
-                        onClick={() => api(`${process.env.REACT_APP_SERVER_URL}/spotify/addok/${activeTrack.uri}`).then(this.onApi)}>
+                        onClick={() => api(`${SERVER}/spotify/addok/${activeTrack.uri}`).then(this.onApi)}>
                         {activeTrack.name}<br /><span className="Dark">{activeTrack.artists[0].name}</span>
                       </Typography>
                       <div className="Controls Small">
