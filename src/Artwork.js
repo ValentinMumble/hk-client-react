@@ -14,17 +14,17 @@ class Artwork extends Component {
   }
   componentDidMount() {
     this.loadArtwork(this.props.src)
-    this.setState({progress: this.props.progress})
+    this.setState({ progress: this.props.progress })
     this.progressTimer = window.setInterval(() => {
       if (this.props.isPlaying) {
-        this.setState({ progress: this.state.progress + 1000 })
+        this.setState({ progress: this.state.progress + 200 })
       }
-    }, 1000)
+    }, 200)
   }
   componentDidUpdate(prevProps) {
     if (this.props.src !== prevProps.src) this.loadArtwork(this.props.src)
-    if (this.props.progress !== prevProps.progress) this.setState({progress: this.props.progress})
-    if (this.props.trackDuration !== prevProps.trackDuration) this.setState({progress: 0})
+    if (this.props.progress !== prevProps.progress) this.setState({ progress: this.props.progress })
+    if (this.props.trackDuration !== prevProps.trackDuration) this.setState({ progress: 0 })
   }
   loadArtwork = url => {
     if (url) {

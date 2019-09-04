@@ -46,6 +46,7 @@ class App extends Component {
         this.setupConnect(data.accessToken)
       }
     })
+    document.addEventListener('visibilitychange', this.onVisibilityChange)
   }
   setProgress = progress => this.setState({ progress })
   setPlayback = isPlaying => this.setState({ isPlaying })
@@ -132,6 +133,9 @@ class App extends Component {
       api(`${SERVER}/hue/on/${color.substring(1)}`).then(this.onApi)
     }
   }
+  onVisibilityChange = () => {
+    if (document.visibilityState === 'visible') this.emit('initiate', { accessToken: this.accessToken })
+  }
   render() {
     const {
       activeTrack,
@@ -154,8 +158,8 @@ class App extends Component {
                 message={snackbar.message} />
             </Snackbar>
             <Popover
-              anchorOrigin={{ vertical: 'bottom', horizontal: 'center', }}
-              transformOrigin={{ vertical: 'top', horizontal: 'center', }}
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+              transformOrigin={{ vertical: 'top', horizontal: 'center' }}
               anchorEl={popover.anchorEl}
               open={popover.opened}
               onClose={() => this.setState({ popover: { ...popover, opened: false } })}>
@@ -163,7 +167,7 @@ class App extends Component {
                 {colors.map((color, i) => <div key={i} style={{ backgroundColor: color }} onClick={() => this.onHueClick(color)}></div>)}
               </div>
             </Popover>
-            {this.state.loaded && (!this.state.authorized || this.state.activeTrack || this.state.error) ? (
+            {this.state.loaded && (!this.state.authorized || activeTrack || this.state.error) ? (
               <div className="Container">
                 <div className="Container Top">
                   <div className="Small">
@@ -193,7 +197,7 @@ class App extends Component {
                   </div>
                 </div>
                 {this.state.authorized ? (
-                  this.state.activeTrack ? (
+                  activeTrack ? (
                     <div className="Container">
                       <Artwork onClick={() => this.snack('TODO', 3000)}
                         src={activeTrack.album.images.length > 0 ? activeTrack.album.images[0].url : ''}
@@ -210,17 +214,12 @@ class App extends Component {
                         <IconButton onClick={() => this.emit('play', { context_uri: process.env.REACT_APP_SPO_DISCOVER_WEEKLY_URI })}>
                           <NewReleasesRounded />
                         </IconButton>
-                        <IconButton
-                          onClick={() => this.emit('previous_track')}>
+                        <IconButton onClick={() => this.emit('previous_track')}>
                           <SkipPreviousRounded />
                         </IconButton>
                         <span className="Large">
                           <IconButton onClick={() => this.emit(this.state.isPlaying ? 'pause' : 'play')}>
-                            {this.state.isPlaying ? (
-                              <PauseRounded />
-                            ) : (
-                                <PlayArrowRounded />
-                              )}
+                            {this.state.isPlaying ? <PauseRounded /> : <PlayArrowRounded />}
                           </IconButton>
                         </span>
                         <IconButton onClick={() => this.emit('next_track')}>
@@ -231,27 +230,20 @@ class App extends Component {
                         </IconButton>
                       </div>
                       <div className="Volume">
-                        <Slider
+                        <Slider valueLabelDisplay="auto"
                           value={this.state.volume}
-                          valueLabelDisplay="auto"
-                          min={0}
-                          max={100}
                           onChange={(e, v) => this.setVolume(v)}
-                          onChangeCommitted={(e, v) => this.emit('set_volume', v)}
-                        />
+                          onChangeCommitted={(e, v) => this.emit('set_volume', v)} />
                       </div>
                     </div>
-                  ) : (
-                      <div className="Container">{this.state.error}</div>
-                    )
-                ) : (
-                    <div className="Controls Large">
-                      <IconButton onClick={() => { this.login().then(this.setupConnect) }}>
-                        <LockRounded />
-                      </IconButton>
-                    </div>
-                  )}
-              </div>) : (<CircularProgress color="inherit" size="5rem" />)}
+                  ) : <div className="Container">{this.state.error}</div>
+                ) : <div className="Controls Large">
+                    <IconButton onClick={() => { this.login().then(this.setupConnect) }}>
+                      <LockRounded />
+                    </IconButton>
+                  </div>
+                }
+              </div>) : <CircularProgress color="inherit" size="10vh" />}
           </main>
         </div >
       </ThemeProvider>
