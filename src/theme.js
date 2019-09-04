@@ -28,10 +28,12 @@ export const withPrimary = color => {
           transition: 'all .6s ease'
         },
         rail: {
-          height: 7
+          height: 7,
+          borderRadius: 5
         },
         track: {
-          height: 7
+          height: 7,
+          borderRadius: 5
         },
         thumb: {
           width: 36,
