@@ -47,10 +47,7 @@ class App extends Component {
       }
     })
   }
-  setProgress = (progress, timestamp) => this.setState({
-    progress: progress,
-    progressPercent: progress / this.state.activeTrack.duration_ms * 100
-  })
+  setProgress = progress => this.setState({ progress })
   setPlayback = isPlaying => this.setState({ isPlaying })
   setDevice = device => this.setState({ device })
   setVolume = volume => this.setState({ volume })
@@ -110,15 +107,7 @@ class App extends Component {
         handler(data)
       })
     }
-    wrappedHandler('initial_state', state => {
-      this.setState({ activeTrack: state.item, volume: state.device.volume_percent, device: state.device, isPlaying: state.is_playing })
-      // this.setProgress(state.progress_ms)
-      // this.progressTimer = window.setInterval(() => { // TODO
-      //   if (this.state.isPlaying) {
-      //     this.setProgress(this.state.progress + 1000)
-      //   }
-      // }, 1000)
-    })
+    wrappedHandler('initial_state', state => this.setState({ progress: state.progress_ms, activeTrack: state.item, volume: state.device.volume_percent, device: state.device, isPlaying: state.is_playing }))
     wrappedHandler('track_change', this.setTrack)
     wrappedHandler('seek', this.setProgress)
     wrappedHandler('playback_started', () => this.setPlayback(true))
@@ -206,7 +195,11 @@ class App extends Component {
                 {this.state.authorized ? (
                   this.state.activeTrack ? (
                     <div className="Container">
-                      <Artwork src={activeTrack.album.images.length > 0 ? activeTrack.album.images[0].url : ''}
+                      <Artwork onClick={() => this.snack('TODO', 3000)}
+                        src={activeTrack.album.images.length > 0 ? activeTrack.album.images[0].url : ''}
+                        isPlaying={this.state.isPlaying}
+                        trackDuration={activeTrack.duration_ms}
+                        progress={this.state.progress}
                         onColorChange={color => this.setState({ theme: withPrimary(color) })}
                       />
                       <Typography className="Title" variant="h5" color="primary"

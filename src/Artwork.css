@@ -5,6 +5,13 @@
   height: 40vh;
   font-size: 450px;
   overflow: hidden;
+  transition: all .2s ease;
+  transform-origin: bottom;
+}
+
+.Artwork.paused {
+  transform: scale(.95);
+  opacity: .7;
 }
 
 .Artwork img {

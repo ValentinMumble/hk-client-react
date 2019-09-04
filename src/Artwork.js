@@ -14,9 +14,17 @@ class Artwork extends Component {
   }
   componentDidMount() {
     this.loadArtwork(this.props.src)
+    this.setState({progress: this.props.progress})
+    this.progressTimer = window.setInterval(() => {
+      if (this.props.isPlaying) {
+        this.setState({ progress: this.state.progress + 1000 })
+      }
+    }, 1000)
   }
   componentDidUpdate(prevProps) {
     if (this.props.src !== prevProps.src) this.loadArtwork(this.props.src)
+    if (this.props.progress !== prevProps.progress) this.setState({progress: this.props.progress})
+    if (this.props.trackDuration !== prevProps.trackDuration) this.setState({progress: 0})
   }
   loadArtwork = url => {
     if (url) {
@@ -32,13 +40,10 @@ class Artwork extends Component {
   }
   render() {
     return (
-      <div className="Artwork">
+      <div className={`Artwork ${this.props.isPlaying ? '' : 'paused'}`} onClick={this.props.onClick}>
         <img ref={this.img} src={this.state.current} alt="" />
         <img className={this.state.hidden} src={this.state.prev} alt="" />
-        {/* <div TODO
-    style={{ transform: `rotate(${-180 + this.state.progressPercent * 180 / 100}deg)` }}
-    className="Progress"
-  ></div> */}
+        <div className="Progress" style={{ transform: `rotate(${-180 + this.state.progress / this.props.trackDuration * 180}deg)` }}></div>
       </div>
     )
   }
