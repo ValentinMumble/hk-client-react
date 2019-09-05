@@ -23,8 +23,8 @@ class Artwork extends Component {
   }
   componentDidUpdate(prevProps) {
     if (this.props.src !== prevProps.src) this.loadArtwork(this.props.src)
-    if (this.props.progress !== prevProps.progress) this.setState({ progress: this.props.progress })
     if (this.props.trackDuration !== prevProps.trackDuration) this.setState({ progress: 0 })
+    if (this.props.progress !== prevProps.progress) this.setState({ progress: this.props.progress })
   }
   loadArtwork = url => {
     if (url) {
