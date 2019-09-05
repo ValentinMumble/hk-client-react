@@ -136,9 +136,9 @@ class App extends Component {
   }
   onVisibilityChange = () => {
     if (document.visibilityState === 'visible' && this.io && this.io.disconnected) {
+      console.info('Socket disconnected, reconnecting now...')
       this.io.open()
       this.emit('initiate', { accessToken: this.accessToken })
-      this.snack('Reconnecting...', 1000, '#222')
     }
   }
   render() {

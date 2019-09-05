@@ -9,7 +9,7 @@ export const withPrimary = color => {
       primary: { main: color }, type: 'dark'
     },
     props: {
-      MuiIconButton: { color: 'primary' }
+      MuiIconButton: { color: 'primary', centerRipple: false }
     },
     overrides: {
       MuiSvgIcon: {
@@ -58,6 +58,11 @@ export const withPrimary = color => {
       MuiSnackbarContent: {
         root: {
           maxWidth: '85vw'
+        }
+      },
+      MuiPaper: {
+        root: {
+          backgroundColor: '#1c1c1c'
         }
       }
     }
