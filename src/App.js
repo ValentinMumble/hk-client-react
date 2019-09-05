@@ -32,7 +32,7 @@ class App extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      snackbar: { opened: false },
+      snackbar: { opened: false, color: '#000' },
       popover: { opened: false },
       theme: withPrimary('#000')
     }
@@ -131,24 +131,28 @@ class App extends Component {
       api(`${SERVER}/hue/off`).then(this.onApi)
     } else {
       api(`${SERVER}/hue/on/${color.substring(1)}`).then(this.onApi)
+      this.snack('Turning lights on...', 1000, color)
     }
   }
   onVisibilityChange = () => {
     if (document.visibilityState === 'visible' && this.io && this.io.disconnected) {
       this.io.open()
       this.emit('initiate', { accessToken: this.accessToken })
+      this.snack('Reconnecting...', 1000, '#222')
     }
   }
   render() {
     const {
+      theme,
+      isPlaying,
       activeTrack,
       snackbar,
       popover
     } = this.state,
       colors = Array.from(this.colors)
-    colors.push(this.state.theme.palette.primary.main)
+    colors.push(theme.palette.primary.main)
     return (
-      <ThemeProvider theme={this.state.theme}>
+      <ThemeProvider theme={theme}>
         <div className="App">
           <main>
             <Snackbar
@@ -157,7 +161,7 @@ class App extends Component {
               open={snackbar.opened}
               onClose={() => this.setState({ snackbar: { ...snackbar, opened: false } })}>
               <SnackbarContent
-                style={{ backgroundColor: snackbar.color }}
+                style={{ backgroundColor: snackbar.color, color: theme.palette.getContrastText(snackbar.color) }}
                 message={snackbar.message} />
             </Snackbar>
             <Popover
@@ -202,9 +206,9 @@ class App extends Component {
                 {this.state.authorized ? (
                   activeTrack ? (
                     <div className="Container">
-                      <Artwork onClick={() => this.snack('TODO', 3000)}
+                      <Artwork onClick={() => api(`${SERVER}/soca/count`).then(json => this.onApi({ ...json, message: `${json.clientsCount} client${json.clientsCount > 1 ? 's' : ''} connected` }))}
                         src={activeTrack.album.images.length > 0 ? activeTrack.album.images[0].url : ''}
-                        isPlaying={this.state.isPlaying}
+                        isPlaying={isPlaying}
                         trackDuration={activeTrack.duration_ms}
                         progress={this.state.progress}
                         onColorChange={color => this.setState({ theme: withPrimary(color) })}
@@ -221,8 +225,8 @@ class App extends Component {
                           <SkipPreviousRounded />
                         </IconButton>
                         <span className="Large">
-                          <IconButton onClick={() => this.emit(this.state.isPlaying ? 'pause' : 'play')}>
-                            {this.state.isPlaying ? <PauseRounded /> : <PlayArrowRounded />}
+                          <IconButton onClick={() => this.emit(isPlaying ? 'pause' : 'play')}>
+                            {isPlaying ? <PauseRounded /> : <PlayArrowRounded />}
                           </IconButton>
                         </span>
                         <IconButton onClick={() => this.emit('next_track')}>
