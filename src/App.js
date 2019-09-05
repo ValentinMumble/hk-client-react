@@ -99,16 +99,15 @@ class App extends Component {
     })
   }
   setupConnect = accessToken => {
-    this.setState({ authorized: true, loaded: true })
     this.accessToken = accessToken
-    this.io = openSocket(`${SERVER}/connect`)
+    this.io = openSocket(`${SERVER}/connect`, { reconnection: false })
     const wrappedHandler = (event, handler) => {
       this.io.on(event, data => {
         console.info(event, data)
         handler(data)
       })
     }
-    wrappedHandler('initial_state', state => this.setState({ progress: state.progress_ms, activeTrack: state.item, volume: state.device.volume_percent, device: state.device, isPlaying: state.is_playing }))
+    wrappedHandler('initial_state', state => this.setState({ authorized: true, loaded: true, progress: state.progress_ms, activeTrack: state.item, volume: state.device.volume_percent, device: state.device, isPlaying: state.is_playing }))
     wrappedHandler('track_change', this.setTrack)
     wrappedHandler('seek', this.setProgress)
     wrappedHandler('playback_started', () => this.setPlayback(true))
@@ -117,6 +116,7 @@ class App extends Component {
     wrappedHandler('volume_change', this.setVolume)
     wrappedHandler('track_end', () => { })
     wrappedHandler('connect_error', this.onError)
+    wrappedHandler('disconnect', () => { })
     this.emit('initiate', { accessToken: this.accessToken })
   }
   snack = (message, duration = 2000, color = this.state.theme.palette.primary.main) => {
@@ -134,7 +134,10 @@ class App extends Component {
     }
   }
   onVisibilityChange = () => {
-    if (document.visibilityState === 'visible') this.emit('initiate', { accessToken: this.accessToken })
+    if (document.visibilityState === 'visible' && this.io && this.io.disconnected) {
+      this.io.open()
+      this.emit('initiate', { accessToken: this.accessToken })
+    }
   }
   render() {
     const {
