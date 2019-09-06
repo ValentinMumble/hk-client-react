@@ -2,6 +2,17 @@
   display: grid;
   height: 100vh;
   font-size: 7vh;
+  position: relative;
+}
+
+.Loader {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  z-index: 1;
 }
 
 .Dark {
