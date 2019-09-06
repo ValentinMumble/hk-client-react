@@ -3,7 +3,7 @@ import './App.css'
 import { withPrimary } from './theme'
 import { api } from './util'
 import openSocket from 'socket.io-client'
-import { Snackbar, Slider, CircularProgress, IconButton, Typography, SnackbarContent, Popover } from '@material-ui/core'
+import { Snackbar, Slider, LinearProgress, IconButton, Typography, SnackbarContent, Popover } from '@material-ui/core'
 import { ThemeProvider } from '@material-ui/styles'
 import {
   RadioRounded,
@@ -156,9 +156,6 @@ class App extends Component {
     return (
       <ThemeProvider theme={theme}>
         <div className="App">
-          {this.state.loading && <div className="Loader">
-            <CircularProgress />
-          </div>}
           <main>
             <Snackbar
               anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
@@ -210,6 +207,9 @@ class App extends Component {
               {this.state.authorized ? (
                 activeTrack ? (
                   <div className="Container">
+                    {this.state.loading && <div className="Loader">
+                      <LinearProgress />
+                    </div>}
                     <Artwork onClick={() => api(`${SERVER}/soca/count`).then(json => this.onApi({ ...json, message: `${json.clientsCount} client${json.clientsCount > 1 ? 's' : ''} connected` }))}
                       src={activeTrack.album.images.length > 0 ? activeTrack.album.images[0].url : ''}
                       isPlaying={isPlaying}

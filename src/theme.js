@@ -6,7 +6,8 @@ export const withPrimary = color => {
       fontFamily: 'inherit'
     },
     palette: {
-      primary: { main: color }, type: 'dark'
+      primary: { main: color },
+      type: 'dark'
     },
     props: {
       MuiIconButton: { color: 'primary', centerRipple: false }
@@ -63,6 +64,11 @@ export const withPrimary = color => {
       MuiPaper: {
         root: {
           backgroundColor: '#1c1c1c'
+        }
+      },
+      MuiLinearProgress: {
+        root: {
+          flexGrow: 1
         }
       }
     }
