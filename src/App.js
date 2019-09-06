@@ -50,7 +50,7 @@ class App extends Component {
   }
   setProgress = progress => this.setState({ progress })
   setPlayback = isPlaying => this.setState({ isPlaying })
-  setDevice = device => this.setState({ device })
+  setDevice = device => this.setState({ device, loading: false })
   setVolume = volume => this.setState({ volume })
   setTrack = activeTrack => this.setState({ activeTrack })
   emit = (event, value) => {
@@ -124,6 +124,7 @@ class App extends Component {
     if (message) this.setState({ snackbar: { ...this.state.snackbar, opened: true, message, duration, color } })
   }
   onApi = json => {
+    // TODO fix json.message || json.error || json.error.message
     this.snack(json.message || json.error)
   }
   onHueClick = color => {
@@ -179,7 +180,7 @@ class App extends Component {
             <div className="Container">
               <div className="Container Top">
                 <div className="Small">
-                  <IconButton onClick={() => api(HK, { data: { func: 'selectSource', param: 'Radio' }, method: 'POST' }).then(this.onApi)}>
+                  <IconButton onClick={() => api(`${HK}/source/Radio`).then(this.onApi)}>
                     <RadioRounded />
                   </IconButton>
                   <IconButton onClick={() => api(HK, { data: { func: 'selectSource', param: 'TV' }, method: 'POST' }).then(this.onApi)}>
