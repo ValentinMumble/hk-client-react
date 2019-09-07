@@ -71,6 +71,11 @@ export const withPrimary = color => {
         root: {
           flexGrow: 1
         }
+      },
+      MuiTouchRipple: {
+        rippleVisible: {
+          animationDuration: '.3s'
+        }
       }
     }
   })

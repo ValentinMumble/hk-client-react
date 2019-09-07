@@ -118,7 +118,7 @@ class App extends Component {
     wrappedHandler('volume_change', this.setVolume)
     wrappedHandler('track_end', () => { })
     wrappedHandler('connect_error', this.onError)
-    wrappedHandler('disconnect', () => { })
+    wrappedHandler('disconnect', this.onVisibilityChange)
     this.emit('initiate', { accessToken: this.accessToken })
   }
   snack = (message, duration = 2000, color = this.state.theme.palette.primary.main) => {
