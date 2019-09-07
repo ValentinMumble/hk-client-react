@@ -7,6 +7,7 @@ export const withPrimary = color => {
     },
     palette: {
       primary: { main: color },
+      secondary: { main: '#333' },
       type: 'dark'
     },
     props: {

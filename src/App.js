@@ -19,7 +19,8 @@ import {
   PauseRounded,
   SkipNextRounded,
   LockRounded,
-  WbIncandescentRounded
+  WbIncandescentRounded,
+  Warning
 } from '@material-ui/icons'
 import Artwork from './Artwork'
 
@@ -50,7 +51,7 @@ class App extends Component {
   }
   setProgress = progress => this.setState({ progress })
   setPlayback = isPlaying => this.setState({ isPlaying })
-  setDevice = device => this.setState({ device, loading: false })
+  setDevice = device => this.setState({ device })
   setVolume = volume => this.setState({ volume })
   setTrack = activeTrack => this.setState({ activeTrack })
   emit = (event, value) => {
@@ -124,8 +125,7 @@ class App extends Component {
     if (message) this.setState({ snackbar: { ...this.state.snackbar, opened: true, message, duration, color } })
   }
   onApi = json => {
-    // TODO fix json.message || json.error || json.error.message
-    this.snack(json.message || json.error)
+    this.snack(json.error ? <span className="Warning"><Warning fontSize="small" /> {json.error.message || json.error}</span> : json.message)
   }
   onHueClick = color => {
     if (color === 'transparent') {
@@ -183,7 +183,7 @@ class App extends Component {
                   <IconButton onClick={() => api(`${HK}/source/Radio`).then(this.onApi)}>
                     <RadioRounded />
                   </IconButton>
-                  <IconButton onClick={() => api(HK, { data: { func: 'selectSource', param: 'TV' }, method: 'POST' }).then(this.onApi)}>
+                  <IconButton onClick={() => api(`${HK}/source/TV`).then(this.onApi)}>
                     <MusicNoteRounded />
                   </IconButton>
                   <IconButton onClick={(e) => this.setState({ popover: { ...popover, opened: !this.state.popover.opened, anchorEl: e.currentTarget } })}>
@@ -192,15 +192,15 @@ class App extends Component {
                   <IconButton onClick={() => api(`${SERVER}/bluetooth/reset`).then(this.onApi)}>
                     <BluetoothRounded />
                   </IconButton>
-                  <IconButton onClick={() => api(HK, { data: { func: 'off' }, method: 'POST' }).then(this.onApi)}>
+                  <IconButton onClick={() => api(`${HK}/off`).then(this.onApi)}>
                     <PowerSettingsNewRounded />
                   </IconButton>
                 </div>
                 <div className="Large">
-                  <IconButton onClick={() => api(HK, { data: { func: 'volumeDown' }, method: 'POST' }).then(this.onApi)}>
+                  <IconButton onClick={() => api(`${HK}/volume/down`).then(this.onApi)}>
                     <VolumeDownRounded />
                   </IconButton>
-                  <IconButton onClick={() => api(HK, { data: { func: 'volumeUp' }, method: 'POST' }).then(this.onApi)}>
+                  <IconButton onClick={() => api(`${HK}/volume/up`).then(this.onApi)}>
                     <VolumeUpRounded />
                   </IconButton>
                 </div>
@@ -209,7 +209,7 @@ class App extends Component {
                 activeTrack ? (
                   <div className="Container">
                     {this.state.loading && <div className="Loader">
-                      <LinearProgress />
+                      <LinearProgress color="secondary" />
                     </div>}
                     <Artwork onClick={() => api(`${SERVER}/soca/count`).then(json => this.onApi({ ...json, message: `${json.clientsCount} client${json.clientsCount > 1 ? 's' : ''} connected` }))}
                       src={activeTrack.album.images.length > 0 ? activeTrack.album.images[0].url : ''}
