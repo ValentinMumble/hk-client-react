@@ -3,7 +3,7 @@ import './App.css'
 import { withPrimary } from './theme'
 import { api } from './util'
 import openSocket from 'socket.io-client'
-import { Snackbar, Slider, LinearProgress, IconButton, Typography, SnackbarContent, Popover } from '@material-ui/core'
+import { Snackbar, Slider, LinearProgress, IconButton, Typography, SnackbarContent, Popover, ButtonBase } from '@material-ui/core'
 import { ThemeProvider } from '@material-ui/styles'
 import {
   RadioRounded,
@@ -209,7 +209,7 @@ class App extends Component {
                 activeTrack ? (
                   <div className="Container">
                     {this.state.loading && <div className="Loader">
-                      <LinearProgress color="secondary" />
+                      <LinearProgress color="secondary" /><ButtonBase />
                     </div>}
                     <Artwork onClick={() => api(`${SERVER}/soca/count`).then(json => this.onApi({ ...json, message: `${json.clientsCount} client${json.clientsCount > 1 ? 's' : ''} connected` }))}
                       src={activeTrack.album.images.length > 0 ? activeTrack.album.images[0].url : ''}
@@ -220,7 +220,7 @@ class App extends Component {
                     />
                     <Typography className="Title" variant="h5" color="primary"
                       onClick={() => api(`${SERVER}/spotify/addok/${activeTrack.uri}`).then(this.onApi)}>
-                      {activeTrack.name}<br /><span className="Dark">{activeTrack.artists[0].name}</span>
+                      {activeTrack.name}<br /><span className="Artist">{activeTrack.artists[0].name}</span>
                     </Typography>
                     <div className="Controls Small">
                       <IconButton onClick={() => this.emit('play', { context_uri: process.env.REACT_APP_SPO_DISCOVER_WEEKLY_URI })}>
