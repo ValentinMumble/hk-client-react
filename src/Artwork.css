@@ -10,7 +10,7 @@
 
 .Artwork.paused {
   transform: scale(.95);
-  opacity: .5;
+  opacity: .6;
 }
 
 .Artwork img {
@@ -30,6 +30,6 @@
   height: 100%;
   right: -50%;
   background: black;
-  opacity: .3;
+  opacity: .2;
   transform-origin: bottom;
 }

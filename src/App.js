@@ -3,7 +3,7 @@ import './App.css'
 import { withPrimary } from './theme'
 import { api } from './util'
 import openSocket from 'socket.io-client'
-import { Snackbar, Slider, LinearProgress, IconButton, Typography, SnackbarContent, Popover, ButtonBase } from '@material-ui/core'
+import { Snackbar, Slider, LinearProgress, IconButton, Typography, SnackbarContent, ButtonBase, Tabs, Tab } from '@material-ui/core'
 import { ThemeProvider } from '@material-ui/styles'
 import {
   RadioRounded,
@@ -22,6 +22,7 @@ import {
   WbIncandescentRounded,
   Warning
 } from '@material-ui/icons'
+import SwipeableViews from 'react-swipeable-views'
 import Artwork from './Artwork'
 import Hues from './Hues'
 
@@ -35,8 +36,8 @@ class App extends Component {
     super(props)
     this.state = {
       snackbar: { opened: false, color: '#000' },
-      popover: { opened: false },
-      theme: withPrimary('#000')
+      theme: withPrimary('#000'),
+      tab: 0
     }
   }
   componentDidMount() {
@@ -129,7 +130,6 @@ class App extends Component {
   }
   onHueClick = color => {
     if (color === 'transparent') {
-      this.setState({ popover: { ...this.state.popover, opened: false } })
       api(`${SERVER}/hue/off`).then(this.onApi)
     } else {
       api(`${SERVER}/hue/on/${color.substring(1)}`).then(this.onApi)
@@ -150,7 +150,7 @@ class App extends Component {
       isPlaying,
       activeTrack,
       snackbar,
-      popover
+      tab
     } = this.state
     return (
       <ThemeProvider theme={theme}>
@@ -165,25 +165,14 @@ class App extends Component {
                 style={{ backgroundColor: snackbar.color, color: theme.palette.getContrastText(snackbar.color) }}
                 message={snackbar.message} />
             </Snackbar>
-            <Popover
-              anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-              transformOrigin={{ vertical: 'top', horizontal: 'center' }}
-              anchorEl={popover.anchorEl}
-              open={popover.opened}
-              onClose={() => this.setState({ popover: { ...popover, opened: false } })}>
-              <Hues onHueClick={this.onHueClick} theme={theme} />
-            </Popover>
-            <div className="Container">
-              <div className="Container Top">
-                <div className="Small">
+            <SwipeableViews index={tab} onChangeIndex={tab => this.setState({ tab })}>
+              <div className="Container">
+                <div className="Controls Small">
                   <IconButton onClick={() => api(`${HK}/source/Radio`).then(this.onApi)}>
                     <RadioRounded />
                   </IconButton>
                   <IconButton onClick={() => api(`${HK}/source/TV`).then(this.onApi)}>
                     <MusicNoteRounded />
-                  </IconButton>
-                  <IconButton onClick={(e) => this.setState({ popover: { ...popover, opened: !this.state.popover.opened, anchorEl: e.currentTarget } })}>
-                    <WbIncandescentRounded />
                   </IconButton>
                   <IconButton onClick={() => api(`${SERVER}/bluetooth/reset`).then(this.onApi)}>
                     <BluetoothRounded />
@@ -192,7 +181,7 @@ class App extends Component {
                     <PowerSettingsNewRounded />
                   </IconButton>
                 </div>
-                <div className="Large">
+                <div className="Controls">
                   <IconButton onClick={() => api(`${HK}/volume/down`).then(this.onApi)}>
                     <VolumeDownRounded />
                   </IconButton>
@@ -200,57 +189,66 @@ class App extends Component {
                     <VolumeUpRounded />
                   </IconButton>
                 </div>
-              </div>
-              {this.state.authorized ? (
-                activeTrack ? (
-                  <div className="Container">
-                    {this.state.loading && <div className="Loader">
-                      <LinearProgress color="secondary" /><ButtonBase />
-                    </div>}
-                    <Artwork onClick={() => api(`${SERVER}/soca/count`).then(json => this.onApi({ ...json, message: `${json.clientsCount} client${json.clientsCount > 1 ? 's' : ''} connected` }))}
-                      src={activeTrack.album.images.length > 0 ? activeTrack.album.images[0].url : ''}
-                      isPlaying={isPlaying}
-                      trackDuration={activeTrack.duration_ms}
-                      progress={this.state.progress}
-                      onColorChange={color => this.setState({ theme: withPrimary(color) })} />
-                    <Typography className="Title" variant="h5" color="primary"
-                      onClick={() => api(`${SERVER}/spotify/addok/${activeTrack.uri}`).then(this.onApi)}>
-                      {activeTrack.name}<br /><span className="Artist">{activeTrack.artists[0].name}</span>
-                    </Typography>
-                    <div className="Controls Small">
-                      <IconButton onClick={() => this.emit('play', { context_uri: process.env.REACT_APP_SPO_DISCOVER_WEEKLY_URI })}>
-                        <NewReleasesRounded />
-                      </IconButton>
-                      <IconButton onClick={() => this.emit('previous_track')}>
-                        <SkipPreviousRounded />
-                      </IconButton>
-                      <span className="Large">
-                        <IconButton onClick={() => this.emit(isPlaying ? 'pause' : 'play')}>
-                          {isPlaying ? <PauseRounded /> : <PlayArrowRounded />}
+                {this.state.authorized ? (
+                  activeTrack ? (
+                    <div className="Container">
+                      {this.state.loading && <div className="Loader">
+                        <LinearProgress color="secondary" /><ButtonBase />
+                      </div>}
+                      <Artwork onClick={() => api(`${SERVER}/soca/count`).then(json => this.onApi({ ...json, message: `${json.clientsCount} client${json.clientsCount > 1 ? 's' : ''} connected` }))}
+                        src={activeTrack.album.images.length > 0 ? activeTrack.album.images[0].url : ''}
+                        isPlaying={isPlaying}
+                        trackDuration={activeTrack.duration_ms}
+                        progress={this.state.progress}
+                        onColorChange={color => this.setState({ theme: withPrimary(color) })} />
+                      <Typography className="Title" variant="h5" color="primary"
+                        onClick={() => api(`${SERVER}/spotify/addok/${activeTrack.uri}`).then(this.onApi)}>
+                        {activeTrack.name}<br /><span className="Artist">{activeTrack.artists[0].name}</span>
+                      </Typography>
+                      <div className="Controls Small">
+                        <IconButton onClick={() => this.emit('play', { context_uri: process.env.REACT_APP_SPO_DISCOVER_WEEKLY_URI })}>
+                          <NewReleasesRounded />
                         </IconButton>
-                      </span>
-                      <IconButton onClick={() => this.emit('next_track')}>
-                        <SkipNextRounded />
-                      </IconButton>
-                      <IconButton onClick={() => this.emit('play', { context_uri: process.env.REACT_APP_SPO_LIKES_URI })}>
-                        <FavoriteRounded />
-                      </IconButton>
+                        <IconButton onClick={() => this.emit('previous_track')}>
+                          <SkipPreviousRounded />
+                        </IconButton>
+                        <span className="Large">
+                          <IconButton onClick={() => this.emit(isPlaying ? 'pause' : 'play')}>
+                            {isPlaying ? <PauseRounded /> : <PlayArrowRounded />}
+                          </IconButton>
+                        </span>
+                        <IconButton onClick={() => this.emit('next_track')}>
+                          <SkipNextRounded />
+                        </IconButton>
+                        <IconButton onClick={() => this.emit('play', { context_uri: process.env.REACT_APP_SPO_LIKES_URI })}>
+                          <FavoriteRounded />
+                        </IconButton>
+                      </div>
+                      <div className="Volume">
+                        <Slider valueLabelDisplay="auto"
+                          value={this.state.volume}
+                          onChange={(e, v) => this.setVolume(v)}
+                          onChangeCommitted={(e, v) => this.emit('set_volume', v)} />
+                      </div>
                     </div>
-                    <div className="Volume">
-                      <Slider valueLabelDisplay="auto"
-                        value={this.state.volume}
-                        onChange={(e, v) => this.setVolume(v)}
-                        onChangeCommitted={(e, v) => this.emit('set_volume', v)} />
-                    </div>
+                  ) : <div className="Container">{this.state.error}</div>
+                ) : <div className="Controls Large">
+                    <IconButton onClick={() => { this.login().then(this.setupConnect) }}>
+                      <LockRounded />
+                    </IconButton>
                   </div>
-                ) : <div className="Container">{this.state.error}</div>
-              ) : <div className="Controls Large">
-                  <IconButton onClick={() => { this.login().then(this.setupConnect) }}>
-                    <LockRounded />
-                  </IconButton>
-                </div>
-              }
-            </div>
+                }
+              </div>
+              <div className="Container">
+                <Hues onHueClick={this.onHueClick} theme={theme} />
+              </div>
+            </SwipeableViews>
+            <Tabs variant="fullWidth" textColor="primary" indicatorColor="primary"
+              value={tab}
+              onChange={(e, tab) => { this.setState({ tab }) }}>
+              <Tab icon={<MusicNoteRounded />} />
+              <Tab icon={<WbIncandescentRounded />} />
+            </Tabs>
           </main>
         </div >
       </ThemeProvider>

@@ -53,7 +53,7 @@ export const withPrimary = color => {
         },
         h5: {
           fontSize: '2.5vh',
-          margin: '30px 0',
+          margin: '20px 0',
           lineHeight: 'inherit'
         }
       },

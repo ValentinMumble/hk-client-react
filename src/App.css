@@ -1,6 +1,5 @@
 .App {
   display: grid;
-  height: 100vh;
   font-size: 7vh;
   position: relative;
 }
@@ -15,7 +14,7 @@
 }
 
 .Small {
-  font-size: 5.5vh;
+  font-size: 5vh;
 }
 
 .Warning {
@@ -26,22 +25,19 @@
   margin-right: 10px;
 }
 
-main,
-.Controls {
+main {
   display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-main>.Container {
-  height: 95%;
+  flex-direction: column;
+  justify-content: flex-end;
+  width: 100vw;
+  height: 100vh;
 }
 
 .Container {
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
   align-items: center;
+  justify-content: space-between;
 }
 
 .Loader {
@@ -59,8 +55,10 @@ main>.Container {
   height: 100%;
 }
 
-.Top {
-  height: 100px;
+.Controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .Title {
