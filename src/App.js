@@ -23,6 +23,7 @@ import {
   Warning
 } from '@material-ui/icons'
 import Artwork from './Artwork'
+import Hues from './Hues'
 
 const {
   REACT_APP_SERVER_URL: SERVER,
@@ -37,7 +38,6 @@ class App extends Component {
       popover: { opened: false },
       theme: withPrimary('#000')
     }
-    this.colors = ['transparent', '#ffffff', '#ffaa71', '#01a7c2', '#ff96ca']
   }
   componentDidMount() {
     api(`${SERVER}/spotify/access-token`).then(data => {
@@ -151,9 +151,7 @@ class App extends Component {
       activeTrack,
       snackbar,
       popover
-    } = this.state,
-      colors = Array.from(this.colors)
-    colors.push(theme.palette.primary.main)
+    } = this.state
     return (
       <ThemeProvider theme={theme}>
         <div className="App">
@@ -173,9 +171,7 @@ class App extends Component {
               anchorEl={popover.anchorEl}
               open={popover.opened}
               onClose={() => this.setState({ popover: { ...popover, opened: false } })}>
-              <div className="Colors">
-                {colors.map((color, i) => <div key={i} style={{ backgroundColor: color }} onClick={() => this.onHueClick(color)}></div>)}
-              </div>
+              <Hues onHueClick={this.onHueClick} theme={theme} />
             </Popover>
             <div className="Container">
               <div className="Container Top">
@@ -216,8 +212,7 @@ class App extends Component {
                       isPlaying={isPlaying}
                       trackDuration={activeTrack.duration_ms}
                       progress={this.state.progress}
-                      onColorChange={color => this.setState({ theme: withPrimary(color) })}
-                    />
+                      onColorChange={color => this.setState({ theme: withPrimary(color) })} />
                     <Typography className="Title" variant="h5" color="primary"
                       onClick={() => api(`${SERVER}/spotify/addok/${activeTrack.uri}`).then(this.onApi)}>
                       {activeTrack.name}<br /><span className="Artist">{activeTrack.artists[0].name}</span>
