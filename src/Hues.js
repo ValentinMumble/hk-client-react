@@ -8,6 +8,13 @@ class Hues extends Component {
       colors: ['transparent', props.theme.palette.primary.main, '#ffffff', '#ffaa71', '#01a7c2', '#ff96ca']
     }
   }
+  componentDidUpdate(prevProps) {
+    if (this.props.theme !== prevProps.theme) {
+      const colors = Array.from(this.state.colors)
+      colors[1] = this.props.theme.palette.primary.main
+      this.setState({ colors })
+    }
+  }
   render() {
     return (
       <div className="Hues">
