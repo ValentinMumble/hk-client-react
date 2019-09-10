@@ -129,11 +129,11 @@ class App extends Component {
     this.snack(json.error ? <span className="Warning"><Warning fontSize="small" /> {json.error.message || json.error}</span> : json.message)
   }
   onHueClick = color => {
-    if (color === 'transparent') {
-      api(`${SERVER}/hue/off`).then(this.onApi)
-    } else {
+    if (color) {
       api(`${SERVER}/hue/on/${color.substring(1)}`).then(this.onApi)
       this.snack('Turning lights on...', 1000, color)
+    } else {
+      api(`${SERVER}/hue/off`).then(this.onApi)
     }
   }
   onVisibilityChange = () => {
@@ -155,101 +155,97 @@ class App extends Component {
     return (
       <ThemeProvider theme={theme}>
         <div className="App">
-          <main>
-            <Snackbar
-              anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-              autoHideDuration={snackbar.duration}
-              open={snackbar.opened}
-              onClose={() => this.setState({ snackbar: { ...snackbar, opened: false } })}>
-              <SnackbarContent
-                style={{ backgroundColor: snackbar.color, color: theme.palette.getContrastText(snackbar.color) }}
-                message={snackbar.message} />
-            </Snackbar>
-            <SwipeableViews index={tab} onChangeIndex={tab => this.setState({ tab })}>
-              <div className="Container">
-                <div className="Controls Small">
-                  <IconButton onClick={() => api(`${HK}/source/Radio`).then(this.onApi)}>
-                    <RadioRounded />
-                  </IconButton>
-                  <IconButton onClick={() => api(`${HK}/source/TV`).then(this.onApi)}>
-                    <MusicNoteRounded />
-                  </IconButton>
-                  <IconButton onClick={() => api(`${SERVER}/bluetooth/reset`).then(this.onApi)}>
-                    <BluetoothRounded />
-                  </IconButton>
-                  <IconButton onClick={() => api(`${HK}/off`).then(this.onApi)}>
-                    <PowerSettingsNewRounded />
-                  </IconButton>
-                </div>
-                <div className="Controls">
-                  <IconButton onClick={() => api(`${HK}/volume/down`).then(this.onApi)}>
-                    <VolumeDownRounded />
-                  </IconButton>
-                  <IconButton onClick={() => api(`${HK}/volume/up`).then(this.onApi)}>
-                    <VolumeUpRounded />
-                  </IconButton>
-                </div>
-                {this.state.authorized ? (
-                  activeTrack ? (
-                    <div className="Container">
-                      {this.state.loading && <div className="Loader">
-                        <LinearProgress color="secondary" /><ButtonBase />
-                      </div>}
-                      <Artwork onClick={() => api(`${SERVER}/soca/count`).then(json => this.onApi({ ...json, message: `${json.clientsCount} client${json.clientsCount > 1 ? 's' : ''} connected` }))}
-                        src={activeTrack.album.images.length > 0 ? activeTrack.album.images[0].url : ''}
-                        isPlaying={isPlaying}
-                        trackDuration={activeTrack.duration_ms}
-                        progress={this.state.progress}
-                        onColorChange={color => this.setState({ theme: withPrimary(color) })} />
-                      <Typography className="Title" variant="h5" color="primary"
-                        onClick={() => api(`${SERVER}/spotify/addok/${activeTrack.uri}`).then(this.onApi)}>
-                        {activeTrack.name}<br /><span className="Artist">{activeTrack.artists[0].name}</span>
-                      </Typography>
-                      <div className="Controls Small">
-                        <IconButton onClick={() => this.emit('play', { context_uri: process.env.REACT_APP_SPO_DISCOVER_WEEKLY_URI })}>
-                          <NewReleasesRounded />
+          <Snackbar
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            autoHideDuration={snackbar.duration}
+            open={snackbar.opened}
+            onClose={() => this.setState({ snackbar: { ...snackbar, opened: false } })}>
+            <SnackbarContent
+              style={{ backgroundColor: snackbar.color, color: theme.palette.getContrastText(snackbar.color) }}
+              message={snackbar.message} />
+          </Snackbar>
+          <SwipeableViews style={{ flexGrow: 1 }} containerStyle={{ height: '100%' }} slideClassName="Container" index={tab}
+            onChangeIndex={tab => this.setState({ tab })}>
+            <div className="Container">
+              <div className="Controls Small">
+                <IconButton onClick={() => api(`${HK}/source/Radio`).then(this.onApi)}>
+                  <RadioRounded />
+                </IconButton>
+                <IconButton onClick={() => api(`${HK}/source/TV`).then(this.onApi)}>
+                  <MusicNoteRounded />
+                </IconButton>
+                <IconButton onClick={() => api(`${SERVER}/bluetooth/reset`).then(this.onApi)}>
+                  <BluetoothRounded />
+                </IconButton>
+                <IconButton onClick={() => api(`${HK}/off`).then(this.onApi)}>
+                  <PowerSettingsNewRounded />
+                </IconButton>
+              </div>
+              <div className="Controls">
+                <IconButton onClick={() => api(`${HK}/volume/down`).then(this.onApi)}>
+                  <VolumeDownRounded />
+                </IconButton>
+                <IconButton onClick={() => api(`${HK}/volume/up`).then(this.onApi)}>
+                  <VolumeUpRounded />
+                </IconButton>
+              </div>
+              {this.state.authorized ? (
+                activeTrack ? (
+                  <div className="Container">
+                    {this.state.loading && <div className="Loader">
+                      <LinearProgress color="secondary" /><ButtonBase />
+                    </div>}
+                    <Artwork onClick={() => api(`${SERVER}/soca/count`).then(json => this.onApi({ ...json, message: `${json.clientsCount} client${json.clientsCount > 1 ? 's' : ''} connected` }))}
+                      src={activeTrack.album.images.length > 0 ? activeTrack.album.images[0].url : ''}
+                      isPlaying={isPlaying}
+                      trackDuration={activeTrack.duration_ms}
+                      progress={this.state.progress}
+                      onColorChange={color => this.setState({ theme: withPrimary(color) })} />
+                    <Typography className="Title" variant="h5" color="primary"
+                      onClick={() => api(`${SERVER}/spotify/addok/${activeTrack.uri}`).then(this.onApi)}>
+                      {activeTrack.name}<br /><span className="Artist">{activeTrack.artists[0].name}</span>
+                    </Typography>
+                    <div className="Controls Small">
+                      <IconButton onClick={() => this.emit('play', { context_uri: process.env.REACT_APP_SPO_DISCOVER_WEEKLY_URI })}>
+                        <NewReleasesRounded />
+                      </IconButton>
+                      <IconButton onClick={() => this.emit('previous_track')}>
+                        <SkipPreviousRounded />
+                      </IconButton>
+                      <span className="Large">
+                        <IconButton onClick={() => this.emit(isPlaying ? 'pause' : 'play')}>
+                          {isPlaying ? <PauseRounded /> : <PlayArrowRounded />}
                         </IconButton>
-                        <IconButton onClick={() => this.emit('previous_track')}>
-                          <SkipPreviousRounded />
-                        </IconButton>
-                        <span className="Large">
-                          <IconButton onClick={() => this.emit(isPlaying ? 'pause' : 'play')}>
-                            {isPlaying ? <PauseRounded /> : <PlayArrowRounded />}
-                          </IconButton>
-                        </span>
-                        <IconButton onClick={() => this.emit('next_track')}>
-                          <SkipNextRounded />
-                        </IconButton>
-                        <IconButton onClick={() => this.emit('play', { context_uri: process.env.REACT_APP_SPO_LIKES_URI })}>
-                          <FavoriteRounded />
-                        </IconButton>
-                      </div>
-                      <div className="Volume">
-                        <Slider valueLabelDisplay="auto"
-                          value={this.state.volume}
-                          onChange={(e, v) => this.setVolume(v)}
-                          onChangeCommitted={(e, v) => this.emit('set_volume', v)} />
-                      </div>
+                      </span>
+                      <IconButton onClick={() => this.emit('next_track')}>
+                        <SkipNextRounded />
+                      </IconButton>
+                      <IconButton onClick={() => this.emit('play', { context_uri: process.env.REACT_APP_SPO_LIKES_URI })}>
+                        <FavoriteRounded />
+                      </IconButton>
                     </div>
-                  ) : <div className="Container">{this.state.error}</div>
-                ) : <div className="Controls Large">
-                    <IconButton onClick={() => { this.login().then(this.setupConnect) }}>
-                      <LockRounded />
-                    </IconButton>
+                    <div className="Volume">
+                      <Slider valueLabelDisplay="auto"
+                        value={this.state.volume}
+                        onChange={(e, v) => this.setVolume(v)}
+                        onChangeCommitted={(e, v) => this.emit('set_volume', v)} />
+                    </div>
                   </div>
-                }
-              </div>
-              <div className="Container">
-                <Hues onHueClick={this.onHueClick} theme={theme} />
-              </div>
-            </SwipeableViews>
-            <Tabs variant="fullWidth" textColor="primary" indicatorColor="primary"
-              value={tab}
-              onChange={(e, tab) => { this.setState({ tab }) }}>
-              <Tab icon={<MusicNoteRounded />} />
-              <Tab icon={<WbIncandescentRounded />} />
-            </Tabs>
-          </main>
+                ) : <div className="Container">{this.state.error}</div>
+              ) : <div className="Controls Large">
+                  <IconButton onClick={() => { this.login().then(this.setupConnect) }}>
+                    <LockRounded />
+                  </IconButton>
+                </div>
+              }
+            </div>
+            <Hues onHueClick={this.onHueClick} theme={theme} />
+          </SwipeableViews>
+          <Tabs variant="fullWidth" indicatorColor="primary" value={tab}
+            onChange={(e, tab) => { this.setState({ tab }) }}>
+            <Tab icon={<MusicNoteRounded />} />
+            <Tab icon={<WbIncandescentRounded />} />
+          </Tabs>
         </div >
       </ThemeProvider>
     )

@@ -1,7 +1,11 @@
 .App {
-  display: grid;
   font-size: 7vh;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  width: 100vw;
+  height: 100vh;
 }
 
 .Large,
@@ -25,19 +29,12 @@
   margin-right: 10px;
 }
 
-main {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  width: 100vw;
-  height: 100vh;
-}
-
 .Container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
+  flex-grow: 1;
 }
 
 .Loader {
