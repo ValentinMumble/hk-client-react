@@ -42,7 +42,8 @@ class App extends Component {
     this.state = {
       snackbar: { opened: false, color: '#000' },
       theme: withPrimary('#000'),
-      tab: 0
+      tab: 0,
+      palette: []
     };
   }
   componentDidMount() {
@@ -63,9 +64,7 @@ class App extends Component {
   emit = (event, value) => {
     console.info('Emit', event, value);
     this.io.emit(event, value);
-    switch (
-      event // optimistic updates
-    ) {
+    switch (event) {
       case 'play':
         this.setPlayback(true);
         break;
@@ -232,7 +231,7 @@ class App extends Component {
                       isPlaying={isPlaying}
                       trackDuration={activeTrack.duration_ms}
                       progress={this.state.progress}
-                      onColorChange={color => this.setState({ theme: withPrimary(color) })}
+                      onColorChange={palette => this.setState({ palette, theme: withPrimary(palette[0]) })}
                     />
                     <Typography
                       className='Title'
@@ -280,25 +279,20 @@ class App extends Component {
                 )
               ) : (
                 <div className='Controls Large'>
-                  <IconButton
-                    onClick={() => {
-                      this.login().then(this.setupConnect);
-                    }}>
+                  <IconButton onClick={() => this.login().then(this.setupConnect)}>
                     <LockRounded />
                   </IconButton>
                 </div>
               )}
             </div>
-            <Hues onHueClick={this.onHueClick} theme={theme} />
+            <Hues onHueClick={this.onHueClick} palette={this.state.palette} />
           </SwipeableViews>
           <Tabs
             variant='fullWidth'
             textColor='primary'
             indicatorColor='primary'
             value={tab}
-            onChange={(e, tab) => {
-              this.setState({ tab });
-            }}>
+            onChange={(e, tab) => this.setState({ tab })}>
             <Tab icon={<MusicNoteRounded />} />
             <Tab icon={<WbIncandescentRounded />} />
           </Tabs>
