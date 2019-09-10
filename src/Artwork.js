@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './Artwork.css';
 import { I, fetchImage } from './util';
-import FastAverageColor from 'fast-average-color';
+import splashy from 'splashy';
 
 class Artwork extends Component {
   constructor(props) {
@@ -11,7 +11,6 @@ class Artwork extends Component {
       progress: props.progress
     };
     this.img = React.createRef();
-    this.fac = new FastAverageColor();
   }
   componentDidMount() {
     this.loadArtwork(this.props.src);
@@ -31,9 +30,10 @@ class Artwork extends Component {
       this.onArtworkData(I.GRAY);
     }
   };
-  onArtworkData = data => {
+  onArtworkData = async (data, image) => {
+    // TODO clean this & fix bug when no artwork
     this.setState({ current: data, hidden: 'hidden' });
-    this.fac.getColorAsync(this.img.current).then(color => this.props.onColorChange(color.hex));
+    this.props.onColorChange(await splashy(image));
     setTimeout(() => this.setState({ prev: data, hidden: '' }), 600);
   };
   render() {

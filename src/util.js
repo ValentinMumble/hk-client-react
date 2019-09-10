@@ -23,7 +23,7 @@ export const fetchImage = (url, callback) => {
     canvas.width = downloadedImg.width;
     canvas.height = downloadedImg.height;
     canvas.getContext('2d').drawImage(downloadedImg, 0, 0);
-    callback(canvas.toDataURL('image/png'));
+    callback(canvas.toDataURL('image/png'), downloadedImg);
   });
 };
 
