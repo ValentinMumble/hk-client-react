@@ -81,7 +81,7 @@ export const withPrimary = color => {
           minHeight: 30
         },
         textColorPrimary: {
-          color: 'rgba(255, 255, 255, 0.3)'
+          color: color === '#000' ? color : 'rgba(255, 255, 255, 0.5)'
         }
       }
     }

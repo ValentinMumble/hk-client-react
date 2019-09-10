@@ -1,14 +1,14 @@
-import React from 'react'
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
+import React from 'react';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
-import App from './App'
-import Callback from './Callback'
+import App from './App';
+import Callback from './Callback';
 
 export default () => (
-  <Router basename="/hk">
+  <Router basename='/hk'>
     <Switch>
-      <Route exact path="/callback/" component={Callback} />
-      <Route exact path="*" component={App} />
+      <Route exact path='/callback/' component={Callback} />
+      <Route exact path='*' component={App} />
     </Switch>
   </Router>
-)
+);
