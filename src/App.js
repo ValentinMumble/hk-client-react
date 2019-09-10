@@ -1,10 +1,20 @@
-import React, { Component } from 'react'
-import './App.css'
-import { withPrimary } from './theme'
-import { api } from './util'
-import openSocket from 'socket.io-client'
-import { Snackbar, Slider, LinearProgress, IconButton, Typography, SnackbarContent, ButtonBase, Tabs, Tab } from '@material-ui/core'
-import { ThemeProvider } from '@material-ui/styles'
+import React, { Component } from 'react';
+import './App.css';
+import { withPrimary } from './theme';
+import { api } from './util';
+import openSocket from 'socket.io-client';
+import {
+  Snackbar,
+  Slider,
+  LinearProgress,
+  IconButton,
+  Typography,
+  SnackbarContent,
+  ButtonBase,
+  Tabs,
+  Tab
+} from '@material-ui/core';
+import { ThemeProvider } from '@material-ui/styles';
 import {
   RadioRounded,
   FavoriteRounded,
@@ -19,140 +29,153 @@ import {
   LockRounded,
   WbIncandescentRounded,
   Warning
-} from '@material-ui/icons'
-import SwipeableViews from 'react-swipeable-views'
-import Artwork from './Artwork'
-import Hues from './Hues'
+} from '@material-ui/icons';
+import SwipeableViews from 'react-swipeable-views';
+import Artwork from './Artwork';
+import Hues from './Hues';
 
-const {
-  REACT_APP_SERVER_URL: SERVER,
-  REACT_APP_HK_API: HK
-} = process.env
+const { REACT_APP_SERVER_URL: SERVER, REACT_APP_HK_API: HK } = process.env;
 
 class App extends Component {
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
       snackbar: { opened: false, color: '#000' },
       theme: withPrimary('#000'),
       tab: 0
-    }
+    };
   }
   componentDidMount() {
     api(`${SERVER}/spotify/access-token`).then(data => {
       if (data.url) {
-        this.setState({ authorized: false, authorizeUrl: data.url, theme: withPrimary('#777') })
+        this.setState({ authorized: false, authorizeUrl: data.url, theme: withPrimary('#777') });
       } else {
-        this.setupConnect(data.accessToken)
+        this.setupConnect(data.accessToken);
       }
-    })
-    document.addEventListener('visibilitychange', this.onVisibilityChange)
+    });
+    document.addEventListener('visibilitychange', this.onVisibilityChange);
   }
-  setProgress = progress => this.setState({ progress })
-  setPlayback = isPlaying => this.setState({ isPlaying })
-  setDevice = device => this.setState({ device })
-  setVolume = volume => this.setState({ volume })
-  setTrack = activeTrack => this.setState({ activeTrack })
+  setProgress = progress => this.setState({ progress });
+  setPlayback = isPlaying => this.setState({ isPlaying });
+  setDevice = device => this.setState({ device });
+  setVolume = volume => this.setState({ volume });
+  setTrack = activeTrack => this.setState({ activeTrack });
   emit = (event, value) => {
-    console.info('Emit', event, value)
-    this.io.emit(event, value)
-    switch (event) {  // optimistic updates
-      case 'play': this.setPlayback(true)
-        break
-      case 'pause': this.setPlayback(false)
-        break
+    console.info('Emit', event, value);
+    this.io.emit(event, value);
+    switch (
+      event // optimistic updates
+    ) {
+      case 'play':
+        this.setPlayback(true);
+        break;
+      case 'pause':
+        this.setPlayback(false);
+        break;
       default:
-        break
+        break;
     }
-  }
+  };
   onError = error => {
     if (error.name === 'NoAccessToken') {
-      this.emit('initiate', { accessToken: this.accessToken })
+      this.emit('initiate', { accessToken: this.accessToken });
     } else if (error.name === 'NoActiveDeviceError') {
-      this.setState({ loading: true })
-      this.emit('transfer_playback', { id: process.env.REACT_APP_SPO_PI_ID })
+      this.setState({ loading: true });
+      this.emit('transfer_playback', { id: process.env.REACT_APP_SPO_PI_ID });
     } else if (error === 'The access token expired') {
-      this.refreshToken()
+      this.refreshToken();
     } else {
-      this.setState({ error: error.message || error })
+      this.setState({ error: error.message || error });
     }
-  }
+  };
   refreshToken = () => {
-    console.info('Refreshing token...')
+    console.info('Refreshing token...');
     api(`${SERVER}/spotify/refresh-token`).then(data => {
-      this.accessToken = data.accessToken
-      this.emit('access_token', this.accessToken)
-    })
-  }
+      this.accessToken = data.accessToken;
+      this.emit('access_token', this.accessToken);
+    });
+  };
   login = () => {
     return new Promise((resolve, reject) => {
-      const popup = window.open(this.state.authorizeUrl, '_blank', 'width=500,height=500,location=0,resizable=0')
+      const popup = window.open(this.state.authorizeUrl, '_blank', 'width=500,height=500,location=0,resizable=0');
       const listener = setInterval(() => {
-        if (popup) popup.postMessage('login', window.location)
-      }, 1000)
+        if (popup) popup.postMessage('login', window.location);
+      }, 1000);
       window.onmessage = event => {
         if (event.source === popup) {
-          clearInterval(listener)
-          window.onmessage = null
-          return resolve(JSON.parse(event.data))
+          clearInterval(listener);
+          window.onmessage = null;
+          return resolve(JSON.parse(event.data));
         }
-      }
-    })
-  }
+      };
+    });
+  };
   setupConnect = accessToken => {
-    this.accessToken = accessToken
-    this.io = openSocket(`${SERVER}/connect`, { reconnection: false })
+    this.accessToken = accessToken;
+    this.io = openSocket(`${SERVER}/connect`, { reconnection: false });
     const wrappedHandler = (event, handler) => {
       this.io.on(event, data => {
-        console.info(event, data)
-        handler(data)
+        console.info(event, data);
+        handler(data);
+      });
+    };
+    wrappedHandler('initial_state', state =>
+      this.setState({
+        loading: false,
+        authorized: true,
+        progress: state.progress_ms,
+        activeTrack: state.item,
+        volume: state.device.volume_percent,
+        device: state.device,
+        isPlaying: state.is_playing
       })
-    }
-    wrappedHandler('initial_state', state => this.setState({ loading: false, authorized: true, progress: state.progress_ms, activeTrack: state.item, volume: state.device.volume_percent, device: state.device, isPlaying: state.is_playing }))
-    wrappedHandler('track_change', this.setTrack)
-    wrappedHandler('seek', this.setProgress)
-    wrappedHandler('playback_started', () => this.setPlayback(true))
-    wrappedHandler('playback_paused', () => this.setPlayback(false))
-    wrappedHandler('device_change', this.setDevice)
-    wrappedHandler('volume_change', this.setVolume)
-    wrappedHandler('track_end', () => { })
-    wrappedHandler('connect_error', this.onError)
-    wrappedHandler('disconnect', this.onVisibilityChange)
-    this.emit('initiate', { accessToken: this.accessToken })
-  }
+    );
+    wrappedHandler('track_change', this.setTrack);
+    wrappedHandler('seek', this.setProgress);
+    wrappedHandler('playback_started', () => this.setPlayback(true));
+    wrappedHandler('playback_paused', () => this.setPlayback(false));
+    wrappedHandler('device_change', this.setDevice);
+    wrappedHandler('volume_change', this.setVolume);
+    wrappedHandler('track_end', () => {});
+    wrappedHandler('connect_error', this.onError);
+    wrappedHandler('disconnect', this.onVisibilityChange);
+    this.emit('initiate', { accessToken: this.accessToken });
+  };
   snack = (message, duration = 2000, color = this.state.theme.palette.primary.main) => {
-    if (message) this.setState({ snackbar: { ...this.state.snackbar, opened: true, message, duration, color } })
-  }
+    if (message) this.setState({ snackbar: { ...this.state.snackbar, opened: true, message, duration, color } });
+  };
   onApi = json => {
-    this.snack(json.error ? <span className="Warning"><Warning fontSize="small" /> {json.error.message || json.error}</span> : json.message)
-  }
+    this.snack(
+      json.error ? (
+        <span className='Warning'>
+          <Warning fontSize='small' /> {json.error.message || json.error}
+        </span>
+      ) : (
+        json.message
+      )
+    );
+  };
   onHueClick = color => {
     if (color) {
-      api(`${SERVER}/hue/on/${color.substring(1)}`).then(this.onApi)
-      this.snack('Turning lights on...', 1000, color)
+      api(`${SERVER}/hue/on/${color.substring(1)}`).then(this.onApi);
+      this.snack('Turning lights on...', 1000, color);
     } else {
-      api(`${SERVER}/hue/off`).then(this.onApi)
+      api(`${SERVER}/hue/off`).then(this.onApi);
     }
-  }
+  };
   onVisibilityChange = () => {
     if (document.visibilityState === 'visible' && this.io && this.io.disconnected) {
-      console.info('Socket disconnected, reconnecting now...')
-      this.setState({ loading: true })
-      this.io.open()
-      this.emit('initiate', { accessToken: this.accessToken })
+      console.info('Socket disconnected, reconnecting now...');
+      this.setState({ loading: true });
+      this.io.open();
+      this.emit('initiate', { accessToken: this.accessToken });
     }
-  }
+  };
   render() {
-    const {
-      theme,
-      isPlaying,
-      activeTrack,
-      snackbar,
-      tab
-    } = this.state
+    const { theme, isPlaying, activeTrack, snackbar, tab } = this.state;
     return (
       <ThemeProvider theme={theme}>
-        <div className="App">
+        <div className='App'>
           <Snackbar
             anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
             autoHideDuration={snackbar.duration}
@@ -160,16 +183,21 @@ class App extends Component {
             onClose={() => this.setState({ snackbar: { ...snackbar, opened: false } })}>
             <SnackbarContent
               style={{ backgroundColor: snackbar.color, color: theme.palette.getContrastText(snackbar.color) }}
-              message={snackbar.message} />
+              message={snackbar.message}
+            />
           </Snackbar>
-          <SwipeableViews style={{ flexGrow: 1 }} containerStyle={{ height: '100%' }} slideClassName="Container" index={tab}
+          <SwipeableViews
+            style={{ flexGrow: 1 }}
+            containerStyle={{ height: '100%' }}
+            slideClassName='Container'
+            index={tab}
             onChangeIndex={tab => this.setState({ tab })}>
-            <div className="Container">
-              <div className="Controls Small">
+            <div className='Container'>
+              <div className='Controls Small'>
                 <IconButton onClick={() => api(`${HK}/source/Radio`).then(this.onApi)}>
                   <RadioRounded />
                 </IconButton>
-                <span className="Large">
+                <span className='Large'>
                   <IconButton onClick={() => api(`${HK}/volume/down`).then(this.onApi)}>
                     <VolumeDownRounded />
                   </IconButton>
@@ -183,31 +211,49 @@ class App extends Component {
               </div>
               {this.state.authorized ? (
                 activeTrack ? (
-                  <div className="Container">
-                    {this.state.loading && <div className="Loader">
-                      <LinearProgress color="secondary" /><ButtonBase />
-                    </div>}
-                    <Artwork onClick={() => {
-                      api(`${SERVER}/soca/count`).then(json => this.onApi({ ...json, message: `${json.clientsCount} client${json.clientsCount > 1 ? 's' : ''} connected` }))
-                      api(`${SERVER}/bluetooth/reset`)
-                    }}
+                  <div className='Container'>
+                    {this.state.loading && (
+                      <div className='Loader'>
+                        <LinearProgress color='secondary' />
+                        <ButtonBase />
+                      </div>
+                    )}
+                    <Artwork
+                      onClick={() => {
+                        api(`${SERVER}/soca/count`).then(json =>
+                          this.onApi({
+                            ...json,
+                            message: `${json.clientsCount} client${json.clientsCount > 1 ? 's' : ''} connected`
+                          })
+                        );
+                        api(`${SERVER}/bluetooth/reset`);
+                      }}
                       src={activeTrack.album.images.length > 0 ? activeTrack.album.images[0].url : ''}
                       isPlaying={isPlaying}
                       trackDuration={activeTrack.duration_ms}
                       progress={this.state.progress}
-                      onColorChange={color => this.setState({ theme: withPrimary(color) })} />
-                    <Typography className="Title" variant="h5" color="primary"
+                      onColorChange={color => this.setState({ theme: withPrimary(color) })}
+                    />
+                    <Typography
+                      className='Title'
+                      variant='h5'
+                      color='primary'
                       onClick={() => api(`${SERVER}/spotify/addok/${activeTrack.uri}`).then(this.onApi)}>
-                      {activeTrack.name}<br /><span className="Artist">{activeTrack.artists[0].name}</span>
+                      {activeTrack.name}
+                      <br />
+                      <span className='Artist'>{activeTrack.artists[0].name}</span>
                     </Typography>
-                    <div className="Controls Small">
-                      <IconButton onClick={() => this.emit('play', { context_uri: process.env.REACT_APP_SPO_DISCOVER_WEEKLY_URI })}>
+                    <div className='Controls Small'>
+                      <IconButton
+                        onClick={() =>
+                          this.emit('play', { context_uri: process.env.REACT_APP_SPO_DISCOVER_WEEKLY_URI })
+                        }>
                         <NewReleasesRounded />
                       </IconButton>
                       <IconButton onClick={() => this.emit('previous_track')}>
                         <SkipPreviousRounded />
                       </IconButton>
-                      <span className="Large">
+                      <span className='Large'>
                         <IconButton onClick={() => this.emit(isPlaying ? 'pause' : 'play')}>
                           {isPlaying ? <PauseRounded /> : <PlayArrowRounded />}
                         </IconButton>
@@ -215,35 +261,50 @@ class App extends Component {
                       <IconButton onClick={() => this.emit('next_track')}>
                         <SkipNextRounded />
                       </IconButton>
-                      <IconButton onClick={() => this.emit('play', { context_uri: process.env.REACT_APP_SPO_LIKES_URI })}>
+                      <IconButton
+                        onClick={() => this.emit('play', { context_uri: process.env.REACT_APP_SPO_LIKES_URI })}>
                         <FavoriteRounded />
                       </IconButton>
                     </div>
-                    <div className="Volume">
-                      <Slider valueLabelDisplay="auto"
+                    <div className='Volume'>
+                      <Slider
+                        valueLabelDisplay='auto'
                         value={this.state.volume}
                         onChange={(e, v) => this.setVolume(v)}
-                        onChangeCommitted={(e, v) => this.emit('set_volume', v)} />
+                        onChangeCommitted={(e, v) => this.emit('set_volume', v)}
+                      />
                     </div>
                   </div>
-                ) : <div className="Container">{this.state.error}</div>
-              ) : <div className="Controls Large">
-                  <IconButton onClick={() => { this.login().then(this.setupConnect) }}>
+                ) : (
+                  <div className='Container'>{this.state.error}</div>
+                )
+              ) : (
+                <div className='Controls Large'>
+                  <IconButton
+                    onClick={() => {
+                      this.login().then(this.setupConnect);
+                    }}>
                     <LockRounded />
                   </IconButton>
                 </div>
-              }
+              )}
             </div>
             <Hues onHueClick={this.onHueClick} theme={theme} />
           </SwipeableViews>
-          <Tabs variant="fullWidth" textColor="primary" indicatorColor="primary" value={tab}
-            onChange={(e, tab) => { this.setState({ tab }) }}>
+          <Tabs
+            variant='fullWidth'
+            textColor='primary'
+            indicatorColor='primary'
+            value={tab}
+            onChange={(e, tab) => {
+              this.setState({ tab });
+            }}>
             <Tab icon={<MusicNoteRounded />} />
             <Tab icon={<WbIncandescentRounded />} />
           </Tabs>
-        </div >
+        </div>
       </ThemeProvider>
-    )
+    );
   }
 }
-export default App
+export default App;

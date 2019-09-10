@@ -5,12 +5,12 @@
   justify-content: space-evenly;
 }
 
-.Hues>div {
+.Hues > div {
   width: 10vh;
   height: 10vh;
   border-radius: 50%;
 }
 
-.Hues>div:first-child {
+.Hues > div:first-child {
   border: 1px dashed var(--gray);
 }
