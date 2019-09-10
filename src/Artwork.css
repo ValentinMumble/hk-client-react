@@ -2,7 +2,8 @@
   position: relative;
   width: 100vw;
   max-width: 450px;
-  height: 40vh;
+  max-height: 100vw;
+  flex-grow: 1;
   overflow: hidden;
   transition: all .2s ease;
   transform-origin: bottom;
@@ -10,7 +11,7 @@
 
 .Artwork.paused {
   transform: scale(.95);
-  opacity: .6;
+  opacity: .8;
 }
 
 .Artwork img {
@@ -26,9 +27,9 @@
 
 .Progress {
   position: absolute;
-  width: 200%;
+  width: 250%;
   height: 100%;
-  right: -50%;
+  right: -75%;
   background: black;
   opacity: .2;
   transform-origin: bottom;
