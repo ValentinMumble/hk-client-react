@@ -53,18 +53,12 @@ export const withPrimary = color => {
         },
         h5: {
           fontSize: '2.5vh',
-          margin: '20px 0',
-          lineHeight: 'inherit'
+          margin: '15px 0',
         }
       },
       MuiSnackbarContent: {
         root: {
           maxWidth: '85vw'
-        }
-      },
-      MuiPaper: {
-        root: {
-          backgroundColor: '#1c1c1c'
         }
       },
       MuiLinearProgress: {
@@ -75,6 +69,19 @@ export const withPrimary = color => {
       MuiTouchRipple: {
         rippleVisible: {
           animationDuration: '.3s'
+        }
+      },
+      MuiTabs: {
+        root: {
+          minHeight: 'unset'
+        }
+      },
+      MuiTab: {
+        root: {
+          minHeight: 30
+        },
+        textColorPrimary: {
+          color: 'rgba(255, 255, 255, 0.3)'
         }
       }
     }

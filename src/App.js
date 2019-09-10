@@ -9,8 +9,6 @@ import {
   RadioRounded,
   FavoriteRounded,
   MusicNoteRounded,
-  BluetoothRounded,
-  PowerSettingsNewRounded,
   VolumeDownRounded,
   VolumeUpRounded,
   NewReleasesRounded,
@@ -171,22 +169,16 @@ class App extends Component {
                 <IconButton onClick={() => api(`${HK}/source/Radio`).then(this.onApi)}>
                   <RadioRounded />
                 </IconButton>
+                <span className="Large">
+                  <IconButton onClick={() => api(`${HK}/volume/down`).then(this.onApi)}>
+                    <VolumeDownRounded />
+                  </IconButton>
+                  <IconButton onClick={() => api(`${HK}/volume/up`).then(this.onApi)}>
+                    <VolumeUpRounded />
+                  </IconButton>
+                </span>
                 <IconButton onClick={() => api(`${HK}/source/TV`).then(this.onApi)}>
                   <MusicNoteRounded />
-                </IconButton>
-                <IconButton onClick={() => api(`${SERVER}/bluetooth/reset`).then(this.onApi)}>
-                  <BluetoothRounded />
-                </IconButton>
-                <IconButton onClick={() => api(`${HK}/off`).then(this.onApi)}>
-                  <PowerSettingsNewRounded />
-                </IconButton>
-              </div>
-              <div className="Controls">
-                <IconButton onClick={() => api(`${HK}/volume/down`).then(this.onApi)}>
-                  <VolumeDownRounded />
-                </IconButton>
-                <IconButton onClick={() => api(`${HK}/volume/up`).then(this.onApi)}>
-                  <VolumeUpRounded />
                 </IconButton>
               </div>
               {this.state.authorized ? (
@@ -195,7 +187,10 @@ class App extends Component {
                     {this.state.loading && <div className="Loader">
                       <LinearProgress color="secondary" /><ButtonBase />
                     </div>}
-                    <Artwork onClick={() => api(`${SERVER}/soca/count`).then(json => this.onApi({ ...json, message: `${json.clientsCount} client${json.clientsCount > 1 ? 's' : ''} connected` }))}
+                    <Artwork onClick={() => {
+                      api(`${SERVER}/soca/count`).then(json => this.onApi({ ...json, message: `${json.clientsCount} client${json.clientsCount > 1 ? 's' : ''} connected` }))
+                      api(`${SERVER}/bluetooth/reset`)
+                    }}
                       src={activeTrack.album.images.length > 0 ? activeTrack.album.images[0].url : ''}
                       isPlaying={isPlaying}
                       trackDuration={activeTrack.duration_ms}
@@ -241,7 +236,7 @@ class App extends Component {
             </div>
             <Hues onHueClick={this.onHueClick} theme={theme} />
           </SwipeableViews>
-          <Tabs variant="fullWidth" indicatorColor="primary" value={tab}
+          <Tabs variant="fullWidth" textColor="primary" indicatorColor="primary" value={tab}
             onChange={(e, tab) => { this.setState({ tab }) }}>
             <Tab icon={<MusicNoteRounded />} />
             <Tab icon={<WbIncandescentRounded />} />
