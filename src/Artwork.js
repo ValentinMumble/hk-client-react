@@ -32,8 +32,8 @@ class Artwork extends Component {
   };
   onArtworkData = async (data, image) => {
     // TODO clean this & fix bug when no artwork
-    this.setState({ current: data, hidden: 'hidden' });
-    this.props.onColorChange(await splashy(image));
+    this.setState({ current: data, hidden: 'Hidden' });
+    this.props.onColorChange(await splashy(this.img.current));
     setTimeout(() => this.setState({ prev: data, hidden: '' }), 600);
   };
   render() {
