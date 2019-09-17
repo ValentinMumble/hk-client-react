@@ -160,6 +160,7 @@ class App extends Component {
       this.snack('Turning lights on...', 1000, color);
     } else {
       api(`${SERVER}/hue/off`).then(this.onApi);
+      this.snack('Turning lights off...', 1000, '#000');
     }
   };
   onVisibilityChange = () => {
@@ -231,7 +232,7 @@ class App extends Component {
                       isPlaying={isPlaying}
                       trackDuration={activeTrack.duration_ms}
                       progress={this.state.progress}
-                      onColorChange={palette => this.setState({ palette, theme: withPrimary(palette[0]) })}
+                      onColorChange={palette => this.setState({ palette, theme: withPrimary(palette[0], palette[1]) })}
                     />
                     <Typography
                       className='Title'
@@ -289,8 +290,8 @@ class App extends Component {
           </SwipeableViews>
           <Tabs
             variant='fullWidth'
-            textColor='primary'
-            indicatorColor='primary'
+            textColor='secondary'
+            indicatorColor='secondary'
             value={tab}
             onChange={(e, tab) => this.setState({ tab })}>
             <Tab icon={<MusicNoteRounded />} />

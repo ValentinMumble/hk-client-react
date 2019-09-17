@@ -21,7 +21,7 @@
   transition: all 0.6s ease;
 }
 
-.Artwork img.hidden {
+.Artwork img.Hidden {
   opacity: 0;
 }
 

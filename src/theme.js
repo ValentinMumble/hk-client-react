@@ -1,13 +1,13 @@
 import { createMuiTheme } from '@material-ui/core'
 
-export const withPrimary = color => {
+export const withPrimary = (primary, secondary = '#333') => {
   return createMuiTheme({
     typography: {
       fontFamily: 'inherit'
     },
     palette: {
-      primary: { main: color },
-      secondary: { main: '#333' },
+      primary: { main: primary },
+      secondary: { main: secondary },
       type: 'dark'
     },
     props: {
@@ -81,7 +81,7 @@ export const withPrimary = color => {
           minHeight: 30
         },
         textColorPrimary: {
-          color: color === '#000' ? color : 'rgba(255, 255, 255, 0.3)'
+          color: primary === '#000' ? primary : 'rgba(255, 255, 255, 0.3)'
         }
       }
     }
