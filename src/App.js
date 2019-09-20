@@ -3,17 +3,7 @@ import './App.css';
 import { withPrimary } from './theme';
 import { api } from './util';
 import openSocket from 'socket.io-client';
-import {
-  Snackbar,
-  Slider,
-  LinearProgress,
-  IconButton,
-  Typography,
-  SnackbarContent,
-  ButtonBase,
-  Tabs,
-  Tab
-} from '@material-ui/core';
+import { Snackbar, Slider, LinearProgress, IconButton, Typography, SnackbarContent, ButtonBase, Tabs, Tab } from '@material-ui/core';
 import { ThemeProvider } from '@material-ui/styles';
 import {
   RadioRounded,
@@ -49,7 +39,11 @@ class App extends Component {
   componentDidMount() {
     api(`${SERVER}/spotify/access-token`).then(data => {
       if (data.url) {
-        this.setState({ authorized: false, authorizeUrl: data.url, theme: withPrimary('#777') });
+        this.setState({
+          authorized: false,
+          authorizeUrl: data.url,
+          theme: withPrimary('#777')
+        });
       } else {
         this.setupConnect(data.accessToken);
       }
@@ -141,7 +135,16 @@ class App extends Component {
     this.emit('initiate', { accessToken: this.accessToken });
   };
   snack = (message, duration = 2000, color = this.state.theme.palette.primary.main) => {
-    if (message) this.setState({ snackbar: { ...this.state.snackbar, opened: true, message, duration, color } });
+    if (message)
+      this.setState({
+        snackbar: {
+          ...this.state.snackbar,
+          opened: true,
+          message,
+          duration,
+          color
+        }
+      });
   };
   onApi = json => {
     this.snack(
@@ -182,7 +185,10 @@ class App extends Component {
             open={snackbar.opened}
             onClose={() => this.setState({ snackbar: { ...snackbar, opened: false } })}>
             <SnackbarContent
-              style={{ backgroundColor: snackbar.color, color: theme.palette.getContrastText(snackbar.color) }}
+              style={{
+                backgroundColor: snackbar.color,
+                color: theme.palette.getContrastText(snackbar.color)
+              }}
               message={snackbar.message}
             />
           </Snackbar>
@@ -232,7 +238,12 @@ class App extends Component {
                       isPlaying={isPlaying}
                       trackDuration={activeTrack.duration_ms}
                       progress={this.state.progress}
-                      onColorChange={palette => this.setState({ palette, theme: withPrimary(palette[0], palette[1]) })}
+                      onColorChange={palette =>
+                        this.setState({
+                          palette,
+                          theme: withPrimary(palette[0], palette[1])
+                        })
+                      }
                     />
                     <Typography
                       className='Title'
@@ -246,7 +257,9 @@ class App extends Component {
                     <div className='Controls Small'>
                       <IconButton
                         onClick={() =>
-                          this.emit('play', { context_uri: process.env.REACT_APP_SPO_DISCOVER_WEEKLY_URI })
+                          this.emit('play', {
+                            context_uri: process.env.REACT_APP_SPO_DISCOVER_WEEKLY_URI
+                          })
                         }>
                         <NewReleasesRounded />
                       </IconButton>
@@ -262,7 +275,11 @@ class App extends Component {
                         <SkipNextRounded />
                       </IconButton>
                       <IconButton
-                        onClick={() => this.emit('play', { context_uri: process.env.REACT_APP_SPO_LIKES_URI })}>
+                        onClick={() =>
+                          this.emit('play', {
+                            context_uri: process.env.REACT_APP_SPO_LIKES_URI
+                          })
+                        }>
                         <FavoriteRounded />
                       </IconButton>
                     </div>
@@ -288,12 +305,7 @@ class App extends Component {
             </div>
             <Hues onHueClick={this.onHueClick} palette={this.state.palette} />
           </SwipeableViews>
-          <Tabs
-            variant='fullWidth'
-            textColor='secondary'
-            indicatorColor='secondary'
-            value={tab}
-            onChange={(e, tab) => this.setState({ tab })}>
+          <Tabs variant='fullWidth' textColor='primary' indicatorColor='primary' value={tab} onChange={(e, tab) => this.setState({ tab })}>
             <Tab icon={<MusicNoteRounded />} />
             <Tab icon={<WbIncandescentRounded />} />
           </Tabs>
