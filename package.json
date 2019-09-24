@@ -27,7 +27,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "postbuild": "npm run-script deploy",
-    "deploy": "rsync -avz -e 'ssh' ./build pi@vmumble.ddns.net:/var/www/html/hk/react-client/",
+    "deploy": "rsync -avz -e 'ssh' ./build pi@vmumble.ddns.net:/home/pi/hk/hk-client-react/",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },
