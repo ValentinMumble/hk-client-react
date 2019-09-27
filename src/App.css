@@ -21,6 +21,10 @@
   font-size: 5vh;
 }
 
+.Grow {
+  flex-grow: 1;
+}
+
 .Warning {
   display: flex;
 }
@@ -55,7 +59,8 @@
 .Controls {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-evenly;
+  width: inherit;
 }
 
 .Title {
