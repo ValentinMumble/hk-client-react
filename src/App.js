@@ -18,7 +18,11 @@ import {
   SkipNextRounded,
   LockRounded,
   WbIncandescentRounded,
-  Warning
+  Warning,
+  BluetoothDisabledRounded,
+  PowerOffRounded,
+  BluetoothSearchingRounded,
+  TimerRounded
 } from '@material-ui/icons';
 import SwipeableViews from 'react-swipeable-views';
 import Artwork from './Artwork';
@@ -303,7 +307,25 @@ class App extends Component {
                 </div>
               )}
             </div>
-            <Hues onHueClick={this.onHueClick} palette={this.state.palette} />
+            <div className='Controls Grow'>
+              <div className='Container'>
+                <IconButton onClick={() => api(`${SERVER}/bluetooth/reset`).then(this.onApi)}>
+                  <BluetoothDisabledRounded />
+                </IconButton>
+                <IconButton onClick={() => api(`${SERVER}/bluetooth/discover`).then(this.onApi)}>
+                  <BluetoothSearchingRounded />
+                </IconButton>
+              </div>
+              <Hues onHueClick={this.onHueClick} palette={this.state.palette} />
+              <div className='Container'>
+                <IconButton onClick={this.onApi}>
+                  <TimerRounded />
+                </IconButton>
+                <IconButton onClick={this.onApi}>
+                  <PowerOffRounded />
+                </IconButton>
+              </div>
+            </div>
           </SwipeableViews>
           <Tabs variant='fullWidth' textColor='primary' indicatorColor='primary' value={tab} onChange={(e, tab) => this.setState({ tab })}>
             <Tab icon={<MusicNoteRounded />} />
