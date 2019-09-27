@@ -23,11 +23,12 @@
     "socket.io-client": "^2.2.0",
     "splashy": "^5.0.0"
   },
+  "deployPath": "/home/pi/hk/hk-client-react/",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "postbuild": "npm run-script deploy",
-    "deploy": "rsync -avz -e 'ssh' ./build pi@vmumble.ddns.net:/home/pi/hk/hk-client-react/",
+    "deploy": "rsync -avz -e 'ssh' ./build pi@vmumble.ddns.net:$npm_package_deployPath",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },
