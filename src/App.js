@@ -3,7 +3,17 @@ import './App.css';
 import { withPrimary } from './theme';
 import { api } from './util';
 import openSocket from 'socket.io-client';
-import { Snackbar, Slider, LinearProgress, IconButton, Typography, SnackbarContent, ButtonBase, Tabs, Tab } from '@material-ui/core';
+import {
+  Snackbar,
+  Slider,
+  LinearProgress,
+  IconButton,
+  Typography,
+  SnackbarContent,
+  ButtonBase,
+  Tabs,
+  Tab
+} from '@material-ui/core';
 import { ThemeProvider } from '@material-ui/styles';
 import {
   RadioRounded,
@@ -229,15 +239,14 @@ class App extends Component {
                       </div>
                     )}
                     <Artwork
-                      onClick={() => {
+                      onClick={() =>
                         api(`${SERVER}/soca/count`).then(json =>
                           this.onApi({
                             ...json,
                             message: `${json.clientsCount} client${json.clientsCount > 1 ? 's' : ''} connected`
                           })
-                        );
-                        api(`${SERVER}/bluetooth/reset`);
-                      }}
+                        )
+                      }
                       src={activeTrack.album.images.length > 0 ? activeTrack.album.images[0].url : ''}
                       isPlaying={isPlaying}
                       trackDuration={activeTrack.duration_ms}
@@ -327,7 +336,12 @@ class App extends Component {
               </div>
             </div>
           </SwipeableViews>
-          <Tabs variant='fullWidth' textColor='primary' indicatorColor='primary' value={tab} onChange={(e, tab) => this.setState({ tab })}>
+          <Tabs
+            variant='fullWidth'
+            textColor='primary'
+            indicatorColor='primary'
+            value={tab}
+            onChange={(e, tab) => this.setState({ tab })}>
             <Tab icon={<MusicNoteRounded />} />
             <Tab icon={<WbIncandescentRounded />} />
           </Tabs>
