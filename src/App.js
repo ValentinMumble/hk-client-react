@@ -91,6 +91,8 @@ class App extends Component {
       this.emit('transfer_playback', { id: process.env.REACT_APP_SPO_PI_ID });
     } else if (error === 'The access token expired') {
       this.refreshToken();
+    } else if (error === 'Device not found') {
+      api(`${SERVER}/spotify/devices`).then(this.onApi);
     } else {
       this.setState({ error: error.message || error });
     }
