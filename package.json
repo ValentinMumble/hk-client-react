@@ -21,7 +21,8 @@
     "react-scripts": "^3.1.1",
     "react-swipeable-views": "^0.13.3",
     "socket.io-client": "^2.2.0",
-    "splashy": "^5.0.0"
+    "splashy": "^5.0.0",
+    "styled-components": "^4.4.0"
   },
   "deployPath": "/home/pi/hk/hk-client-react/",
   "scripts": {

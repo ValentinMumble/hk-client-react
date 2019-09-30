@@ -1,11 +1,7 @@
-:root {
-  --gray: #777;
-}
-
 body {
   margin: 0;
   padding: 0;
   background-color: black;
-  color: var(--gray);
+  color: #777;
   font-family: monospace;
 }
