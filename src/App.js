@@ -36,7 +36,7 @@ import {
 } from '@material-ui/icons';
 import SwipeableViews from 'react-swipeable-views';
 import Artwork from './Artwork';
-import Hues from './Hues';
+import { Hues } from './Hues';
 
 const { REACT_APP_SERVER_URL: SERVER, REACT_APP_HK_API: HK } = process.env;
 
