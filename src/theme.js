@@ -54,6 +54,9 @@ export const withPrimary = (primary, secondary = '#333') => {
         h5: {
           fontSize: '2.5vh',
           margin: '15px 0',
+          textAlign: 'center',
+          height: 50,
+          maxWidth: 450
         }
       },
       MuiSnackbarContent: {

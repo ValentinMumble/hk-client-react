@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { I, fetchImage } from './util';
 import splashy from 'splashy';
 import styled from 'styled-components';
@@ -42,7 +42,7 @@ const ProgressDiv = styled.div.attrs(props => ({
   transform-origin: bottom;
 `;
 
-export const Artworkk = ({ src, isPlaying, trackDuration, initProgress, onClick, onColorChange }) => {
+export const Artwork = ({ src, isPlaying, trackDuration, initProgress, onClick, onColorChange }) => {
   const imgRef = React.useRef();
   const [currentSrc, setCurrentSrc] = React.useState('');
   const [prevSrc, setPrevSrc] = React.useState(I.BLACK);
@@ -54,10 +54,11 @@ export const Artworkk = ({ src, isPlaying, trackDuration, initProgress, onClick,
       setHidden(true);
       setCurrentSrc(src ? await fetchImage(src) : I.GRAY);
       onColorChange(src ? await splashy(imgRef.current) : ['#777', '#777']);
-      // setTimeout(() => {
-      //   setPrevSrc(imgRef.current.src);
-      //   setHidden(false);
-      // }, 600);
+      const prevSrcTimer = setTimeout(() => {
+        setPrevSrc(imgRef.current.src);
+        setHidden(false);
+      }, 600);
+      return () => clearTimeout(prevSrcTimer);
     };
     loadArtwork();
   }, [src]);
@@ -69,13 +70,13 @@ export const Artworkk = ({ src, isPlaying, trackDuration, initProgress, onClick,
     }
   }, [isPlaying]);
 
-  // useEffect(() => {
-  //   setProgress(initProgress);
-  // }, [initProgress]);
+  React.useEffect(() => {
+    setProgress(0);
+  }, [trackDuration]);
 
-  // useEffect(() => {
-  //   setProgress(0);
-  // }, [trackDuration]);
+  React.useEffect(() => {
+    setProgress(initProgress);
+  }, [initProgress]);
 
   return (
     <ArtworkDiv isPlaying={isPlaying} onClick={onClick}>
@@ -85,40 +86,3 @@ export const Artworkk = ({ src, isPlaying, trackDuration, initProgress, onClick,
     </ArtworkDiv>
   );
 };
-
-class Artwork extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      prev: I.BLACK,
-      progress: props.progress
-    };
-    this.imgRef = React.createRef();
-  }
-  componentDidMount() {
-    this.loadArtwork();
-    this.progressTimer = window.setInterval(() => {
-      if (this.props.isPlaying) this.setState({ progress: this.state.progress + 200 });
-    }, 200);
-  }
-  componentDidUpdate(prevProps) {
-    if (this.props.src !== prevProps.src) this.loadArtwork();
-    if (this.props.trackDuration !== prevProps.trackDuration) this.setState({ progress: 0 });
-    if (this.props.progress !== prevProps.progress) this.setState({ progress: this.props.progress });
-  }
-  loadArtwork = async () => {
-    this.setState({ current: this.props.src ? await fetchImage(this.props.src) : I.GRAY, isHidden: true });
-    this.props.onColorChange(this.props.src ? await splashy(this.imgRef.current) : ['#777', '#777']);
-    setTimeout(() => this.setState({ prev: this.state.current, isHidden: false }), 600);
-  };
-  render() {
-    return (
-      <ArtworkDiv isPlaying={this.props.isPlaying} onClick={this.props.onClick}>
-        <ArtworkImg ref={this.imgRef} src={this.state.current} alt='' />
-        <ArtworkImg isHidden={this.state.isHidden} src={this.state.prev} alt='' />
-        <ProgressDiv progress={this.state.progress / this.props.trackDuration} />
-      </ArtworkDiv>
-    );
-  }
-}
-export default Artwork;
