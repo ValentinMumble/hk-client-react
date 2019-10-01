@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import './App.css';
 import { withPrimary } from './theme';
 import { api } from './util';
 import openSocket from 'socket.io-client';
@@ -35,10 +34,82 @@ import {
   TimerRounded
 } from '@material-ui/icons';
 import SwipeableViews from 'react-swipeable-views';
-import Artwork, { Artworkk } from './Artwork';
+import { Artwork } from './Artwork';
 import { Hues } from './Hues';
+import styled from 'styled-components';
 
 const { REACT_APP_SERVER_URL: SERVER, REACT_APP_HK_API: HK } = process.env;
+
+const AppDiv = styled.div`
+  font-size: 7vh;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  width: 100vw;
+  height: 100vh;
+`;
+
+const Span = styled.span`
+  display: flex;
+  font-size: ${props => {
+    if (Number.isInteger(props.size)) return props.size + 'vh';
+    switch (props.size) {
+      case 'large':
+        return '10vh';
+      default:
+        return 'inherit';
+    }
+  }};
+  > .MuiSvgIcon-root {
+    margin-right: 10px;
+  }
+`;
+
+const ArtistSpan = styled(Span)`
+  justify-content: center;
+  opacity: 0.6;
+  font-style: italic;
+  font-size: 0.8em;
+`;
+
+const ContainerDiv = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  flex-grow: 1;
+`;
+
+const ControlsDiv = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  width: inherit;
+  font-size: 5vh;
+`;
+
+const ControlsGrowDiv = styled(ControlsDiv)`
+  flex-grow: 1;
+`;
+
+const VolumeDiv = styled.div`
+  width: 85%;
+`;
+
+const LoaderDiv = styled.div`
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  z-index: 1;
+  opacity: 0.6;
+  overflow: hidden;
+  button {
+    width: 100%;
+    height: 100%;
+  }
+`;
 
 class App extends Component {
   constructor(props) {
@@ -166,9 +237,9 @@ class App extends Component {
   onApi = json => {
     this.snack(
       json.error ? (
-        <span className='Warning'>
+        <Span>
           <Warning fontSize='small' /> {json.error.message || json.error}
-        </span>
+        </Span>
       ) : (
         json.message
       )
@@ -195,7 +266,7 @@ class App extends Component {
     const { theme, isPlaying, activeTrack, snackbar, tab } = this.state;
     return (
       <ThemeProvider theme={theme}>
-        <div className='App'>
+        <AppDiv>
           <Snackbar
             anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
             autoHideDuration={snackbar.duration}
@@ -215,33 +286,33 @@ class App extends Component {
             slideClassName='Container'
             index={tab}
             onChangeIndex={tab => this.setState({ tab })}>
-            <div className='Container'>
-              <div className='Controls Small'>
+            <ContainerDiv>
+              <ControlsDiv>
                 <IconButton onClick={() => api(`${HK}/source/Radio`).then(this.onApi)}>
                   <RadioRounded />
                 </IconButton>
-                <span className='Large'>
+                <Span size='large'>
                   <IconButton onClick={() => api(`${HK}/volume/down`).then(this.onApi)}>
                     <VolumeDownRounded />
                   </IconButton>
                   <IconButton onClick={() => api(`${HK}/volume/up`).then(this.onApi)}>
                     <VolumeUpRounded />
                   </IconButton>
-                </span>
+                </Span>
                 <IconButton onClick={() => api(`${HK}/source/TV`).then(this.onApi)}>
                   <MusicNoteRounded />
                 </IconButton>
-              </div>
+              </ControlsDiv>
               {this.state.authorized ? (
                 activeTrack ? (
-                  <div className='Container'>
+                  <ContainerDiv>
                     {this.state.loading && (
-                      <div className='Loader'>
+                      <LoaderDiv>
                         <LinearProgress color='secondary' />
                         <ButtonBase />
-                      </div>
+                      </LoaderDiv>
                     )}
-                    <Artworkk
+                    <Artwork
                       onClick={() =>
                         api(`${SERVER}/soca/count`).then(json =>
                           this.onApi({
@@ -254,7 +325,9 @@ class App extends Component {
                       isPlaying={isPlaying}
                       trackDuration={activeTrack.duration_ms}
                       initProgress={this.state.progress}
-                      onColorChange={palette =>
+                      onColorChange={(
+                        palette //TODO useCallback when transformed to functional component
+                      ) =>
                         this.setState({
                           palette,
                           theme: withPrimary(palette[0], palette[1])
@@ -262,15 +335,13 @@ class App extends Component {
                       }
                     />
                     <Typography
-                      className='Title'
                       variant='h5'
                       color='primary'
                       onClick={() => api(`${SERVER}/spotify/addok/${activeTrack.uri}`).then(this.onApi)}>
                       {activeTrack.name}
-                      <br />
-                      <span className='Artist'>{activeTrack.artists[0].name}</span>
+                      <ArtistSpan>{activeTrack.artists[0].name}</ArtistSpan>
                     </Typography>
-                    <div className='Controls Small'>
+                    <ControlsDiv>
                       <IconButton
                         onClick={() =>
                           this.emit('play', {
@@ -282,11 +353,11 @@ class App extends Component {
                       <IconButton onClick={() => this.emit('previous_track')}>
                         <SkipPreviousRounded />
                       </IconButton>
-                      <span className='Large'>
+                      <Span size='large'>
                         <IconButton onClick={() => this.emit(isPlaying ? 'pause' : 'play')}>
                           {isPlaying ? <PauseRounded /> : <PlayArrowRounded />}
                         </IconButton>
-                      </span>
+                      </Span>
                       <IconButton onClick={() => this.emit('next_track')}>
                         <SkipNextRounded />
                       </IconButton>
@@ -298,46 +369,46 @@ class App extends Component {
                         }>
                         <FavoriteRounded />
                       </IconButton>
-                    </div>
-                    <div className='Volume'>
+                    </ControlsDiv>
+                    <VolumeDiv>
                       <Slider
                         valueLabelDisplay='auto'
                         value={this.state.volume}
                         onChange={(e, v) => this.setVolume(v)}
                         onChangeCommitted={(e, v) => this.emit('set_volume', v)}
                       />
-                    </div>
-                  </div>
+                    </VolumeDiv>
+                  </ContainerDiv>
                 ) : (
-                  <div className='Container'>{this.state.error}</div>
+                  <ContainerDiv>{this.state.error}</ContainerDiv>
                 )
               ) : (
-                <div className='Controls Large'>
+                <ControlsDiv>
                   <IconButton onClick={() => this.login().then(this.setupConnect)}>
                     <LockRounded />
                   </IconButton>
-                </div>
+                </ControlsDiv>
               )}
-            </div>
-            <div className='Controls Grow'>
-              <div className='Container'>
+            </ContainerDiv>
+            <ControlsGrowDiv>
+              <ContainerDiv>
                 <IconButton onClick={() => api(`${SERVER}/bluetooth/reset`).then(this.onApi)}>
                   <BluetoothDisabledRounded />
                 </IconButton>
                 <IconButton onClick={() => api(`${SERVER}/bluetooth/discover`).then(this.onApi)}>
                   <BluetoothSearchingRounded />
                 </IconButton>
-              </div>
+              </ContainerDiv>
               <Hues onHueClick={this.onHueClick} palette={this.state.palette} />
-              <div className='Container'>
+              <ContainerDiv>
                 <IconButton onClick={this.onApi}>
                   <TimerRounded />
                 </IconButton>
                 <IconButton onClick={this.onApi}>
                   <PowerOffRounded />
                 </IconButton>
-              </div>
-            </div>
+              </ContainerDiv>
+            </ControlsGrowDiv>
           </SwipeableViews>
           <Tabs
             variant='fullWidth'
@@ -348,7 +419,7 @@ class App extends Component {
             <Tab icon={<MusicNoteRounded />} />
             <Tab icon={<WbIncandescentRounded />} />
           </Tabs>
-        </div>
+        </AppDiv>
       </ThemeProvider>
     );
   }
