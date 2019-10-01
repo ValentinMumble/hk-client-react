@@ -35,7 +35,7 @@ import {
   TimerRounded
 } from '@material-ui/icons';
 import SwipeableViews from 'react-swipeable-views';
-import Artwork from './Artwork';
+import Artwork, { Artworkk } from './Artwork';
 import { Hues } from './Hues';
 
 const { REACT_APP_SERVER_URL: SERVER, REACT_APP_HK_API: HK } = process.env;
@@ -44,6 +44,7 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      progress: 0,
       snackbar: { opened: false, color: '#000' },
       theme: withPrimary('#000'),
       tab: 0,
@@ -240,7 +241,7 @@ class App extends Component {
                         <ButtonBase />
                       </div>
                     )}
-                    <Artwork
+                    <Artworkk
                       onClick={() =>
                         api(`${SERVER}/soca/count`).then(json =>
                           this.onApi({
@@ -252,7 +253,7 @@ class App extends Component {
                       src={activeTrack.album.images.length > 0 ? activeTrack.album.images[0].url : ''}
                       isPlaying={isPlaying}
                       trackDuration={activeTrack.duration_ms}
-                      progress={this.state.progress}
+                      initProgress={this.state.progress}
                       onColorChange={palette =>
                         this.setState({
                           palette,
