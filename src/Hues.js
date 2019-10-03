@@ -15,7 +15,6 @@ const ColorsDiv = styled.div`
   grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr;
   grid-auto-flow: column;
   grid-gap: 2vh;
-
   button {
     width: 10vh;
     height: 10vh;
@@ -24,8 +23,15 @@ const ColorsDiv = styled.div`
   }
 `;
 
+const ColorButton = styled(ButtonBase).attrs(props => ({
+  style: {
+    backgroundColor: props.backgroundcolor
+  }
+}))``;
+
+const colors = ['#ffffff', '#ffaa71', '#01a7c2', '#57b133', '#b13333', '#ff96ca'];
+
 export const Hues = ({ palette, onHueClick }) => {
-  const colors = ['#ffffff', '#ffaa71', '#01a7c2', '#57b133', '#b13333', '#ff96ca'];
   return (
     <HuesDiv>
       <IconButton color='inherit' onClick={() => onHueClick()}>
@@ -33,7 +39,7 @@ export const Hues = ({ palette, onHueClick }) => {
       </IconButton>
       <ColorsDiv>
         {colors.concat(palette).map((color, i) => (
-          <ButtonBase key={i} style={{ backgroundColor: color }} onClick={() => onHueClick(color)} />
+          <ColorButton key={i} backgroundcolor={color} onClick={() => onHueClick(color)} />
         ))}
       </ColorsDiv>
     </HuesDiv>
