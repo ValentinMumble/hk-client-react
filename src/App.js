@@ -255,11 +255,21 @@ class App extends Component {
     }
   };
   onVisibilityChange = () => {
-    if (document.visibilityState === 'visible' && this.io && this.io.disconnected) {
-      console.info('Socket disconnected, reconnecting now...');
-      this.setState({ loading: true });
-      this.io.open();
-      this.emit('initiate', { accessToken: this.accessToken });
+    if (document.visibilityState === 'visible') {
+      if (this.io && this.io.disconnected) {
+        console.info('Socket disconnected, reconnecting now...');
+        this.setState({ loading: true });
+        this.io.open();
+        this.emit('initiate', { accessToken: this.accessToken });
+      }
+      if (this.disconnectTimeout) {
+        clearTimeout(this.disconnectTimeout);
+      }
+    } else if (document.visibilityState === 'hidden') {
+      this.disconnectTimeout = setTimeout(() => {
+        this.io.close();
+        console.info('Timeout: disconnecting');
+      }, 30000);
     }
   };
   render() {
