@@ -52,7 +52,7 @@ export const Artwork = ({ src, isPlaying, trackDuration, initProgress, onClick, 
   React.useEffect(() => {
     const loadArtwork = async () => {
       setHidden(true);
-      setCurrentSrc(src ? await fetchImage(src) : I.GRAY);
+      setCurrentSrc(await fetchImage(src));
       onColorChange(src ? await splashy(imgRef.current) : ['#777', '#777']);
       const prevSrcTimer = setTimeout(() => {
         setPrevSrc(imgRef.current.src);
