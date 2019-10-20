@@ -267,9 +267,10 @@ class App extends Component {
       }
     } else if (document.visibilityState === 'hidden') {
       this.disconnectTimeout = setTimeout(() => {
-        this.io.close();
         console.info('Timeout: disconnecting');
-      }, 30000);
+        this.io.close();
+        clearTimeout(this.disconnectTimeout);
+      }, 5000);
     }
   };
   render() {
