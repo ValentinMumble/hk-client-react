@@ -273,6 +273,11 @@ class App extends Component {
       }, 5000);
     }
   };
+  onColorChange = palette =>
+    this.setState({
+      palette,
+      theme: withPrimary(palette[0], palette[1])
+    });
   render() {
     const { theme, isPlaying, activeTrack, snackbar, tab } = this.state;
     return (
@@ -336,14 +341,7 @@ class App extends Component {
                       isPlaying={isPlaying}
                       trackDuration={activeTrack.duration_ms}
                       initProgress={this.state.progress}
-                      onColorChange={(
-                        palette //TODO useCallback when transformed to functional component
-                      ) =>
-                        this.setState({
-                          palette,
-                          theme: withPrimary(palette[0], palette[1])
-                        })
-                      }
+                      onColorChange={this.onColorChange}
                     />
                     <Typography
                       variant='h5'
