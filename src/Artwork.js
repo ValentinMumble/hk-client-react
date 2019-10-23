@@ -61,7 +61,7 @@ export const Artwork = ({ src, isPlaying, trackDuration, initProgress, onClick, 
       return () => clearTimeout(prevSrcTimer);
     };
     loadArtwork();
-  }, [src]);
+  }, [src, onColorChange]);
 
   React.useEffect(() => {
     if (isPlaying) {
