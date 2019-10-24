@@ -1,18 +1,8 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { withPrimary } from './theme';
 import { api } from './util';
 import openSocket from 'socket.io-client';
-import {
-  Snackbar,
-  Slider,
-  LinearProgress,
-  IconButton,
-  Typography,
-  SnackbarContent,
-  ButtonBase,
-  Tabs,
-  Tab
-} from '@material-ui/core';
+import { Slider, LinearProgress, IconButton, Typography, ButtonBase, Tabs, Tab } from '@material-ui/core';
 import { ThemeProvider } from '@material-ui/styles';
 import {
   RadioRounded,
@@ -36,6 +26,7 @@ import {
 import SwipeableViews from 'react-swipeable-views';
 import { Artwork } from './Artwork';
 import { Hues } from './Hues';
+import { Snickers } from './Snickers';
 import styled from 'styled-components';
 
 const { REACT_APP_SERVER_URL: SERVER, REACT_APP_HK_API: HK } = process.env;
@@ -111,12 +102,12 @@ const LoaderDiv = styled.div`
   }
 `;
 
-class App extends Component {
+class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       progress: 0,
-      snackbar: { opened: false, color: '#000' },
+      snackbar: { open: false, color: '#000', backgroundColor: '#fff' },
       theme: withPrimary('#000'),
       tab: 0,
       palette: []
@@ -222,15 +213,16 @@ class App extends Component {
     wrappedHandler('disconnect', this.onVisibilityChange);
     this.emit('initiate', { accessToken: this.accessToken });
   };
-  snack = (message, duration = 2000, color = this.state.theme.palette.primary.main) => {
+  snack = (message, duration = 2000, backgroundColor = this.state.theme.palette.primary.main) => {
     if (message)
       this.setState({
         snackbar: {
           ...this.state.snackbar,
-          opened: true,
+          open: true,
           message,
           duration,
-          color
+          backgroundColor,
+          color: this.state.theme.palette.getContrastText(backgroundColor)
         }
       });
   };
@@ -283,19 +275,7 @@ class App extends Component {
     return (
       <ThemeProvider theme={theme}>
         <AppDiv>
-          <Snackbar
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-            autoHideDuration={snackbar.duration}
-            open={snackbar.opened}
-            onClose={() => this.setState({ snackbar: { ...snackbar, opened: false } })}>
-            <SnackbarContent
-              style={{
-                backgroundColor: snackbar.color,
-                color: theme.palette.getContrastText(snackbar.color)
-              }}
-              message={snackbar.message}
-            />
-          </Snackbar>
+          <Snickers {...snackbar} onClose={() => this.setState({ snackbar: { ...snackbar, open: false } })} />
           <SwipeableViews
             style={{ flexGrow: 1 }}
             containerStyle={{ height: '100%' }}
@@ -304,20 +284,15 @@ class App extends Component {
             onChangeIndex={tab => this.setState({ tab })}>
             <ContainerDiv>
               <ControlsDiv>
-                <IconButton onClick={() => api(`${HK}/source/Radio`).then(this.onApi)}>
-                  <RadioRounded />
-                </IconButton>
+                <IconButton children={<RadioRounded />} onClick={() => api(`${HK}/source/Radio`).then(this.onApi)} />
                 <Span size='large'>
-                  <IconButton onClick={() => api(`${HK}/volume/down`).then(this.onApi)}>
-                    <VolumeDownRounded />
-                  </IconButton>
-                  <IconButton onClick={() => api(`${HK}/volume/up`).then(this.onApi)}>
-                    <VolumeUpRounded />
-                  </IconButton>
+                  <IconButton
+                    children={<VolumeDownRounded />}
+                    onClick={() => api(`${HK}/volume/down`).then(this.onApi)}
+                  />
+                  <IconButton children={<VolumeUpRounded />} onClick={() => api(`${HK}/volume/up`).then(this.onApi)} />
                 </Span>
-                <IconButton onClick={() => api(`${HK}/source/TV`).then(this.onApi)}>
-                  <MusicNoteRounded />
-                </IconButton>
+                <IconButton children={<MusicNoteRounded />} onClick={() => api(`${HK}/source/TV`).then(this.onApi)} />
               </ControlsDiv>
               {this.state.authorized ? (
                 activeTrack ? (
@@ -352,32 +327,28 @@ class App extends Component {
                     </Typography>
                     <ControlsDiv>
                       <IconButton
+                        children={<NewReleasesRounded />}
                         onClick={() =>
                           this.emit('play', {
                             context_uri: process.env.REACT_APP_SPO_DISCOVER_WEEKLY_URI
                           })
-                        }>
-                        <NewReleasesRounded />
-                      </IconButton>
-                      <IconButton onClick={() => this.emit('previous_track')}>
-                        <SkipPreviousRounded />
-                      </IconButton>
+                        }
+                      />
+                      <IconButton children={<SkipPreviousRounded />} onClick={() => this.emit('previous_track')} />
                       <Span size='large'>
                         <IconButton onClick={() => this.emit(isPlaying ? 'pause' : 'play')}>
                           {isPlaying ? <PauseRounded /> : <PlayArrowRounded />}
                         </IconButton>
                       </Span>
-                      <IconButton onClick={() => this.emit('next_track')}>
-                        <SkipNextRounded />
-                      </IconButton>
+                      <IconButton children={<SkipNextRounded />} onClick={() => this.emit('next_track')} />
                       <IconButton
+                        children={<FavoriteRounded />}
                         onClick={() =>
                           this.emit('play', {
                             context_uri: process.env.REACT_APP_SPO_LIKES_URI
                           })
-                        }>
-                        <FavoriteRounded />
-                      </IconButton>
+                        }
+                      />
                     </ControlsDiv>
                     <VolumeDiv>
                       <Slider
@@ -389,33 +360,29 @@ class App extends Component {
                     </VolumeDiv>
                   </ContainerDiv>
                 ) : (
-                  <ContainerDiv>{this.state.error}</ContainerDiv>
+                  <>{this.state.error}</>
                 )
               ) : (
                 <ControlsDiv>
-                  <IconButton onClick={() => this.login().then(this.setupConnect)}>
-                    <LockRounded />
-                  </IconButton>
+                  <IconButton children={<LockRounded />} onClick={() => this.login().then(this.setupConnect)} />
                 </ControlsDiv>
               )}
             </ContainerDiv>
             <ControlsGrowDiv>
               <ContainerDiv>
-                <IconButton onClick={() => api(`${SERVER}/bluetooth/reset`).then(this.onApi)}>
-                  <BluetoothDisabledRounded />
-                </IconButton>
-                <IconButton onClick={() => api(`${SERVER}/bluetooth/discover`).then(this.onApi)}>
-                  <BluetoothSearchingRounded />
-                </IconButton>
+                <IconButton
+                  children={<BluetoothDisabledRounded />}
+                  onClick={() => api(`${SERVER}/bluetooth/reset`).then(this.onApi)}
+                />
+                <IconButton
+                  children={<BluetoothSearchingRounded />}
+                  onClick={() => api(`${SERVER}/bluetooth/discover`).then(this.onApi)}
+                />
               </ContainerDiv>
               <Hues onHueClick={this.onHueClick} palette={this.state.palette} />
               <ContainerDiv>
-                <IconButton onClick={this.onApi}>
-                  <TimerRounded />
-                </IconButton>
-                <IconButton onClick={this.onApi}>
-                  <PowerOffRounded />
-                </IconButton>
+                <IconButton children={<TimerRounded />} onClick={this.onApi} />
+                <IconButton children={<PowerOffRounded />} onClick={this.onApi} />
               </ContainerDiv>
             </ControlsGrowDiv>
           </SwipeableViews>
@@ -433,4 +400,5 @@ class App extends Component {
     );
   }
 }
+
 export default App;
