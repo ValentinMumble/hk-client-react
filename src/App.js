@@ -1,6 +1,6 @@
 import React from 'react';
 import { withPrimary } from './theme';
-import { api } from './util';
+import { api, inactivityTime } from './util';
 import openSocket from 'socket.io-client';
 import { Slider, LinearProgress, IconButton, Typography, ButtonBase, Tabs, Tab } from '@material-ui/core';
 import { ThemeProvider } from '@material-ui/styles';
@@ -125,7 +125,8 @@ class App extends React.Component {
         this.setupConnect(data.accessToken);
       }
     });
-    document.addEventListener('visibilitychange', this.onVisibilityChange);
+
+    inactivityTime(this.connect, this.disconnect);
   }
   setProgress = progress => this.setState({ progress });
   setPlayback = isPlaying => this.setState({ isPlaying });
@@ -210,7 +211,6 @@ class App extends React.Component {
     wrappedHandler('volume_change', this.setVolume);
     wrappedHandler('track_end', () => {});
     wrappedHandler('connect_error', this.onError);
-    wrappedHandler('disconnect', this.onVisibilityChange);
     this.emit('initiate', { accessToken: this.accessToken });
   };
   snack = (message, duration = 2000, backgroundColor = this.state.theme.palette.primary.main) => {
@@ -246,24 +246,17 @@ class App extends React.Component {
       this.snack('Turning lights off...', 1000, '#000');
     }
   };
-  onVisibilityChange = () => {
-    if (document.visibilityState === 'visible') {
-      if (this.io && this.io.disconnected) {
-        console.info('Socket disconnected, reconnecting now...');
-        this.setState({ loading: true });
-        this.io.open();
-        this.emit('initiate', { accessToken: this.accessToken });
-      }
-      if (this.disconnectTimeout) {
-        clearTimeout(this.disconnectTimeout);
-      }
-    } else if (document.visibilityState === 'hidden') {
-      this.disconnectTimeout = setTimeout(() => {
-        console.info('Timeout: disconnecting');
-        this.io.close();
-        clearTimeout(this.disconnectTimeout);
-      }, 5000);
+  connect = () => {
+    if (this.io && this.io.disconnected) {
+      console.info('Socket disconnected, reconnecting now...');
+      this.setState({ loading: true });
+      this.io.open();
+      this.emit('initiate', { accessToken: this.accessToken });
     }
+  };
+  disconnect = () => {
+    console.info('Timeout: disconnecting');
+    this.io.close();
   };
   onColorChange = palette =>
     this.setState({
@@ -277,6 +270,7 @@ class App extends React.Component {
         <AppDiv>
           <Snickers {...snackbar} onClose={() => this.setState({ snackbar: { ...snackbar, open: false } })} />
           <SwipeableViews
+            enableMouseEvents
             style={{ flexGrow: 1 }}
             containerStyle={{ height: '100%' }}
             slideClassName='Container'
