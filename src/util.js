@@ -34,6 +34,20 @@ export const fetchImage = url => {
   });
 };
 
+export const inactivityTime = (on, off) => {
+  let time;
+  const resetTimer = () => {
+    clearTimeout(time);
+    time = setTimeout(off, 10000);
+    on();
+  };
+
+  window.addEventListener('load', resetTimer, true);
+  ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
+    document.addEventListener(event, resetTimer, true);
+  });
+};
+
 export const I = {
   BLACK:
     'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
