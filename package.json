@@ -5,7 +5,7 @@
     "type": "git",
     "url": "git@github.com:ValentinMumble/hk-client-react.git"
   },
-  "homepage": "https://vmumble.ddns.net/hk/",
+  "homepage": "https://vumble.ddns.net/hk/",
   "version": "0.1.0",
   "main": "index.js",
   "author": "Valentin Dijkstra",
@@ -27,8 +27,8 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "postbuild": "yarn upload",
-    "upload": "export $(cat .env | grep PKG | xargs) && rsync -avz -e 'ssh' ./build $PKG_DEPLOY_HOST:$PKG_DEPLOY_PATH"
+    "upload": "export $(cat .env | grep PKG | xargs) && rsync -avz -e 'ssh' ./build $PKG_DEPLOY_HOST:$PKG_DEPLOY_PATH",
+    "deploy": "yarn build && yarn upload"
   },
   "browserslist": [
     ">0.2%",
