@@ -61,12 +61,12 @@ export const Artwork = ({ src, isPlaying, trackDuration, initProgress, onClick, 
       return () => clearTimeout(prevSrcTimer);
     };
     loadArtwork();
-  }, [src, onColorChange]);
+  }, [src]);
 
   React.useEffect(() => {
     if (isPlaying) {
-      const progressInterval = window.setInterval(() => setProgress(progress => progress + 200), 200);
-      return () => clearInterval(progressInterval);
+      // const progressInterval = window.setInterval(() => setProgress(progress => progress + 200), 200);
+      // return () => clearInterval(progressInterval);
     }
   }, [isPlaying]);
 

@@ -247,7 +247,7 @@ class App extends React.Component {
     }
   };
   connect = () => {
-    if (this.io && this.io.disconnected) {
+    if (this.io && this.io.disconnected && !this.state.loading) {
       console.info('Socket disconnected, reconnecting now...');
       this.setState({ loading: true });
       this.io.open();
