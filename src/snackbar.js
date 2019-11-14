@@ -16,8 +16,7 @@ export const SnackbarProvider = ({ children }) => {
 
   const { theme } = useTheme();
 
-  const snack = (message, duration = 2000, bgColor = null) => {
-    const backgroundColor = bgColor ? bgColor : theme.palette.primary.main;
+  const snack = (message, duration = 2000, backgroundColor = theme.palette.primary.main) => {
     message &&
       setSnackbar(snackbar => ({
         ...snackbar,

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { api, inactivityTime } from './util';
 import openSocket from 'socket.io-client';
 import { Slider, LinearProgress, IconButton, Typography, ButtonBase, Tabs, Tab } from '@material-ui/core';
@@ -231,10 +231,10 @@ export const HK = () => {
     // io.close();
   };
 
-  const onColorChange = useCallback(palette => {
+  const onColorChange = palette => {
     setPalette(palette);
     buildTheme(palette[0], palette[1]);
-  });
+  };
 
   const { snack } = useSnackbar();
   const { buildTheme } = useTheme();
