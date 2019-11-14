@@ -3,7 +3,7 @@ import './index.css';
 import qs from 'query-string';
 import { api } from './util';
 
-export default () => {
+export const Callback = () => {
   const parsed = qs.parse(window.location.search);
   api(`${process.env.REACT_APP_SERVER_URL}/spotify/authorize/${parsed.code}`).then(data => {
     window.addEventListener('message', event => {

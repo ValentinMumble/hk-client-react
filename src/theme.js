@@ -1,7 +1,25 @@
-import { createMuiTheme } from '@material-ui/core'
+import React, { createContext, useState, useContext } from 'react';
+import { ThemeProvider } from '@material-ui/styles';
+import { createMuiTheme } from '@material-ui/core';
 
-export const withPrimary = (primary, secondary = '#333') => {
-  return createMuiTheme({
+const ThemeContext = createContext();
+
+export const useTheme = () => useContext(ThemeContext);
+
+export const ThemePProvider = ({ children }) => {
+  const [theme, setTheme] = useState(withColors());
+
+  const buildTheme = (primary, secondary) => setTheme(withColors(primary, secondary));
+
+  return (
+    <ThemeContext.Provider value={{ theme, buildTheme }}>
+      <ThemeProvider theme={theme}>{children}</ThemeProvider>
+    </ThemeContext.Provider>
+  );
+};
+
+const withColors = (primary = '#000', secondary = '#333') =>
+  createMuiTheme({
     typography: {
       fontFamily: 'inherit'
     },
@@ -88,5 +106,4 @@ export const withPrimary = (primary, secondary = '#333') => {
         }
       }
     }
-  })
-}
+  });

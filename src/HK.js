@@ -1,9 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { withPrimary } from './theme';
 import { api, inactivityTime } from './util';
 import openSocket from 'socket.io-client';
 import { Slider, LinearProgress, IconButton, Typography, ButtonBase, Tabs, Tab } from '@material-ui/core';
-import { ThemeProvider } from '@material-ui/styles';
 import {
   RadioRounded,
   FavoriteRounded,
@@ -26,13 +24,13 @@ import {
 import SwipeableViews from 'react-swipeable-views';
 import { Artwork } from './Artwork';
 import { Hues } from './Hues';
-import { Snickers } from './Snickers';
 import styled from 'styled-components';
-import { useSnackbar } from './useSnackbar';
+import { useSnackbar } from './snackbar';
+import { useTheme } from './theme';
 
 const { REACT_APP_SERVER_URL: SERVER, REACT_APP_HK_API: HK_SERVER } = process.env;
 
-const AppDiv = styled.div`
+const HKContainer = styled.div`
   font-size: 7vh;
   position: relative;
   display: flex;
@@ -112,8 +110,6 @@ export const HK = () => {
   const [activeTrack, setActiveTrack] = useState(null);
   const [volume, setVolume] = useState(0);
   const [trackProgress, setTrackProgress] = useState(0);
-  const [snackbar, setSnackbar] = useState({ open: false, color: '#000', backgroundColor: '#fff' });
-  const [theme, setTheme] = useState(withPrimary('#000'));
   const [currentTabIndex, setCurrentTabIndex] = useState(0);
   const [palette, setPalette] = useState([]);
 
@@ -121,7 +117,7 @@ export const HK = () => {
     api(`${SERVER}/spotify/access-token`).then(data => {
       if (data.url) {
         setAuthorizeUrl(data.url);
-        setTheme(withPrimary('#777'));
+        buildTheme('#777');
       } else {
         setupConnect(data.accessToken);
       }
@@ -158,7 +154,7 @@ export const HK = () => {
   };
 
   const login = () => {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       const popup = window.open(authorizeUrl, '_blank', 'width=500,height=500,location=0,resizable=0');
       const listener = setInterval(() => {
         if (popup) popup.postMessage('login', window.location);
@@ -199,19 +195,7 @@ export const HK = () => {
     wrappedHandler('connect_error', onError);
     emit('initiate', { accessToken });
   };
-  const snack = (message, duration = 2000, backgroundColor = theme.palette.primary.main) => {
-    if (message) {
-      // setSnackbar({
-      //   ...snackbar,
-      //   open: true,
-      //   message,
-      //   duration,
-      //   backgroundColor,
-      //   color: theme.palette.getContrastText(backgroundColor)
-      // });
-      setAlerts([message, message + 'f']);
-    }
-  };
+
   const onApi = json => {
     snack(
       json.error ? (
@@ -249,136 +233,134 @@ export const HK = () => {
 
   const onColorChange = useCallback(palette => {
     setPalette(palette);
-    setTheme(withPrimary(palette[0], palette[1]));
+    buildTheme(palette[0], palette[1]);
   });
 
-  const { setAlerts } = useSnackbar();
+  const { snack } = useSnackbar();
+  const { buildTheme } = useTheme();
 
   return (
-    <ThemeProvider theme={theme}>
-      <AppDiv>
-        <Snickers {...snackbar} onClose={() => setSnackbar(snackbar => ({ ...snackbar, open: false }))} />
-        <SwipeableViews
-          enableMouseEvents
-          style={{ flexGrow: 1 }}
-          containerStyle={{ height: '100%' }}
-          slideClassName='Container'
-          index={currentTabIndex}
-          onChangeIndex={setCurrentTabIndex}>
-          <ContainerDiv>
-            <ControlsDiv>
-              <IconButton children={<RadioRounded />} onClick={() => api(`${HK_SERVER}/source/Radio`).then(onApi)} />
-              <Span size='large'>
-                <IconButton
-                  children={<VolumeDownRounded />}
-                  onClick={() => api(`${HK_SERVER}/volume/down`).then(onApi)}
+    <HKContainer>
+      <SwipeableViews
+        enableMouseEvents
+        style={{ flexGrow: 1 }}
+        containerStyle={{ height: '100%' }}
+        slideClassName='Container'
+        index={currentTabIndex}
+        onChangeIndex={setCurrentTabIndex}>
+        <ContainerDiv>
+          <ControlsDiv>
+            <IconButton children={<RadioRounded />} onClick={() => api(`${HK_SERVER}/source/Radio`).then(onApi)} />
+            <Span size='large'>
+              <IconButton
+                children={<VolumeDownRounded />}
+                onClick={() => api(`${HK_SERVER}/volume/down`).then(onApi)}
+              />
+              <IconButton children={<VolumeUpRounded />} onClick={() => api(`${HK_SERVER}/volume/up`).then(onApi)} />
+            </Span>
+            <IconButton children={<MusicNoteRounded />} onClick={() => api(`${HK_SERVER}/source/TV`).then(onApi)} />
+          </ControlsDiv>
+          {authorizeUrl === '' ? (
+            activeTrack ? (
+              <ContainerDiv>
+                {loading && (
+                  <LoaderDiv>
+                    <LinearProgress color='secondary' />
+                    <ButtonBase />
+                  </LoaderDiv>
+                )}
+                <Artwork
+                  onClick={() =>
+                    api(`${SERVER}/soca/count`).then(json =>
+                      onApi({
+                        ...json,
+                        message: `${json.clientsCount} client${json.clientsCount > 1 ? 's' : ''} connected`
+                      })
+                    )
+                  }
+                  src={activeTrack.album.images.length > 0 ? activeTrack.album.images[0].url : ''}
+                  isPlaying={playing}
+                  trackDuration={activeTrack.duration_ms}
+                  initProgress={trackProgress}
+                  onColorChange={onColorChange}
                 />
-                <IconButton children={<VolumeUpRounded />} onClick={() => api(`${HK_SERVER}/volume/up`).then(onApi)} />
-              </Span>
-              <IconButton children={<MusicNoteRounded />} onClick={() => api(`${HK_SERVER}/source/TV`).then(onApi)} />
-            </ControlsDiv>
-            {authorizeUrl === '' ? (
-              activeTrack ? (
-                <ContainerDiv>
-                  {loading && (
-                    <LoaderDiv>
-                      <LinearProgress color='secondary' />
-                      <ButtonBase />
-                    </LoaderDiv>
-                  )}
-                  <Artwork
+                <Typography
+                  variant='h5'
+                  color='primary'
+                  onClick={() => api(`${SERVER}/spotify/addok/${activeTrack.uri}`).then(onApi)}>
+                  {activeTrack.name}
+                  <ArtistSpan>{activeTrack.artists[0].name}</ArtistSpan>
+                </Typography>
+                <ControlsDiv>
+                  <IconButton
+                    children={<NewReleasesRounded />}
                     onClick={() =>
-                      api(`${SERVER}/soca/count`).then(json =>
-                        onApi({
-                          ...json,
-                          message: `${json.clientsCount} client${json.clientsCount > 1 ? 's' : ''} connected`
-                        })
-                      )
+                      emit('play', {
+                        context_uri: process.env.REACT_APP_SPO_DISCOVER_WEEKLY_URI
+                      })
                     }
-                    src={activeTrack.album.images.length > 0 ? activeTrack.album.images[0].url : ''}
-                    isPlaying={playing}
-                    trackDuration={activeTrack.duration_ms}
-                    initProgress={trackProgress}
-                    onColorChange={onColorChange}
                   />
-                  <Typography
-                    variant='h5'
-                    color='primary'
-                    onClick={() => api(`${SERVER}/spotify/addok/${activeTrack.uri}`).then(onApi)}>
-                    {activeTrack.name}
-                    <ArtistSpan>{activeTrack.artists[0].name}</ArtistSpan>
-                  </Typography>
-                  <ControlsDiv>
-                    <IconButton
-                      children={<NewReleasesRounded />}
-                      onClick={() =>
-                        emit('play', {
-                          context_uri: process.env.REACT_APP_SPO_DISCOVER_WEEKLY_URI
-                        })
-                      }
-                    />
-                    <IconButton children={<SkipPreviousRounded />} onClick={() => emit('previous_track')} />
-                    <Span size='large'>
-                      <IconButton onClick={() => emit(playing ? 'pause' : 'play')}>
-                        {playing ? <PauseRounded /> : <PlayArrowRounded />}
-                      </IconButton>
-                    </Span>
-                    <IconButton children={<SkipNextRounded />} onClick={() => emit('next_track')} />
-                    <IconButton
-                      children={<FavoriteRounded />}
-                      onClick={() =>
-                        emit('play', {
-                          context_uri: process.env.REACT_APP_SPO_LIKES_URI
-                        })
-                      }
-                    />
-                  </ControlsDiv>
-                  <VolumeDiv>
-                    <Slider
-                      valueLabelDisplay='auto'
-                      value={volume}
-                      onChange={(e, v) => setVolume(v)}
-                      onChangeCommitted={(e, v) => emit('set_volume', v)}
-                    />
-                  </VolumeDiv>
-                </ContainerDiv>
-              ) : (
-                <>{error}</>
-              )
+                  <IconButton children={<SkipPreviousRounded />} onClick={() => emit('previous_track')} />
+                  <Span size='large'>
+                    <IconButton onClick={() => emit(playing ? 'pause' : 'play')}>
+                      {playing ? <PauseRounded /> : <PlayArrowRounded />}
+                    </IconButton>
+                  </Span>
+                  <IconButton children={<SkipNextRounded />} onClick={() => emit('next_track')} />
+                  <IconButton
+                    children={<FavoriteRounded />}
+                    onClick={() =>
+                      emit('play', {
+                        context_uri: process.env.REACT_APP_SPO_LIKES_URI
+                      })
+                    }
+                  />
+                </ControlsDiv>
+                <VolumeDiv>
+                  <Slider
+                    valueLabelDisplay='auto'
+                    value={volume}
+                    onChange={(e, v) => setVolume(v)}
+                    onChangeCommitted={(e, v) => emit('set_volume', v)}
+                  />
+                </VolumeDiv>
+              </ContainerDiv>
             ) : (
-              <ControlsDiv>
-                <IconButton children={<LockRounded />} onClick={() => login().then(setupConnect)} />
-              </ControlsDiv>
-            )}
+              <>{error}</>
+            )
+          ) : (
+            <ControlsDiv>
+              <IconButton children={<LockRounded />} onClick={() => login().then(setupConnect)} />
+            </ControlsDiv>
+          )}
+        </ContainerDiv>
+        <ControlsGrowDiv>
+          <ContainerDiv>
+            <IconButton
+              children={<BluetoothDisabledRounded />}
+              onClick={() => api(`${SERVER}/bluetooth/reset`).then(onApi)}
+            />
+            <IconButton
+              children={<BluetoothSearchingRounded />}
+              onClick={() => api(`${SERVER}/bluetooth/discover`).then(onApi)}
+            />
           </ContainerDiv>
-          <ControlsGrowDiv>
-            <ContainerDiv>
-              <IconButton
-                children={<BluetoothDisabledRounded />}
-                onClick={() => api(`${SERVER}/bluetooth/reset`).then(onApi)}
-              />
-              <IconButton
-                children={<BluetoothSearchingRounded />}
-                onClick={() => api(`${SERVER}/bluetooth/discover`).then(onApi)}
-              />
-            </ContainerDiv>
-            <Hues onHueClick={onHueClick} palette={palette} />
-            <ContainerDiv>
-              <IconButton children={<TimerRounded />} onClick={onApi} />
-              <IconButton children={<PowerOffRounded />} onClick={onApi} />
-            </ContainerDiv>
-          </ControlsGrowDiv>
-        </SwipeableViews>
-        <Tabs
-          variant='fullWidth'
-          textColor='primary'
-          indicatorColor='primary'
-          value={currentTabIndex}
-          onChange={(e, tab) => setCurrentTabIndex(tab)}>
-          <Tab icon={<MusicNoteRounded />} />
-          <Tab icon={<WbIncandescentRounded />} />
-        </Tabs>
-      </AppDiv>
-    </ThemeProvider>
+          <Hues onHueClick={onHueClick} palette={palette} />
+          <ContainerDiv>
+            <IconButton children={<TimerRounded />} onClick={onApi} />
+            <IconButton children={<PowerOffRounded />} onClick={onApi} />
+          </ContainerDiv>
+        </ControlsGrowDiv>
+      </SwipeableViews>
+      <Tabs
+        variant='fullWidth'
+        textColor='primary'
+        indicatorColor='primary'
+        value={currentTabIndex}
+        onChange={(e, tab) => setCurrentTabIndex(tab)}>
+        <Tab icon={<MusicNoteRounded />} />
+        <Tab icon={<WbIncandescentRounded />} />
+      </Tabs>
+    </HKContainer>
   );
 };
