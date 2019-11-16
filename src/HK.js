@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { api, inactivityTime } from './util';
 import openSocket from 'socket.io-client';
 import { Slider, LinearProgress, IconButton, Typography, ButtonBase, Tabs, Tab } from '@material-ui/core';
@@ -30,7 +30,7 @@ import { useTheme } from './theme';
 
 const { REACT_APP_SERVER_URL: SERVER, REACT_APP_HK_API: HK_SERVER } = process.env;
 
-const HKContainer = styled.div`
+const Container = styled.div`
   font-size: 7vh;
   position: relative;
   display: flex;
@@ -231,16 +231,15 @@ export const HK = () => {
     // io.close();
   };
 
-  const onColorChange = palette => {
+  const onColorChange = useCallback(palette => {
     setPalette(palette);
-    buildTheme(palette[0], palette[1]);
-  };
+  }, []);
 
   const { snack } = useSnackbar();
   const { buildTheme } = useTheme();
 
   return (
-    <HKContainer>
+    <Container>
       <SwipeableViews
         enableMouseEvents
         style={{ flexGrow: 1 }}
@@ -361,6 +360,6 @@ export const HK = () => {
         <Tab icon={<MusicNoteRounded />} />
         <Tab icon={<WbIncandescentRounded />} />
       </Tabs>
-    </HKContainer>
+    </Container>
   );
 };

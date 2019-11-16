@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { I, fetchImage } from './util';
 import splashy from 'splashy';
 import styled from 'styled-components';
+import { useTheme } from './theme';
 
-const ArtworkDiv = styled.div`
+const Container = styled.div`
   position: relative;
   width: 100vw;
   max-width: 450px;
@@ -49,11 +50,15 @@ export const Artwork = ({ src, isPlaying, trackDuration, initProgress, onClick, 
   const [progress, setProgress] = React.useState(initProgress);
   const [isHidden, setHidden] = React.useState(false);
 
-  React.useEffect(() => {
+  const { buildTheme } = useTheme();
+
+  useEffect(() => {
     const loadArtwork = async () => {
       setHidden(true);
       setCurrentSrc(await fetchImage(src));
-      onColorChange(src ? await splashy(imgRef.current) : ['#777', '#777']);
+      const colors = src ? await splashy(imgRef.current) : ['#777', '#777'];
+      buildTheme(colors[0], colors[1]);
+      onColorChange(colors);
       const prevSrcTimer = setTimeout(() => {
         setPrevSrc(imgRef.current.src);
         setHidden(false);
@@ -61,28 +66,28 @@ export const Artwork = ({ src, isPlaying, trackDuration, initProgress, onClick, 
       return () => clearTimeout(prevSrcTimer);
     };
     loadArtwork();
-  }, [src]);
+  }, [src, onColorChange]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isPlaying) {
       // const progressInterval = window.setInterval(() => setProgress(progress => progress + 200), 200);
       // return () => clearInterval(progressInterval);
     }
   }, [isPlaying]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setProgress(0);
   }, [trackDuration]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setProgress(initProgress);
   }, [initProgress]);
 
   return (
-    <ArtworkDiv isPlaying={isPlaying} onClick={onClick}>
+    <Container isPlaying={isPlaying} onClick={onClick}>
       <ArtworkImg ref={imgRef} src={currentSrc} alt='' />
       <ArtworkImg isHidden={isHidden} src={prevSrc} alt='' />
       <ProgressDiv progress={progress / trackDuration} />
-    </ArtworkDiv>
+    </Container>
   );
 };
