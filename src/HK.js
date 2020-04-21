@@ -1,7 +1,16 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { api, inactivityTime } from './util';
+import React, {useEffect, useState, useCallback} from 'react';
+import styled from 'styled-components';
+import SwipeableViews from 'react-swipeable-views';
 import openSocket from 'socket.io-client';
-import { Slider, LinearProgress, IconButton, Typography, ButtonBase, Tabs, Tab } from '@material-ui/core';
+import {
+  Slider,
+  LinearProgress,
+  IconButton,
+  Typography,
+  ButtonBase,
+  Tabs,
+  Tab,
+} from '@material-ui/core';
 import {
   RadioRounded,
   FavoriteRounded,
@@ -19,16 +28,14 @@ import {
   BluetoothDisabledRounded,
   PowerOffRounded,
   BluetoothSearchingRounded,
-  TimerRounded
+  TimerRounded,
 } from '@material-ui/icons';
-import SwipeableViews from 'react-swipeable-views';
-import { Artwork } from './Artwork';
-import { Hues } from './Hues';
-import styled from 'styled-components';
-import { useSnackbar } from './snackbar';
-import { useTheme } from './theme';
+import {Artwork, Hues} from 'components';
+import {useSnackbar} from 'Snackbar';
+import {useTheme} from 'theme';
+import {api} from 'utils';
 
-const { REACT_APP_SERVER_URL: SERVER, REACT_APP_HK_API: HK_SERVER } = process.env;
+const {REACT_APP_SERVER_URL: SERVER, REACT_APP_HK_API: HK_SERVER} = process.env;
 
 const Container = styled.div`
   font-size: 7vh;
@@ -106,6 +113,7 @@ export const HK = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [playing, setPlaying] = useState(false);
+  const [accessToken, setAccessToken] = useState('');
   const [authorizeUrl, setAuthorizeUrl] = useState('');
   const [activeTrack, setActiveTrack] = useState(null);
   const [volume, setVolume] = useState(0);
@@ -113,18 +121,8 @@ export const HK = () => {
   const [currentTabIndex, setCurrentTabIndex] = useState(0);
   const [palette, setPalette] = useState([]);
 
-  useEffect(() => {
-    api(`${SERVER}/spotify/access-token`).then(data => {
-      if (data.url) {
-        setAuthorizeUrl(data.url);
-        buildTheme('#777');
-      } else {
-        setupConnect(data.accessToken);
-      }
-    });
-
-    inactivityTime(connect, disconnect);
-  }, []);
+  const {snack} = useSnackbar();
+  const {buildTheme} = useTheme();
 
   const emit = (event, value) => {
     console.info('Emit', event, value);
@@ -141,21 +139,43 @@ export const HK = () => {
     }
   };
 
-  const onError = error => {
-    console.error(error);
-    if (error.name === 'NoActiveDeviceError') {
-      setLoading(true);
-      emit('transfer_playback', { id: process.env.REACT_APP_SPO_PI_ID });
-    } else if (error === 'Device not found') {
-      api(`${SERVER}/spotify/devices`).then(onApi);
-    } else {
-      setError(error.message || error);
-    }
-  };
+  const onApi = useCallback(
+    json => {
+      snack(
+        json.error ? (
+          <Span>
+            <Warning fontSize="small" /> {json.error.message || json.error}
+          </Span>
+        ) : (
+          json.message
+        )
+      );
+    },
+    [snack]
+  );
+
+  const onError = useCallback(
+    error => {
+      console.error(error);
+      if (error.name === 'NoActiveDeviceError') {
+        setLoading(true);
+        emit('transfer_playback', {id: process.env.REACT_APP_SPO_PI_ID});
+      } else if (error === 'Device not found') {
+        api(`${SERVER}/spotify/devices`).then(onApi);
+      } else {
+        setError(error.message || error);
+      }
+    },
+    [onApi]
+  );
 
   const login = () => {
     return new Promise(resolve => {
-      const popup = window.open(authorizeUrl, '_blank', 'width=500,height=500,location=0,resizable=0');
+      const popup = window.open(
+        authorizeUrl,
+        '_blank',
+        'width=500,height=500,location=0,resizable=0'
+      );
       const listener = setInterval(() => {
         if (popup) popup.postMessage('login', window.location);
       }, 1000);
@@ -169,44 +189,36 @@ export const HK = () => {
     });
   };
 
-  const setupConnect = accessToken => {
-    localStorage.setItem('TOKEN', accessToken);
-    io = openSocket(`${SERVER}/connect`, { reconnection: false });
-    const wrappedHandler = (event, handler) => {
-      io.on(event, data => {
-        console.info(event, data);
-        handler(data);
+  const setupConnect = useCallback(
+    accessToken => {
+      setAccessToken(accessToken);
+      io = openSocket(`${SERVER}/connect`, {reconnection: false});
+      const wrappedHandler = (event, handler) => {
+        io.on(event, data => {
+          console.info(event, data);
+          handler(data);
+        });
+      };
+      wrappedHandler('initial_state', state => {
+        setLoading(false);
+        setAuthorizeUrl('');
+        setTrackProgress(state.progress_ms);
+        setActiveTrack(state.item);
+        setVolume(state.device.volume_percent);
+        setPlaying(state.is_playing);
       });
-    };
-    wrappedHandler('initial_state', state => {
-      setLoading(false);
-      setAuthorizeUrl('');
-      setTrackProgress(state.progress_ms);
-      setActiveTrack(state.item);
-      setVolume(state.device.volume_percent);
-      setPlaying(state.is_playing);
-    });
-    wrappedHandler('track_change', setActiveTrack);
-    wrappedHandler('seek', setTrackProgress);
-    wrappedHandler('playback_started', () => setPlaying(true));
-    wrappedHandler('playback_paused', () => setPlaying(false));
-    wrappedHandler('volume_change', setVolume);
-    wrappedHandler('track_end', () => {});
-    wrappedHandler('connect_error', onError);
-    emit('initiate', { accessToken });
-  };
+      wrappedHandler('track_change', setActiveTrack);
+      wrappedHandler('seek', setTrackProgress);
+      wrappedHandler('playback_started', () => setPlaying(true));
+      wrappedHandler('playback_paused', () => setPlaying(false));
+      wrappedHandler('volume_change', setVolume);
+      wrappedHandler('track_end', () => {});
+      wrappedHandler('connect_error', onError);
+      emit('initiate', {accessToken});
+    },
+    [onError]
+  );
 
-  const onApi = json => {
-    snack(
-      json.error ? (
-        <Span>
-          <Warning fontSize='small' /> {json.error.message || json.error}
-        </Span>
-      ) : (
-        json.message
-      )
-    );
-  };
   const onHueClick = color => {
     if (color) {
       api(`${SERVER}/hue/on/${color.substring(1)}`).then(onApi);
@@ -217,54 +229,91 @@ export const HK = () => {
     }
   };
 
-  const connect = () => {
-    // if (io && io.disconnected && !loading) {
-    //   setLoading(true);
-    //   console.info('Socket disconnected, reconnecting now...');
-    //   io.open();
-    //   emit('initiate', { accessToken: localStorage.getItem('TOKEN') });
-    // }
-  };
+  const onColorChange = useCallback(setPalette, []);
 
-  const disconnect = () => {
-    // console.info('Timeout: disconnecting');
-    // io.close();
-  };
+  // const connect = useCallback(() => {
+  //   if (io && io.disconnected && !loading) {
+  //     setLoading(true);
+  //     console.info('Socket disconnected, reconnecting now...');
+  //     io.open();
+  //     emit('initiate', {accessToken});
+  //   }
+  // }, [loading, accessToken]);
 
-  const onColorChange = useCallback(palette => {
-    setPalette(palette);
-  }, []);
+  // const disconnect = useCallback(() => {
+  //   console.info('Timeout: disconnecting');
+  //   io.close();
+  // }, []);
 
-  const { snack } = useSnackbar();
-  const { buildTheme } = useTheme();
+  useEffect(() => {
+    if ('' === accessToken && authorizeUrl === '') {
+      api(`${SERVER}/spotify/access-token`).then(data => {
+        if (data.url) {
+          setAuthorizeUrl(data.url);
+          buildTheme('#777');
+        } else {
+          setupConnect(data.accessToken);
+        }
+      });
+    }
+
+    // document.addEventListener('visibilitychange', () => {
+    //   if (document.hidden) {
+    //     disconnect();
+    //   } else {
+    //     connect();
+    //   }
+    // });
+
+    // inactivityTime(connect, disconnect);
+
+    // return () => document.removeEventListener('visibilitychange');
+  }, [
+    // connect,
+    // disconnect,
+    setupConnect,
+    buildTheme,
+    accessToken,
+    authorizeUrl,
+  ]);
 
   return (
     <Container>
       <SwipeableViews
         enableMouseEvents
-        style={{ flexGrow: 1 }}
-        containerStyle={{ height: '100%' }}
-        slideClassName='Container'
+        style={{flexGrow: 1}}
+        containerStyle={{height: '100%'}}
+        slideClassName="Container"
         index={currentTabIndex}
-        onChangeIndex={setCurrentTabIndex}>
+        onChangeIndex={setCurrentTabIndex}
+      >
         <ContainerDiv>
           <ControlsDiv>
-            <IconButton children={<RadioRounded />} onClick={() => api(`${HK_SERVER}/source/Radio`).then(onApi)} />
-            <Span size='large'>
+            <IconButton
+              children={<RadioRounded />}
+              onClick={() => api(`${HK_SERVER}/source/Radio`).then(onApi)}
+            />
+            <Span size="large">
               <IconButton
                 children={<VolumeDownRounded />}
                 onClick={() => api(`${HK_SERVER}/volume/down`).then(onApi)}
               />
-              <IconButton children={<VolumeUpRounded />} onClick={() => api(`${HK_SERVER}/volume/up`).then(onApi)} />
+              <IconButton
+                children={<VolumeUpRounded />}
+                onClick={() => api(`${HK_SERVER}/volume/up`).then(onApi)}
+              />
             </Span>
-            <IconButton children={<MusicNoteRounded />} onClick={() => api(`${HK_SERVER}/source/TV`).then(onApi)} />
+            <IconButton
+              children={<MusicNoteRounded />}
+              onClick={() => api(`${HK_SERVER}/source/TV`).then(onApi)}
+            />
           </ControlsDiv>
           {authorizeUrl === '' ? (
             activeTrack ? (
               <ContainerDiv>
                 {loading && (
                   <LoaderDiv>
-                    <LinearProgress color='secondary' />
+                    <LinearProgress color="secondary" />
                     <ButtonBase />
                   </LoaderDiv>
                 )}
@@ -273,20 +322,31 @@ export const HK = () => {
                     api(`${SERVER}/soca/count`).then(json =>
                       onApi({
                         ...json,
-                        message: `${json.clientsCount} client${json.clientsCount > 1 ? 's' : ''} connected`
+                        message: `${json.clientsCount} client${
+                          json.clientsCount > 1 ? 's' : ''
+                        } connected`,
                       })
                     )
                   }
-                  src={activeTrack.album.images.length > 0 ? activeTrack.album.images[0].url : ''}
+                  src={
+                    activeTrack.album.images.length > 0
+                      ? activeTrack.album.images[0].url
+                      : ''
+                  }
                   isPlaying={playing}
                   trackDuration={activeTrack.duration_ms}
                   initProgress={trackProgress}
                   onColorChange={onColorChange}
                 />
                 <Typography
-                  variant='h5'
-                  color='primary'
-                  onClick={() => api(`${SERVER}/spotify/addok/${activeTrack.uri}`).then(onApi)}>
+                  variant="h5"
+                  color="primary"
+                  onClick={() =>
+                    api(`${SERVER}/spotify/addok/${activeTrack.uri}`).then(
+                      onApi
+                    )
+                  }
+                >
                   {activeTrack.name}
                   <ArtistSpan>{activeTrack.artists[0].name}</ArtistSpan>
                 </Typography>
@@ -295,29 +355,38 @@ export const HK = () => {
                     children={<NewReleasesRounded />}
                     onClick={() =>
                       emit('play', {
-                        context_uri: process.env.REACT_APP_SPO_DISCOVER_WEEKLY_URI
+                        context_uri:
+                          process.env.REACT_APP_SPO_DISCOVER_WEEKLY_URI,
                       })
                     }
                   />
-                  <IconButton children={<SkipPreviousRounded />} onClick={() => emit('previous_track')} />
-                  <Span size='large'>
-                    <IconButton onClick={() => emit(playing ? 'pause' : 'play')}>
+                  <IconButton
+                    children={<SkipPreviousRounded />}
+                    onClick={() => emit('previous_track')}
+                  />
+                  <Span size="large">
+                    <IconButton
+                      onClick={() => emit(playing ? 'pause' : 'play')}
+                    >
                       {playing ? <PauseRounded /> : <PlayArrowRounded />}
                     </IconButton>
                   </Span>
-                  <IconButton children={<SkipNextRounded />} onClick={() => emit('next_track')} />
+                  <IconButton
+                    children={<SkipNextRounded />}
+                    onClick={() => emit('next_track')}
+                  />
                   <IconButton
                     children={<FavoriteRounded />}
                     onClick={() =>
                       emit('play', {
-                        context_uri: process.env.REACT_APP_SPO_LIKES_URI
+                        context_uri: process.env.REACT_APP_SPO_LIKES_URI,
                       })
                     }
                   />
                 </ControlsDiv>
                 <VolumeDiv>
                   <Slider
-                    valueLabelDisplay='auto'
+                    valueLabelDisplay="auto"
                     value={volume}
                     onChange={(e, v) => setVolume(v)}
                     onChangeCommitted={(e, v) => emit('set_volume', v)}
@@ -329,7 +398,10 @@ export const HK = () => {
             )
           ) : (
             <ControlsDiv>
-              <IconButton children={<LockRounded />} onClick={() => login().then(setupConnect)} />
+              <IconButton
+                children={<LockRounded />}
+                onClick={() => login().then(setupConnect)}
+              />
             </ControlsDiv>
           )}
         </ContainerDiv>
@@ -352,11 +424,12 @@ export const HK = () => {
         </ControlsGrowDiv>
       </SwipeableViews>
       <Tabs
-        variant='fullWidth'
-        textColor='primary'
-        indicatorColor='primary'
+        variant="fullWidth"
+        textColor="primary"
+        indicatorColor="primary"
         value={currentTabIndex}
-        onChange={(e, tab) => setCurrentTabIndex(tab)}>
+        onChange={(e, tab) => setCurrentTabIndex(tab)}
+      >
         <Tab icon={<MusicNoteRounded />} />
         <Tab icon={<WbIncandescentRounded />} />
       </Tabs>

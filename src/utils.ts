@@ -1,20 +1,20 @@
-import qs from 'query-string';
-
-export const api = async (uri, { data = {}, method = 'GET' } = {}) => {
+//TODO reuse better api
+const api = async (uri: string, {data = {}, method = 'GET'} = {}) => {
   const response = await fetch(uri, {
     method,
     headers: {
       Accept: 'application/json',
-      'Content-Type': 'application/x-www-form-urlencoded' //Fucking CORS
+      'Content-Type': 'application/x-www-form-urlencoded', //Fucking CORS
     },
-    body: Object.entries(data).length === 0 ? null : qs.stringify(data)
+    body: Object.entries(data).length === 0 ? null : JSON.stringify(data),
   });
   const json = await response.json();
   console.log('api', json);
+
   return json;
 };
 
-export const fetchImage = url => {
+const fetchImage = (url: string) => {
   return new Promise((resolve, reject) => {
     if (url) {
       const newImg = new Image();
@@ -22,9 +22,12 @@ export const fetchImage = url => {
       newImg.src = url;
       newImg.addEventListener('load', () => {
         const canvas = document.createElement('canvas');
-        canvas.width = newImg.width;
-        canvas.height = newImg.height;
-        canvas.getContext('2d').drawImage(newImg, 0, 0);
+        const context = canvas.getContext('2d');
+        if (null !== context) {
+          canvas.width = newImg.width;
+          canvas.height = newImg.height;
+          context.drawImage(newImg, 0, 0);
+        }
         resolve(canvas.toDataURL('image/png'));
       });
       newImg.addEventListener('error', () => {
@@ -34,8 +37,8 @@ export const fetchImage = url => {
   });
 };
 
-export const inactivityTime = (on, off) => {
-  let time;
+const inactivityTime = (on: () => void, off: () => void) => {
+  let time: number;
   const resetTimer = () => {
     clearTimeout(time);
     time = setTimeout(off, 10000);
@@ -43,14 +46,18 @@ export const inactivityTime = (on, off) => {
   };
 
   window.addEventListener('load', resetTimer, true);
-  ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
-    document.addEventListener(event, resetTimer, true);
-  });
+  ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(
+    event => {
+      document.addEventListener(event, resetTimer, true);
+    }
+  );
 };
 
-export const I = {
+const I = {
   BLACK:
     'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
   GRAY:
-    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mMs/w8AAfMBeIBXwkoAAAAASUVORK5CYII='
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mMs/w8AAfMBeIBXwkoAAAAASUVORK5CYII=',
 };
+
+export {api, fetchImage, inactivityTime, I};

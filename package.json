@@ -5,7 +5,7 @@
     "type": "git",
     "url": "git@github.com:ValentinMumble/hk-client-react.git"
   },
-  "homepage": "https://vumble.ddns.net/hk/",
+  "homepage": "./hk",
   "version": "0.1.0",
   "main": "index.js",
   "author": "Valentin Dijkstra",
@@ -13,16 +13,20 @@
   "dependencies": {
     "@material-ui/core": "^4.4.1",
     "@material-ui/icons": "^4.4.1",
-    "query-string": "^6.8.3",
+    "@material-ui/styles": "^4.9.10",
+    "@types/node": "^13.13.1",
+    "@types/react-dom": "^16.9.6",
+    "@types/react-router-dom": "^5.1.4",
+    "@types/socket.io-client": "^1.4.32",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
-    "react-router": "^5.0.1",
     "react-router-dom": "^5.0.1",
     "react-scripts": "^3.1.1",
     "react-swipeable-views": "^0.13.3",
     "socket.io-client": "^2.2.0",
     "splashy": "^5.0.0",
-    "styled-components": "^4.4.0"
+    "styled-components": "^5.1.0",
+    "typescript": "^3.8.3"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -35,5 +39,9 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "devDependencies": {
+    "@types/react": "^16.9.34",
+    "@types/styled-components": "^5.1.0"
+  }
 }
