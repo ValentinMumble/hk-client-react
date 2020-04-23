@@ -1,17 +1,32 @@
-//TODO reuse better api
-const api = async (uri: string, {data = {}, method = 'GET'} = {}) => {
-  const response = await fetch(uri, {
-    method,
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/x-www-form-urlencoded', //Fucking CORS
-    },
-    body: Object.entries(data).length === 0 ? null : JSON.stringify(data),
-  });
-  const json = await response.json();
-  console.log('api', json);
+type Value = string | number | boolean;
 
-  return json;
+type Params = {
+  [key: string]: Value;
+};
+
+type ServerError = {
+  name: string;
+  message: string;
+};
+
+type APIResponse<T> = {
+  results: T[];
+  errors: ServerError[];
+  status: number;
+  uri: string;
+};
+
+const api = async <T>(resource: string[], params: Params = {}, options?: RequestInit): Promise<APIResponse<T>> => {
+  const url = new URL(
+    resource.map(sub => encodeURIComponent(sub)).join('/'),
+    'hk' === resource[0] ? process.env.REACT_APP_HK_API : process.env.REACT_APP_SERVER_URL
+  );
+  Object.keys(params).forEach((key: string) => {
+    url.searchParams.append(key, params[key].toString());
+  });
+  let response = await fetch(url.toString(), options);
+
+  return response.json();
 };
 
 const fetchImage = (url: string) => {
@@ -46,11 +61,9 @@ const inactivityTime = (on: () => void, off: () => void) => {
   };
 
   window.addEventListener('load', resetTimer, true);
-  ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(
-    event => {
-      document.addEventListener(event, resetTimer, true);
-    }
-  );
+  ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
+    document.addEventListener(event, resetTimer, true);
+  });
 };
 
 const I = {

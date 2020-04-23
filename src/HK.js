@@ -2,15 +2,7 @@ import React, {useEffect, useState, useCallback} from 'react';
 import styled from 'styled-components';
 import SwipeableViews from 'react-swipeable-views';
 import openSocket from 'socket.io-client';
-import {
-  Slider,
-  LinearProgress,
-  IconButton,
-  Typography,
-  ButtonBase,
-  Tabs,
-  Tab,
-} from '@material-ui/core';
+import {Slider, LinearProgress, IconButton, Typography, ButtonBase, Tabs, Tab} from '@material-ui/core';
 import {
   RadioRounded,
   FavoriteRounded,
@@ -35,7 +27,12 @@ import {useSnackbar} from 'Snackbar';
 import {useTheme} from 'theme';
 import {api} from 'utils';
 
-const {REACT_APP_SERVER_URL: SERVER, REACT_APP_HK_API: HK_SERVER} = process.env;
+const {
+  REACT_APP_SERVER_URL,
+  REACT_APP_SPO_DISCOVER_WEEKLY_URI,
+  REACT_APP_SPO_LIKES_URI,
+  REACT_APP_SPO_PI_ID,
+} = process.env;
 
 const Container = styled.div`
   font-size: 7vh;
@@ -154,36 +151,29 @@ export const HK = () => {
     [snack]
   );
 
-  const onError = useCallback(
-    error => {
-      console.error(error);
-      if (error.name === 'NoActiveDeviceError') {
-        setLoading(true);
-        emit('transfer_playback', {id: process.env.REACT_APP_SPO_PI_ID});
-      } else if (error === 'Device not found') {
-        api(`${SERVER}/spotify/devices`).then(onApi);
-      } else {
-        setError(error.message || error);
-      }
-    },
-    [onApi]
-  );
+  const onError = useCallback(error => {
+    console.error(error);
+    if (error.name === 'NoActiveDeviceError') {
+      setLoading(true);
+      emit('transfer_playback', {id: REACT_APP_SPO_PI_ID});
+    } else if (error === 'Device not found') {
+      //api(`${SERVER}/spotify/devices`).then(onApi);
+    } else {
+      setError(error.message || error);
+    }
+  }, []);
 
   const login = () => {
     return new Promise(resolve => {
-      const popup = window.open(
-        authorizeUrl,
-        '_blank',
-        'width=500,height=500,location=0,resizable=0'
-      );
+      const popup = window.open(authorizeUrl, '_blank', 'width=500,height=500,location=0,resizable=0');
       const listener = setInterval(() => {
         if (popup) popup.postMessage('login', window.location);
-      }, 1000);
+      }, 500);
       window.onmessage = event => {
-        if (event.source === popup) {
+        if (popup === event.source) {
           clearInterval(listener);
           window.onmessage = null;
-          return resolve(JSON.parse(event.data));
+          return resolve(event.data);
         }
       };
     });
@@ -192,7 +182,7 @@ export const HK = () => {
   const setupConnect = useCallback(
     accessToken => {
       setAccessToken(accessToken);
-      io = openSocket(`${SERVER}/connect`, {reconnection: false});
+      io = openSocket(`${REACT_APP_SERVER_URL}/connect`, {reconnection: false});
       const wrappedHandler = (event, handler) => {
         io.on(event, data => {
           console.info(event, data);
@@ -221,10 +211,10 @@ export const HK = () => {
 
   const onHueClick = color => {
     if (color) {
-      api(`${SERVER}/hue/on/${color.substring(1)}`).then(onApi);
+      api(['hue', 'on', color.substring(1)]).then(onApi);
       snack('Turning lights on...', 1000, color);
     } else {
-      api(`${SERVER}/hue/off`).then(onApi);
+      api(['hue', 'off']).then(onApi);
       snack('Turning lights off...', 1000, '#000');
     }
   };
@@ -247,7 +237,7 @@ export const HK = () => {
 
   useEffect(() => {
     if ('' === accessToken && authorizeUrl === '') {
-      api(`${SERVER}/spotify/access-token`).then(data => {
+      api(['spotify', 'access-token']).then(({results: [data]}) => {
         if (data.url) {
           setAuthorizeUrl(data.url);
           buildTheme('#777');
@@ -289,24 +279,12 @@ export const HK = () => {
       >
         <ContainerDiv>
           <ControlsDiv>
-            <IconButton
-              children={<RadioRounded />}
-              onClick={() => api(`${HK_SERVER}/source/Radio`).then(onApi)}
-            />
+            <IconButton children={<RadioRounded />} onClick={() => api(['hk', 'source', 'Radio']).then(onApi)} />
             <Span size="large">
-              <IconButton
-                children={<VolumeDownRounded />}
-                onClick={() => api(`${HK_SERVER}/volume/down`).then(onApi)}
-              />
-              <IconButton
-                children={<VolumeUpRounded />}
-                onClick={() => api(`${HK_SERVER}/volume/up`).then(onApi)}
-              />
+              <IconButton children={<VolumeDownRounded />} onClick={() => api(['hk', 'volume', 'down']).then(onApi)} />
+              <IconButton children={<VolumeUpRounded />} onClick={() => api(['hk', 'volume', 'up']).then(onApi)} />
             </Span>
-            <IconButton
-              children={<MusicNoteRounded />}
-              onClick={() => api(`${HK_SERVER}/source/TV`).then(onApi)}
-            />
+            <IconButton children={<MusicNoteRounded />} onClick={() => api(['hk', 'source', 'TV']).then(onApi)} />
           </ControlsDiv>
           {authorizeUrl === '' ? (
             activeTrack ? (
@@ -319,20 +297,14 @@ export const HK = () => {
                 )}
                 <Artwork
                   onClick={() =>
-                    api(`${SERVER}/soca/count`).then(json =>
+                    api(['soca', 'count']).then(json =>
                       onApi({
                         ...json,
-                        message: `${json.clientsCount} client${
-                          json.clientsCount > 1 ? 's' : ''
-                        } connected`,
+                        message: `${json.clientsCount} client${json.clientsCount > 1 ? 's' : ''} connected`,
                       })
                     )
                   }
-                  src={
-                    activeTrack.album.images.length > 0
-                      ? activeTrack.album.images[0].url
-                      : ''
-                  }
+                  src={activeTrack.album.images.length > 0 ? activeTrack.album.images[0].url : ''}
                   isPlaying={playing}
                   trackDuration={activeTrack.duration_ms}
                   initProgress={trackProgress}
@@ -341,11 +313,7 @@ export const HK = () => {
                 <Typography
                   variant="h5"
                   color="primary"
-                  onClick={() =>
-                    api(`${SERVER}/spotify/addok/${activeTrack.uri}`).then(
-                      onApi
-                    )
-                  }
+                  onClick={() => api(['spotify', 'addok', activeTrack.uri]).then(onApi)}
                 >
                   {activeTrack.name}
                   <ArtistSpan>{activeTrack.artists[0].name}</ArtistSpan>
@@ -355,31 +323,22 @@ export const HK = () => {
                     children={<NewReleasesRounded />}
                     onClick={() =>
                       emit('play', {
-                        context_uri:
-                          process.env.REACT_APP_SPO_DISCOVER_WEEKLY_URI,
+                        context_uri: REACT_APP_SPO_DISCOVER_WEEKLY_URI,
                       })
                     }
                   />
-                  <IconButton
-                    children={<SkipPreviousRounded />}
-                    onClick={() => emit('previous_track')}
-                  />
+                  <IconButton children={<SkipPreviousRounded />} onClick={() => emit('previous_track')} />
                   <Span size="large">
-                    <IconButton
-                      onClick={() => emit(playing ? 'pause' : 'play')}
-                    >
+                    <IconButton onClick={() => emit(playing ? 'pause' : 'play')}>
                       {playing ? <PauseRounded /> : <PlayArrowRounded />}
                     </IconButton>
                   </Span>
-                  <IconButton
-                    children={<SkipNextRounded />}
-                    onClick={() => emit('next_track')}
-                  />
+                  <IconButton children={<SkipNextRounded />} onClick={() => emit('next_track')} />
                   <IconButton
                     children={<FavoriteRounded />}
                     onClick={() =>
                       emit('play', {
-                        context_uri: process.env.REACT_APP_SPO_LIKES_URI,
+                        context_uri: REACT_APP_SPO_LIKES_URI,
                       })
                     }
                   />
@@ -398,10 +357,7 @@ export const HK = () => {
             )
           ) : (
             <ControlsDiv>
-              <IconButton
-                children={<LockRounded />}
-                onClick={() => login().then(setupConnect)}
-              />
+              <IconButton children={<LockRounded />} onClick={() => login().then(setupConnect)} />
             </ControlsDiv>
           )}
         </ContainerDiv>
@@ -409,11 +365,11 @@ export const HK = () => {
           <ContainerDiv>
             <IconButton
               children={<BluetoothDisabledRounded />}
-              onClick={() => api(`${SERVER}/bluetooth/reset`).then(onApi)}
+              onClick={() => api(['bluetooth', 'reset']).then(onApi)}
             />
             <IconButton
               children={<BluetoothSearchingRounded />}
-              onClick={() => api(`${SERVER}/bluetooth/discover`).then(onApi)}
+              onClick={() => api(['bluetooth', 'discover']).then(onApi)}
             />
           </ContainerDiv>
           <Hues onHueClick={onHueClick} palette={palette} />

@@ -24,20 +24,11 @@ const ColorsDiv = styled.div`
   }
 `;
 
-const ColorButton = styled(ButtonBase).attrs(
-  ({backgroundColor}: {backgroundColor: string}) => ({
-    style: {backgroundColor},
-  })
-)``;
+const ColorButton = styled(ButtonBase).attrs(({color}: {color: string}) => ({
+  style: {backgroundColor: color},
+}))``;
 
-const colors = [
-  '#ffffff',
-  '#ffaa71',
-  '#01a7c2',
-  '#57b133',
-  '#b13333',
-  '#ff96ca',
-];
+const colors = ['#ffffff', '#ffaa71', '#01a7c2', '#57b133', '#b13333', '#ff96ca'];
 
 type HuesProps = {
   palette: string[];
@@ -52,11 +43,7 @@ const Hues = ({palette, onHueClick}: HuesProps) => {
       </IconButton>
       <ColorsDiv>
         {colors.concat(palette).map((color, i) => (
-          <ColorButton
-            key={i}
-            // TODO backgroundColor={color}
-            onClick={() => onHueClick(color)}
-          />
+          <ColorButton key={i} color={color} onClick={() => onHueClick(color)} />
         ))}
       </ColorsDiv>
     </Container>
