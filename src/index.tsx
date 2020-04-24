@@ -6,6 +6,10 @@ import {App} from 'App';
 import {Callback} from 'Callback';
 
 const GlobalStyle = createGlobalStyle`
+  * {
+    box-sizing: border-box;
+  }
+  
   body {
     margin: 0;
     padding: 0;
@@ -14,13 +18,13 @@ const GlobalStyle = createGlobalStyle`
     font-family: monospace;
   }
 
-  .Container {
+  /* .Container {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
     flex-grow: 1;
-  }
+  } */
 `;
 
 const Router = () => (

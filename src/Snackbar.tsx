@@ -9,7 +9,7 @@ type Snack = {
   duration: number;
 };
 
-type SnackbarContextValue = (message: string, duration: number, backgroundColor: string) => void;
+type SnackbarContextValue = (message: string, duration?: number, backgroundColor?: string) => void;
 
 const SnackbarContext = createContext<SnackbarContextValue>(() => {});
 
