@@ -1,15 +1,14 @@
 import React, {createContext, useState, useContext, useEffect, ReactNode, useCallback} from 'react';
-import {Snackbar, SnackbarContent} from '@material-ui/core';
-import {useTheme} from 'Theme';
+import {Snackbar, SnackbarContent, useTheme} from '@material-ui/core';
 
 type Snack = {
-  message?: string;
+  message?: ReactNode;
   color: string;
   backgroundColor: string;
   duration: number;
 };
 
-type SnackbarContextValue = (message: string, duration?: number, backgroundColor?: string) => void;
+type SnackbarContextValue = (message: ReactNode, duration?: number, backgroundColor?: string) => void;
 
 const SnackbarContext = createContext<SnackbarContextValue>(() => {});
 
@@ -26,12 +25,12 @@ const SnackbarProvider = ({children}: SnackbarProviderProps) => {
     duration: 2000,
   });
   const [isOpen, setOpen] = useState(false);
-  const {theme} = useTheme();
+  const theme = useTheme();
 
   const handleClose = useCallback(() => setOpen(false), [setOpen]);
 
   const snack = useCallback(
-    (message: string, duration = 2000, backgroundColor = theme.palette.primary.main) => {
+    (message: ReactNode, duration = 2000, backgroundColor = theme.palette.primary.main) => {
       message &&
         setSnackbar(snackbar => ({
           ...snackbar,

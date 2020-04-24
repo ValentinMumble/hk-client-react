@@ -1,7 +1,7 @@
 import React, {useEffect, useState, useCallback} from 'react';
 import styled from 'styled-components';
 import openSocket from 'socket.io-client';
-import {Slider, LinearProgress, IconButton, Typography, ButtonBase} from '@material-ui/core';
+import {Slider, LinearProgress, IconButton, ButtonBase} from '@material-ui/core';
 import {
   FavoriteRounded,
   NewReleasesRounded,
@@ -11,8 +11,9 @@ import {
   SkipNextRounded,
   LockRounded,
 } from '@material-ui/icons';
-import {Artwork} from 'components';
+import {Artwork, Span} from 'components';
 import {api} from 'utils';
+import {useSnackedApi} from 'hooks';
 
 const {
   REACT_APP_SERVER_URL,
@@ -20,22 +21,6 @@ const {
   REACT_APP_SPO_LIKES_URI,
   REACT_APP_SPO_PI_ID,
 } = process.env;
-
-const Span = styled.span`
-  display: flex;
-  font-size: ${props => {
-    if (Number.isInteger(props.size)) return props.size + 'vh';
-    switch (props.size) {
-      case 'large':
-        return '10vh';
-      default:
-        return 'inherit';
-    }
-  }};
-  > .MuiSvgIcon-root {
-    margin-right: 10px;
-  }
-`;
 
 const ContainerDiv = styled.div`
   display: flex;
@@ -50,7 +35,15 @@ const ControlsDiv = styled.div`
   align-items: center;
   justify-content: space-evenly;
   width: inherit;
-  font-size: 5vh;
+`;
+
+const Track = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 5vh 0;
+  color: ${({theme}) => theme.palette.primary.main};
+  font-size: 0.5em;
 `;
 
 const ArtistSpan = styled.span`
@@ -62,6 +55,7 @@ const ArtistSpan = styled.span`
 
 const VolumeDiv = styled.div`
   width: 85%;
+  height: 75px;
 `;
 
 const LoaderDiv = styled.div`
@@ -89,6 +83,8 @@ const Spotify = () => {
   const [activeTrack, setActiveTrack] = useState(null);
   const [volume, setVolume] = useState(0);
   const [trackProgress, setTrackProgress] = useState(0);
+
+  const snackedApi = useSnackedApi();
 
   const emit = (event, value) => {
     console.info('Emit', event, value);
@@ -217,26 +213,17 @@ const Spotify = () => {
           </LoaderDiv>
         )}
         <Artwork
-          onClick={
-            () => api(['soca', 'count'])
-            // TODO
-            // .then(json =>
-            //   `onA`pi({
-            //     ...json,
-            //     message: `${json.clientsCount} client${json.clientsCount > 1 ? 's' : ''} connected`,
-            //   })
-            // )
-          }
+          onClick={() => snackedApi(['soca', 'count'], '%s client(s) connected')}
           src={activeTrack.album.images.length > 0 ? activeTrack.album.images[0].url : ''}
           isPlaying={playing}
           trackDuration={activeTrack.duration_ms}
           initProgress={trackProgress}
         />
         {/* TODO snack with ok message */}
-        <Typography variant="h5" color="primary" onClick={() => api(['spotify', 'addok', activeTrack.uri])}>
+        <Track onClick={() => api(['spotify', 'addok', activeTrack.uri])}>
           {activeTrack.name}
           <ArtistSpan>{activeTrack.artists[0].name}</ArtistSpan>
-        </Typography>
+        </Track>
         <ControlsDiv>
           <IconButton
             children={<NewReleasesRounded />}

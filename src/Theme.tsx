@@ -1,8 +1,8 @@
 import React, {createContext, useState, useContext, ReactNode, useEffect, Dispatch, SetStateAction} from 'react';
-import {ThemeProvider} from '@material-ui/styles';
-import {createMuiTheme, Theme} from '@material-ui/core';
+import {ThemeProvider} from 'styled-components';
+import {createMuiTheme, Theme, MuiThemeProvider, StylesProvider} from '@material-ui/core';
 
-const withColors = (primary = '#000', secondary = '#333') =>
+const withColors = (primary = '#777', secondary = '#333') =>
   createMuiTheme({
     typography: {
       fontFamily: 'inherit',
@@ -28,9 +28,6 @@ const withColors = (primary = '#000', secondary = '#333') =>
         },
       },
       MuiSlider: {
-        root: {
-          transition: 'all .6s ease',
-        },
         rail: {
           height: 7,
           borderRadius: 5,
@@ -47,23 +44,6 @@ const withColors = (primary = '#000', secondary = '#333') =>
         },
         valueLabel: {
           left: 'calc(-50% + 19px)',
-        },
-      },
-      MuiTypography: {
-        root: {
-          transition: 'all .6s ease',
-        },
-        h5: {
-          fontSize: '2.5vh',
-          margin: '15px 0',
-          textAlign: 'center',
-          height: 50,
-          maxWidth: 450,
-        },
-      },
-      MuiSnackbarContent: {
-        root: {
-          maxWidth: '85vw',
         },
       },
       MuiLinearProgress: {
@@ -93,12 +73,11 @@ const withColors = (primary = '#000', secondary = '#333') =>
   });
 
 type ThemeContextValue = {
-  theme: Theme;
   palette: string[];
   setPalette: Dispatch<SetStateAction<string[]>>;
 };
 
-const ThemeContext = createContext<ThemeContextValue>({theme: withColors(), palette: [], setPalette: () => {}});
+const ThemeContext = createContext<ThemeContextValue>({palette: [], setPalette: () => {}});
 
 const useTheme = () => useContext(ThemeContext);
 
@@ -115,8 +94,12 @@ const HKThemeProvider = ({children}: HKThemeProviderProps) => {
   }, [palette]);
 
   return (
-    <ThemeContext.Provider value={{theme, palette, setPalette}}>
-      <ThemeProvider theme={theme}>{children}</ThemeProvider>
+    <ThemeContext.Provider value={{palette, setPalette}}>
+      <MuiThemeProvider theme={theme}>
+        <ThemeProvider theme={theme}>
+          <StylesProvider injectFirst>{children}</StylesProvider>
+        </ThemeProvider>
+      </MuiThemeProvider>
     </ThemeContext.Provider>
   );
 };

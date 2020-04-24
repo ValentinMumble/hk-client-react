@@ -24,13 +24,13 @@ const api = async <T>(resource: string[], params: Params = {}, options?: Request
   Object.keys(params).forEach((key: string) => {
     url.searchParams.append(key, params[key].toString());
   });
-  let response = await fetch(url.toString(), options);
+  const response = await fetch(url.toString(), options);
 
   return response.json();
 };
 
-const fetchImage = (url: string): Promise<string> => {
-  return new Promise((resolve, reject) => {
+const fetchImage = (url: string): Promise<string> =>
+  new Promise((resolve, reject) => {
     if (url) {
       const newImg = new Image();
       newImg.crossOrigin = 'Anonymous';
@@ -45,12 +45,9 @@ const fetchImage = (url: string): Promise<string> => {
         }
         resolve(canvas.toDataURL('image/png'));
       });
-      newImg.addEventListener('error', () => {
-        reject(new Error(`Failed to load image's URL: ${url}`));
-      });
+      newImg.addEventListener('error', () => reject(new Error(`Failed to load image's URL: ${url}`)));
     } else resolve(I.GRAY);
   });
-};
 
 const inactivityTime = (on: () => void, off: () => void) => {
   let time: number;

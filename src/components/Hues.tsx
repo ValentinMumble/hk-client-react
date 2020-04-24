@@ -27,9 +27,9 @@ const ColorsDiv = styled.div`
   }
 `;
 
-const ColorButton = styled(ButtonBase).attrs(({color}: {color: string}) => ({
-  style: {backgroundColor: color},
-}))``;
+const ColorButton = styled(ButtonBase)<{color: string}>`
+  background-color: ${({color}) => color};
+`;
 
 const colors = ['#ffffff', '#ffaa71', '#01a7c2', '#57b133', '#b13333', '#ff96ca'];
 
