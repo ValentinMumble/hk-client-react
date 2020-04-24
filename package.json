@@ -5,7 +5,7 @@
     "type": "git",
     "url": "git@github.com:ValentinMumble/hk-client-react.git"
   },
-  "homepage": "./hk",
+  "homepage": "/hk",
   "version": "0.1.0",
   "main": "index.js",
   "author": "Valentin Dijkstra",

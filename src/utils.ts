@@ -29,7 +29,7 @@ const api = async <T>(resource: string[], params: Params = {}, options?: Request
   return response.json();
 };
 
-const fetchImage = (url: string) => {
+const fetchImage = (url: string): Promise<string> => {
   return new Promise((resolve, reject) => {
     if (url) {
       const newImg = new Image();

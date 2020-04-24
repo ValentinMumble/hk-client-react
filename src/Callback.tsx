@@ -21,8 +21,8 @@ const Callback = () => {
     if ('' !== accessToken) {
       window.addEventListener('message', event => {
         if (
-          event.data === 'login' &&
-          event.source !== null &&
+          'login' === event.data &&
+          null !== event.source &&
           !(event.source instanceof MessagePort) &&
           !(event.source instanceof ServiceWorker)
         ) {

@@ -1,10 +1,10 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState, HTMLAttributes} from 'react';
 import styled, {css} from 'styled-components';
-import {I, fetchImage} from 'utils';
 import splashy from 'splashy';
+import {I, fetchImage} from 'utils';
 import {useTheme} from 'theme';
 
-const Container = styled.div`
+const Container = styled.div<{isPlaying: boolean}>`
   position: relative;
   width: 100vw;
   max-width: 450px;
@@ -13,23 +13,24 @@ const Container = styled.div`
   overflow: hidden;
   transition: all 0.2s ease;
   transform-origin: bottom;
-  ${props =>
-    !props.isPlaying &&
+
+  ${({isPlaying}) =>
+    !isPlaying &&
     css`
       transform: scale(0.95);
       opacity: 0.8;
     `}
 `;
 
-const ArtworkImg = styled.img`
+const ArtworkImg = styled.img<{isHidden?: boolean}>`
   width: 100%;
   border-radius: 50%;
   position: absolute;
   transition: all 0.6s ease;
-  opacity: ${props => (props.isHidden ? 0 : 1)};
+  opacity: ${({isHidden}) => (isHidden ? 0 : 1)};
 `;
 
-const ProgressDiv = styled.div.attrs(props => ({
+const ProgressDiv = styled.div.attrs((props: HTMLAttributes<HTMLDivElement> & {progress: number}) => ({
   style: {
     transform: css`rotate(${-180 + props.progress * 180}deg)`,
   },
@@ -43,19 +44,21 @@ const ProgressDiv = styled.div.attrs(props => ({
   transform-origin: bottom;
 `;
 
-export const Artwork = ({
-  src,
-  isPlaying,
-  trackDuration,
-  initProgress,
-  onClick,
-  onColorChange,
-}) => {
-  const imgRef = useRef();
-  const [currentSrc, setCurrentSrc] = useState('');
-  const [prevSrc, setPrevSrc] = useState(I.BLACK);
-  const [progress, setProgress] = useState(initProgress);
-  const [isHidden, setHidden] = useState(false);
+type ArtworkProps = {
+  src: string;
+  isPlaying: boolean;
+  trackDuration: number;
+  initProgress: number;
+  onClick: () => void;
+  onColorChange: (colors: string[]) => void;
+};
+
+const Artwork = ({src, isPlaying, trackDuration, initProgress, onClick, onColorChange}: ArtworkProps) => {
+  const imgRef = useRef<HTMLImageElement>(null);
+  const [currentSrc, setCurrentSrc] = useState<string>('');
+  const [prevSrc, setPrevSrc] = useState<string>(I.BLACK);
+  const [progress, setProgress] = useState<number>(initProgress);
+  const [isHidden, setHidden] = useState<boolean>(false);
 
   const {buildTheme} = useTheme();
 
@@ -67,11 +70,13 @@ export const Artwork = ({
       buildTheme(colors[0], colors[1]);
       onColorChange(colors);
       const prevSrcTimer = setTimeout(() => {
-        setPrevSrc(imgRef.current.src);
+        setPrevSrc(imgRef.current?.src || '');
         setHidden(false);
       }, 600);
+
       return () => clearTimeout(prevSrcTimer);
     };
+
     loadArtwork();
   }, [src, onColorChange, buildTheme]);
 
@@ -82,13 +87,9 @@ export const Artwork = ({
     }
   }, [isPlaying]);
 
-  useEffect(() => {
-    setProgress(0);
-  }, [trackDuration]);
+  useEffect(() => setProgress(0), [trackDuration]);
 
-  useEffect(() => {
-    setProgress(initProgress);
-  }, [initProgress]);
+  useEffect(() => setProgress(initProgress), [initProgress]);
 
   return (
     <Container isPlaying={isPlaying} onClick={onClick}>
@@ -98,3 +99,5 @@ export const Artwork = ({
     </Container>
   );
 };
+
+export {Artwork};
