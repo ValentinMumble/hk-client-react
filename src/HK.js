@@ -24,7 +24,6 @@ import {
 } from '@material-ui/icons';
 import {Artwork, Hues} from 'components';
 import {useSnackbar} from 'Snackbar';
-import {useTheme} from 'theme';
 import {api} from 'utils';
 
 const {
@@ -116,10 +115,8 @@ export const HK = () => {
   const [volume, setVolume] = useState(0);
   const [trackProgress, setTrackProgress] = useState(0);
   const [currentTabIndex, setCurrentTabIndex] = useState(0);
-  const [palette, setPalette] = useState([]);
 
-  const {snack} = useSnackbar();
-  const {buildTheme} = useTheme();
+  const snack = useSnackbar();
 
   const emit = (event, value) => {
     console.info('Emit', event, value);
@@ -209,18 +206,6 @@ export const HK = () => {
     [onError]
   );
 
-  const onHueClick = color => {
-    if (color) {
-      api(['hue', 'on', color.substring(1)]).then(onApi);
-      snack('Turning lights on...', 1000, color);
-    } else {
-      api(['hue', 'off']).then(onApi);
-      snack('Turning lights off...', 1000, '#000');
-    }
-  };
-
-  const onColorChange = useCallback(setPalette, []);
-
   // const connect = useCallback(() => {
   //   if (io && io.disconnected && !loading) {
   //     setLoading(true);
@@ -240,7 +225,6 @@ export const HK = () => {
       api(['spotify', 'access-token']).then(({results: [data]}) => {
         if (data.url) {
           setAuthorizeUrl(data.url);
-          buildTheme('#777');
         } else {
           setupConnect(data.accessToken);
         }
@@ -262,7 +246,6 @@ export const HK = () => {
     // connect,
     // disconnect,
     setupConnect,
-    buildTheme,
     accessToken,
     authorizeUrl,
   ]);
@@ -308,7 +291,6 @@ export const HK = () => {
                   isPlaying={playing}
                   trackDuration={activeTrack.duration_ms}
                   initProgress={trackProgress}
-                  onColorChange={onColorChange}
                 />
                 <Typography
                   variant="h5"
@@ -372,7 +354,7 @@ export const HK = () => {
               onClick={() => api(['bluetooth', 'discover']).then(onApi)}
             />
           </ContainerDiv>
-          <Hues onHueClick={onHueClick} palette={palette} />
+          <Hues />
           <ContainerDiv>
             <IconButton children={<TimerRounded />} onClick={onApi} />
             <IconButton children={<PowerOffRounded />} onClick={onApi} />

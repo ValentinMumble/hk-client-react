@@ -1,14 +1,14 @@
 import React from 'react';
-import {ThemePProvider} from 'theme';
+import {HKThemeProvider} from 'Theme';
 import {SnackbarProvider} from 'Snackbar';
 import {HK} from 'HK';
 
 const App = () => (
-  <ThemePProvider>
+  <HKThemeProvider>
     <SnackbarProvider>
       <HK />
     </SnackbarProvider>
-  </ThemePProvider>
+  </HKThemeProvider>
 );
 
 export {App};

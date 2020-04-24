@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState, HTMLAttributes} from 'react';
 import styled, {css} from 'styled-components';
 import splashy from 'splashy';
 import {I, fetchImage} from 'utils';
-import {useTheme} from 'theme';
+import {useTheme} from 'Theme';
 
 const Container = styled.div<{isPlaying: boolean}>`
   position: relative;
@@ -50,25 +50,23 @@ type ArtworkProps = {
   trackDuration: number;
   initProgress: number;
   onClick: () => void;
-  onColorChange: (colors: string[]) => void;
 };
 
-const Artwork = ({src, isPlaying, trackDuration, initProgress, onClick, onColorChange}: ArtworkProps) => {
+const Artwork = ({src, isPlaying, trackDuration, initProgress, onClick}: ArtworkProps) => {
   const imgRef = useRef<HTMLImageElement>(null);
   const [currentSrc, setCurrentSrc] = useState<string>('');
   const [prevSrc, setPrevSrc] = useState<string>(I.BLACK);
   const [progress, setProgress] = useState<number>(initProgress);
   const [isHidden, setHidden] = useState<boolean>(false);
 
-  const {buildTheme} = useTheme();
+  const {setPalette} = useTheme();
 
   useEffect(() => {
     const loadArtwork = async () => {
       setHidden(true);
       setCurrentSrc(await fetchImage(src));
       const colors = src ? await splashy(imgRef.current) : ['#777', '#777'];
-      buildTheme(colors[0], colors[1]);
-      onColorChange(colors);
+      setPalette(colors);
       const prevSrcTimer = setTimeout(() => {
         setPrevSrc(imgRef.current?.src || '');
         setHidden(false);
@@ -78,7 +76,7 @@ const Artwork = ({src, isPlaying, trackDuration, initProgress, onClick, onColorC
     };
 
     loadArtwork();
-  }, [src, onColorChange, buildTheme]);
+  }, [src, setPalette]);
 
   useEffect(() => {
     if (isPlaying) {

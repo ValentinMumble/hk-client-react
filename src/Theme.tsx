@@ -1,25 +1,6 @@
-import React, {createContext, useState, useContext, useCallback} from 'react';
+import React, {createContext, useState, useContext, ReactNode, useEffect, Dispatch, SetStateAction} from 'react';
 import {ThemeProvider} from '@material-ui/styles';
-import {createMuiTheme} from '@material-ui/core';
-
-const ThemeContext = createContext();
-
-export const useTheme = () => useContext(ThemeContext);
-
-export const ThemePProvider = ({children}) => {
-  const [theme, setTheme] = useState(withColors());
-
-  const buildTheme = useCallback(
-    (primary, secondary) => setTheme(withColors(primary, secondary)),
-    []
-  );
-
-  return (
-    <ThemeContext.Provider value={{theme, buildTheme}}>
-      <ThemeProvider theme={theme}>{children}</ThemeProvider>
-    </ThemeContext.Provider>
-  );
-};
+import {createMuiTheme, Theme} from '@material-ui/core';
 
 const withColors = (primary = '#000', secondary = '#333') =>
   createMuiTheme({
@@ -110,3 +91,34 @@ const withColors = (primary = '#000', secondary = '#333') =>
       },
     },
   });
+
+type ThemeContextValue = {
+  theme: Theme;
+  palette: string[];
+  setPalette: Dispatch<SetStateAction<string[]>>;
+};
+
+const ThemeContext = createContext<ThemeContextValue>({theme: withColors(), palette: [], setPalette: () => {}});
+
+const useTheme = () => useContext(ThemeContext);
+
+type HKThemeProviderProps = {
+  children?: ReactNode;
+};
+
+const HKThemeProvider = ({children}: HKThemeProviderProps) => {
+  const [theme, setTheme] = useState<Theme>(withColors());
+  const [palette, setPalette] = useState<string[]>([]);
+
+  useEffect(() => {
+    setTheme(withColors(palette[0], palette[1]));
+  }, [palette]);
+
+  return (
+    <ThemeContext.Provider value={{theme, palette, setPalette}}>
+      <ThemeProvider theme={theme}>{children}</ThemeProvider>
+    </ThemeContext.Provider>
+  );
+};
+
+export {useTheme, HKThemeProvider};
