@@ -23,7 +23,7 @@ const {
   REACT_APP_SPO_PI_ID,
 } = process.env;
 
-const ContainerDiv = styled.div`
+const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -31,7 +31,7 @@ const ContainerDiv = styled.div`
   flex-grow: 1;
 `;
 
-const ControlsDiv = styled.div`
+const Controls = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-evenly;
@@ -47,7 +47,7 @@ const Track = styled.div`
   text-align: center;
 `;
 
-const ArtistSpan = styled.span`
+const Artist = styled.span`
   justify-content: center;
   opacity: 0.6;
   font-style: italic;
@@ -59,14 +59,14 @@ const VolumeDiv = styled.div`
   height: 75px;
 `;
 
-const LoaderDiv = styled.div`
+const Loader = styled.div`
   width: 100%;
   height: 100%;
   position: absolute;
   top: 0;
   z-index: 1;
-  opacity: 0.6;
   overflow: hidden;
+
   button {
     width: 100%;
     height: 100%;
@@ -96,65 +96,57 @@ type Track = {
 
 let io: SocketIOClient.Socket;
 
+const emit = (event: string, value?: number | string | {[key: string]: string}) => {
+  console.info('Emit', event, value);
+  io.emit(event, value);
+};
+
+const login = (authorizeUrl: string): Promise<string> =>
+  new Promise(resolve => {
+    const popup = window.open(authorizeUrl, '_blank', 'width=500,height=500,location=0,resizable=0');
+    const listener = setInterval(() => {
+      if (popup) popup.postMessage('login', window.location.toString());
+    }, 500);
+    window.onmessage = (event: any) => {
+      if (popup === event.source) {
+        clearInterval(listener);
+        window.onmessage = null;
+        return resolve(event.data);
+      }
+    };
+  });
+
 const Spotify = () => {
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [playing, setPlaying] = useState(false);
-  const [accessToken, setAccessToken] = useState('');
-  const [authorizeUrl, setAuthorizeUrl] = useState('');
+  //TODO useless?
+  const [error, setError] = useState<string>('');
+  const [isLoading, setLoading] = useState<boolean>(false);
+  const [isPlaying, setPlaying] = useState<boolean>(false);
+  const [accessToken, setAccessToken] = useState<string>('');
+  const [authorizeUrl, setAuthorizeUrl] = useState<string>('');
   const [activeTrack, setActiveTrack] = useState<Track | null>(null);
-  const [volume, setVolume] = useState(0);
-  const [trackProgress, setTrackProgress] = useState(0);
+  const [volume, setVolume] = useState<number>(0);
+  const [trackProgress, setTrackProgress] = useState<number>(0);
 
   const snack = useSnackbar();
   const snackedApi = useSnackedApi();
   const {setPalette} = usePalette();
 
-  const emit = (event: string, value?: number | string | {[key: string]: string}) => {
-    console.info('Emit', event, value);
-    io.emit(event, value);
-    switch (event) {
-      case 'play':
-        setPlaying(true);
-        break;
-      case 'pause':
-        setPlaying(false);
-        break;
-      default:
-        break;
-    }
-  };
+  const handleLogin = async () => setupConnect(await login(authorizeUrl));
 
-  const onError = useCallback(error => {
-    console.error(error);
+  const handleError = useCallback(error => {
+    console.error('Errrrror', error);
     if (error.name === 'NoActiveDeviceError') {
       setLoading(true);
       emit('transfer_playback', {id: `${REACT_APP_SPO_PI_ID}`});
     } else if (error === 'Device not found') {
-      //api(`${SERVER}/spotify/devices`).then(onApi);
+      //api(`${SERVER}/spotify/devices`); what to do?
     } else {
       setError(error.message || error);
     }
   }, []);
 
-  const login = () => {
-    return new Promise(resolve => {
-      const popup = window.open(authorizeUrl, '_blank', 'width=500,height=500,location=0,resizable=0');
-      const listener = setInterval(() => {
-        if (popup) popup.postMessage('login', window.location.toString());
-      }, 500);
-      window.onmessage = (event: any) => {
-        if (popup === event.source) {
-          clearInterval(listener);
-          window.onmessage = null;
-          return resolve(event.data);
-        }
-      };
-    });
-  };
-
   const setupConnect = useCallback(
-    accessToken => {
+    (accessToken: string) => {
       setAccessToken(accessToken);
       io = openSocket(`${REACT_APP_SERVER_URL}/connect`, {reconnection: false});
       const wrappedHandler = (event: any, handler: any) => {
@@ -185,77 +177,74 @@ const Spotify = () => {
       wrappedHandler('playback_paused', () => setPlaying(false));
       wrappedHandler('volume_change', setVolume);
       wrappedHandler('track_end', () => {});
-      wrappedHandler('connect_error', onError);
+      wrappedHandler('connect_error', handleError);
       emit('initiate', {accessToken});
     },
-    [onError]
+    [handleError]
   );
 
-  // const connect = useCallback(() => {
-  //   if (io && io.disconnected && !loading) {
-  //     setLoading(true);
-  //     console.info('Socket disconnected, reconnecting now...');
-  //     io.open();
-  //     emit('initiate', {accessToken});
-  //   }
-  // }, [loading, accessToken]);
+  const connect = useCallback(() => {
+    if (io && io.disconnected && !isLoading) {
+      setLoading(true);
+      console.info('Socket disconnected, reconnecting now...');
+      io.open();
+      emit('initiate', {accessToken});
+    }
+  }, [isLoading, accessToken]);
 
-  // const disconnect = useCallback(() => {
-  //   console.info('Timeout: disconnecting');
-  //   io.close();
-  // }, []);
+  const disconnect = useCallback(() => {
+    console.info('disconnecting');
+    io.close();
+  }, []);
 
   useEffect(() => {
-    if ('' === accessToken && authorizeUrl === '') {
-      api<{url: string} | {accessToken: string}>(['spotify', 'access-token']).then(({results: [data]}) => {
-        if ('url' in data) {
-          setAuthorizeUrl(data.url);
-          setPalette(['#777', '#777']);
+    if ('' === accessToken && '' === authorizeUrl) {
+      (async () => {
+        const {
+          status,
+          results: [data],
+        } = await api<string>(['spotify', 'access-token']);
+
+        if (401 === status) {
+          setAuthorizeUrl(data);
+          setPalette(['#777']);
         } else {
-          setupConnect(data.accessToken);
+          setupConnect(data);
         }
-      });
+      })();
     }
+  }, [setupConnect, accessToken, authorizeUrl, setPalette]);
+
+  useEffect(() => {
     // inactivityTime(connect, disconnect);
 
-    // document.addEventListener('visibilitychange', () => {
-    //   if (document.hidden) {
-    //     disconnect();
-    //   } else {
-    //     connect();
-    //   }
-    // });
+    const handleVisibility = () => (document.hidden ? disconnect() : connect());
 
-    // return () => document.removeEventListener('visibilitychange');
-  }, [
-    // connect,
-    // disconnect,
-    setupConnect,
-    accessToken,
-    authorizeUrl,
-    setPalette,
-  ]);
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [connect, disconnect]);
 
   return authorizeUrl === '' ? (
     null !== activeTrack ? (
-      <ContainerDiv>
-        {loading && (
-          <LoaderDiv>
+      <Container>
+        {isLoading && (
+          <Loader>
             <LinearProgress color="secondary" />
             <ButtonBase />
-          </LoaderDiv>
+          </Loader>
         )}
         <Artwork
-          src={activeTrack.album.images.length > 0 ? activeTrack.album.images[0].url : ''}
-          isPlaying={playing}
+          src={0 < activeTrack.album.images.length ? activeTrack.album.images[0].url : ''}
+          isPlaying={isPlaying}
           trackDuration={activeTrack.duration_ms}
           initProgress={trackProgress}
         />
         <Track onClick={() => snackedApi(['spotify', 'addok', activeTrack.uri], () => `👌 ${activeTrack.name} added`)}>
           {activeTrack.name}
-          <ArtistSpan>{activeTrack.artists[0].name}</ArtistSpan>
+          <Artist>{activeTrack.artists[0].name}</Artist>
         </Track>
-        <ControlsDiv>
+        <Controls>
           <IconButton
             children={<NewReleasesRounded />}
             onClick={() => {
@@ -267,8 +256,13 @@ const Spotify = () => {
           />
           <IconButton children={<SkipPreviousRounded />} onClick={() => emit('previous_track')} />
           <Span size="large">
-            <IconButton onClick={() => emit(playing ? 'pause' : 'play')}>
-              {playing ? <PauseRounded /> : <PlayArrowRounded />}
+            <IconButton
+              onClick={() => {
+                emit(isPlaying ? 'pause' : 'play');
+                setPlaying(!isPlaying);
+              }}
+            >
+              {isPlaying ? <PauseRounded /> : <PlayArrowRounded />}
             </IconButton>
           </Span>
           <IconButton children={<SkipNextRounded />} onClick={() => emit('next_track')} />
@@ -281,7 +275,7 @@ const Spotify = () => {
               snack('❤️ Playing liked songs');
             }}
           />
-        </ControlsDiv>
+        </Controls>
         <VolumeDiv>
           <Slider
             valueLabelDisplay="auto"
@@ -290,14 +284,14 @@ const Spotify = () => {
             onChangeCommitted={(_e, v) => emit('set_volume', Number(v))}
           />
         </VolumeDiv>
-      </ContainerDiv>
+      </Container>
     ) : (
       <>{error}</>
     )
   ) : (
-    <ControlsDiv>
-      <IconButton children={<LockRounded />} onClick={() => login().then(setupConnect)} />
-    </ControlsDiv>
+    <Controls>
+      <IconButton children={<LockRounded />} onClick={handleLogin} />
+    </Controls>
   );
 };
 
