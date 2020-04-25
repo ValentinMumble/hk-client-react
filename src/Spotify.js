@@ -223,8 +223,7 @@ const Spotify = () => {
           trackDuration={activeTrack.duration_ms}
           initProgress={trackProgress}
         />
-        {/* TODO snack with ok message */}
-        <Track onClick={() => api(['spotify', 'addok', activeTrack.uri])}>
+        <Track onClick={() => snackedApi(['spotify', 'addok', activeTrack.uri], `👌 ${activeTrack.name} added`)}>
           {activeTrack.name}
           <ArtistSpan>{activeTrack.artists[0].name}</ArtistSpan>
         </Track>

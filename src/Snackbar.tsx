@@ -4,9 +4,9 @@ import {Snackbar, SnackbarContent, useTheme} from '@material-ui/core';
 
 type Snack = {
   message?: ReactNode;
-  color: string;
-  backgroundColor: string;
-  duration: number;
+  color?: string;
+  backgroundColor?: string;
+  duration?: number;
 };
 
 type SnackbarContextValue = (message: ReactNode, duration?: number, backgroundColor?: string) => void;
@@ -15,9 +15,10 @@ const SnackbarContext = createContext<SnackbarContextValue>(() => {});
 
 const useSnackbar = () => useContext(SnackbarContext);
 
-const Snickers = styled(SnackbarContent)<{background: string; color: string}>`
+const Snickers = styled(SnackbarContent)<{background?: string; color?: string}>`
   background-color: ${({background}) => background};
   color: ${({color}) => color};
+  max-width: 90vw;
 `;
 
 type SnackbarProviderProps = {
@@ -25,11 +26,7 @@ type SnackbarProviderProps = {
 };
 
 const SnackbarProvider = ({children}: SnackbarProviderProps) => {
-  const [snackbar, setSnackbar] = useState<Snack>({
-    color: '#000',
-    backgroundColor: '#fff',
-    duration: 2000,
-  });
+  const [snackbar, setSnackbar] = useState<Snack>({});
   const [isOpen, setOpen] = useState(false);
   const theme = useTheme();
 
