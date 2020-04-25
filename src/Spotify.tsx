@@ -11,10 +11,10 @@ import {
   SkipNextRounded,
   LockRounded,
 } from '@material-ui/icons';
+import {useSnackbar, usePalette} from 'contexts';
+import {useSnackedApi} from 'hooks';
 import {Artwork, Span} from 'components';
 import {api} from 'utils';
-import {useSnackedApi} from 'hooks';
-import {useSnackbar, usePalette} from 'contexts';
 
 const {
   REACT_APP_SERVER_URL,
@@ -73,7 +73,28 @@ const LoaderDiv = styled.div`
   }
 `;
 
-let io = null;
+type Image = {
+  url: string;
+};
+
+type Artist = {
+  name: string;
+};
+
+type Album = {
+  images: Image[];
+};
+
+//TODO
+type Track = {
+  uri: string;
+  name: string;
+  artists: Artist[];
+  album: Album;
+  duration_ms: number;
+};
+
+let io: SocketIOClient.Socket;
 
 const Spotify = () => {
   const [error, setError] = useState('');
@@ -81,7 +102,7 @@ const Spotify = () => {
   const [playing, setPlaying] = useState(false);
   const [accessToken, setAccessToken] = useState('');
   const [authorizeUrl, setAuthorizeUrl] = useState('');
-  const [activeTrack, setActiveTrack] = useState(null);
+  const [activeTrack, setActiveTrack] = useState<Track | null>(null);
   const [volume, setVolume] = useState(0);
   const [trackProgress, setTrackProgress] = useState(0);
 
@@ -89,7 +110,7 @@ const Spotify = () => {
   const snackedApi = useSnackedApi();
   const {setPalette} = usePalette();
 
-  const emit = (event, value) => {
+  const emit = (event: string, value?: number | string | {[key: string]: string}) => {
     console.info('Emit', event, value);
     io.emit(event, value);
     switch (event) {
@@ -108,7 +129,7 @@ const Spotify = () => {
     console.error(error);
     if (error.name === 'NoActiveDeviceError') {
       setLoading(true);
-      emit('transfer_playback', {id: REACT_APP_SPO_PI_ID});
+      emit('transfer_playback', {id: `${REACT_APP_SPO_PI_ID}`});
     } else if (error === 'Device not found') {
       //api(`${SERVER}/spotify/devices`).then(onApi);
     } else {
@@ -120,9 +141,9 @@ const Spotify = () => {
     return new Promise(resolve => {
       const popup = window.open(authorizeUrl, '_blank', 'width=500,height=500,location=0,resizable=0');
       const listener = setInterval(() => {
-        if (popup) popup.postMessage('login', window.location);
+        if (popup) popup.postMessage('login', window.location.toString());
       }, 500);
-      window.onmessage = event => {
+      window.onmessage = (event: any) => {
         if (popup === event.source) {
           clearInterval(listener);
           window.onmessage = null;
@@ -136,20 +157,28 @@ const Spotify = () => {
     accessToken => {
       setAccessToken(accessToken);
       io = openSocket(`${REACT_APP_SERVER_URL}/connect`, {reconnection: false});
-      const wrappedHandler = (event, handler) => {
-        io.on(event, data => {
+      const wrappedHandler = (event: any, handler: any) => {
+        io.on(event, (data: any) => {
           console.info(event, data);
           handler(data);
         });
       };
-      wrappedHandler('initial_state', state => {
-        setLoading(false);
-        setAuthorizeUrl('');
-        setTrackProgress(state.progress_ms);
-        setActiveTrack(state.item);
-        setVolume(state.device.volume_percent);
-        setPlaying(state.is_playing);
-      });
+      wrappedHandler(
+        'initial_state',
+        (state: {
+          progress_ms: React.SetStateAction<number>;
+          item: any;
+          device: {volume_percent: React.SetStateAction<number>};
+          is_playing: React.SetStateAction<boolean>;
+        }) => {
+          setLoading(false);
+          setAuthorizeUrl('');
+          setTrackProgress(state.progress_ms);
+          setActiveTrack(state.item);
+          setVolume(state.device.volume_percent);
+          setPlaying(state.is_playing);
+        }
+      );
       wrappedHandler('track_change', setActiveTrack);
       wrappedHandler('seek', setTrackProgress);
       wrappedHandler('playback_started', () => setPlaying(true));
@@ -178,15 +207,16 @@ const Spotify = () => {
 
   useEffect(() => {
     if ('' === accessToken && authorizeUrl === '') {
-      api(['spotify', 'access-token']).then(({results: [data]}) => {
-        if (data.url) {
+      api<{url: string} | {accessToken: string}>(['spotify', 'access-token']).then(({results: [data]}) => {
+        if ('url' in data) {
           setAuthorizeUrl(data.url);
-          setPalette(['#777'], ['#777']);
+          setPalette(['#777', '#777']);
         } else {
           setupConnect(data.accessToken);
         }
       });
     }
+    // inactivityTime(connect, disconnect);
 
     // document.addEventListener('visibilitychange', () => {
     //   if (document.hidden) {
@@ -195,8 +225,6 @@ const Spotify = () => {
     //     connect();
     //   }
     // });
-
-    // inactivityTime(connect, disconnect);
 
     // return () => document.removeEventListener('visibilitychange');
   }, [
@@ -209,7 +237,7 @@ const Spotify = () => {
   ]);
 
   return authorizeUrl === '' ? (
-    activeTrack ? (
+    null !== activeTrack ? (
       <ContainerDiv>
         {loading && (
           <LoaderDiv>
@@ -232,7 +260,7 @@ const Spotify = () => {
             children={<NewReleasesRounded />}
             onClick={() => {
               emit('play', {
-                context_uri: REACT_APP_SPO_DISCOVER_WEEKLY_URI,
+                context_uri: `${REACT_APP_SPO_DISCOVER_WEEKLY_URI}`,
               });
               snack('✨ Playing Discover Weekly');
             }}
@@ -248,7 +276,7 @@ const Spotify = () => {
             children={<FavoriteRounded />}
             onClick={() => {
               emit('play', {
-                context_uri: REACT_APP_SPO_LIKES_URI,
+                context_uri: `${REACT_APP_SPO_LIKES_URI}`,
               });
               snack('❤️ Playing liked songs');
             }}
@@ -258,8 +286,8 @@ const Spotify = () => {
           <Slider
             valueLabelDisplay="auto"
             value={volume}
-            onChange={(e, v) => setVolume(v)}
-            onChangeCommitted={(e, v) => emit('set_volume', v)}
+            onChange={(_e, v) => setVolume(Number(v))}
+            onChangeCommitted={(_e, v) => emit('set_volume', Number(v))}
           />
         </VolumeDiv>
       </ContainerDiv>
