@@ -1,9 +1,8 @@
-import React from 'react';
+import React, {useCallback} from 'react';
 import styled from 'styled-components';
 import {IconButton, ButtonBase} from '@material-ui/core';
 import {PowerSettingsNewRounded} from '@material-ui/icons';
-import {usePalette} from 'Theme';
-import {useSnackbar} from 'Snackbar';
+import {usePalette, useSnackbar} from 'contexts';
 import {api} from 'utils';
 
 const Container = styled.div`
@@ -13,7 +12,7 @@ const Container = styled.div`
   justify-content: space-evenly;
 `;
 
-const ColorsDiv = styled.div`
+const HueGrid = styled.div`
   display: grid;
   grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr;
   grid-auto-flow: column;
@@ -27,7 +26,7 @@ const ColorsDiv = styled.div`
   }
 `;
 
-const ColorButton = styled(ButtonBase)<{color: string}>`
+const Hue = styled(ButtonBase)<{color: string}>`
   background-color: ${({color}) => color};
 `;
 
@@ -37,26 +36,29 @@ const Hues = () => {
   const {palette} = usePalette();
   const snack = useSnackbar();
 
-  const handleHueClick = (color?: string) => {
-    if (color) {
-      api(['hue', 'on', color.substring(1)]);
-      snack('🌞 Turning lights on...', 1000, color);
-    } else {
-      api(['hue', 'off']);
-      snack('🌚 Turning lights off...', 1000, '#000');
-    }
-  };
+  const handleHueClick = useCallback(
+    (color?: string) => {
+      if (color) {
+        api(['hue', 'on', color.substring(1)]);
+        snack('🌞 Turning lights on...', 1000, color);
+      } else {
+        api(['hue', 'off']);
+        snack('🌚 Turning lights off...', 1000, '#000');
+      }
+    },
+    [snack]
+  );
 
   return (
     <Container>
       <IconButton color="inherit" onClick={() => handleHueClick()}>
         <PowerSettingsNewRounded />
       </IconButton>
-      <ColorsDiv>
+      <HueGrid>
         {colors.concat(palette).map((color, i) => (
-          <ColorButton key={i} color={color} onClick={() => handleHueClick(color)} />
+          <Hue key={i} color={color} onClick={() => handleHueClick(color)} />
         ))}
-      </ColorsDiv>
+      </HueGrid>
     </Container>
   );
 };

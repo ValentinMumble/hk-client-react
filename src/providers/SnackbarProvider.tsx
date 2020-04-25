@@ -1,6 +1,7 @@
-import React, {createContext, useState, useContext, useEffect, ReactNode, useCallback} from 'react';
+import React, {useState, useEffect, ReactNode, useCallback} from 'react';
 import styled from 'styled-components';
 import {Snackbar, SnackbarContent, useTheme} from '@material-ui/core';
+import {SnackbarContext} from 'contexts';
 
 type Snack = {
   message?: ReactNode;
@@ -8,12 +9,6 @@ type Snack = {
   backgroundColor?: string;
   duration?: number;
 };
-
-type SnackbarContextValue = (message: ReactNode, duration?: number, backgroundColor?: string) => void;
-
-const SnackbarContext = createContext<SnackbarContextValue>(() => {});
-
-const useSnackbar = () => useContext(SnackbarContext);
 
 const Snickers = styled(SnackbarContent)<{background?: string; color?: string}>`
   background-color: ${({background}) => background};
@@ -66,4 +61,4 @@ const SnackbarProvider = ({children}: SnackbarProviderProps) => {
   );
 };
 
-export {useSnackbar, SnackbarProvider};
+export {SnackbarProvider};

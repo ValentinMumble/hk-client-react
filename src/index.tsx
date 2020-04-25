@@ -4,8 +4,7 @@ import {BrowserRouter, Route, Switch} from 'react-router-dom';
 import {createGlobalStyle} from 'styled-components';
 import {App} from 'App';
 import {Callback} from 'Callback';
-import {HKThemeProvider} from 'Theme';
-import {SnackbarProvider} from 'Snackbar';
+import {HKThemeProvider, SnackbarProvider} from 'providers';
 
 const GlobalStyle = createGlobalStyle`
   * {

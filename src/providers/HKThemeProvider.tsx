@@ -1,6 +1,7 @@
-import React, {createContext, useState, useContext, ReactNode, useEffect, Dispatch, SetStateAction} from 'react';
+import React, {useState, ReactNode, useEffect} from 'react';
 import {ThemeProvider} from 'styled-components';
 import {createMuiTheme, Theme, MuiThemeProvider, StylesProvider} from '@material-ui/core';
+import {PaletteContext} from 'contexts';
 
 const withColors = (primary = '#000', secondary = '#333') =>
   createMuiTheme({
@@ -72,15 +73,6 @@ const withColors = (primary = '#000', secondary = '#333') =>
     },
   });
 
-type PaletteContextValue = {
-  palette: string[];
-  setPalette: Dispatch<SetStateAction<string[]>>;
-};
-
-const PaletteContext = createContext<PaletteContextValue>({palette: [], setPalette: () => {}});
-
-const usePalette = () => useContext(PaletteContext);
-
 type HKThemeProviderProps = {
   children?: ReactNode;
 };
@@ -104,4 +96,4 @@ const HKThemeProvider = ({children}: HKThemeProviderProps) => {
   );
 };
 
-export {usePalette, HKThemeProvider};
+export {HKThemeProvider};

@@ -14,8 +14,7 @@ import {
 import {Artwork, Span} from 'components';
 import {api} from 'utils';
 import {useSnackedApi} from 'hooks';
-import {usePalette} from 'Theme';
-import {useSnackbar} from 'Snackbar';
+import {useSnackbar, usePalette} from 'contexts';
 
 const {
   REACT_APP_SERVER_URL,

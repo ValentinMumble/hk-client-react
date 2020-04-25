@@ -2,8 +2,8 @@ import React, {useEffect, useRef, useState, HTMLAttributes} from 'react';
 import styled, {css} from 'styled-components';
 import splashy from 'splashy';
 import {I, fetchImage} from 'utils';
-import {usePalette} from 'Theme';
 import {useSnackedApi} from 'hooks';
+import {usePalette} from 'contexts';
 
 const Container = styled.div<{isPlaying: boolean}>`
   position: relative;

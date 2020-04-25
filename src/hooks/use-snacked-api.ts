@@ -1,5 +1,5 @@
 import {useCallback, ReactNode} from 'react';
-import {useSnackbar} from 'Snackbar';
+import {useSnackbar} from 'contexts';
 import {api} from 'utils';
 
 const useSnackedApi = () => {
