@@ -11,10 +11,6 @@ const Span = styled.span<{size?: number | string}>`
         return 'inherit';
     }
   }};
-
-  > .MuiSvgIcon-root {
-    margin-right: 10px;
-  }
 `;
 
 export {Span};

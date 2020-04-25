@@ -40,10 +40,10 @@ const Hues = () => {
   const handleHueClick = (color?: string) => {
     if (color) {
       api(['hue', 'on', color.substring(1)]);
-      snack('Turning lights on...', 1000, color);
+      snack('🌞 Turning lights on...', 1000, color);
     } else {
       api(['hue', 'off']);
-      snack('Turning lights off...', 1000, '#000');
+      snack('🌚 Turning lights off...', 1000, '#000');
     }
   };
 

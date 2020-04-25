@@ -3,6 +3,7 @@ import styled, {css} from 'styled-components';
 import splashy from 'splashy';
 import {I, fetchImage} from 'utils';
 import {usePalette} from 'Theme';
+import {useSnackedApi} from 'hooks';
 
 const Container = styled.div<{isPlaying: boolean}>`
   position: relative;
@@ -49,10 +50,9 @@ type ArtworkProps = {
   isPlaying: boolean;
   trackDuration: number;
   initProgress: number;
-  onClick: () => void;
 };
 
-const Artwork = ({src, isPlaying, trackDuration, initProgress, onClick}: ArtworkProps) => {
+const Artwork = ({src, isPlaying, trackDuration, initProgress}: ArtworkProps) => {
   const imgRef = useRef<HTMLImageElement>(null);
   const [currentSrc, setCurrentSrc] = useState<string>('');
   const [prevSrc, setPrevSrc] = useState<string>(I.BLACK);
@@ -60,6 +60,7 @@ const Artwork = ({src, isPlaying, trackDuration, initProgress, onClick}: Artwork
   const [isHidden, setHidden] = useState<boolean>(false);
 
   const {setPalette} = usePalette();
+  const snackedApi = useSnackedApi();
 
   useEffect(() => {
     const loadArtwork = async () => {
@@ -90,7 +91,15 @@ const Artwork = ({src, isPlaying, trackDuration, initProgress, onClick}: Artwork
   useEffect(() => setProgress(initProgress), [initProgress]);
 
   return (
-    <Container isPlaying={isPlaying} onClick={onClick}>
+    <Container
+      isPlaying={isPlaying}
+      onClick={() =>
+        snackedApi(
+          ['soca', 'count'],
+          clientCount => `🔌 ${clientCount} client${Number(clientCount) > 1 ? 's' : ''} connected`
+        )
+      }
+    >
       <ArtworkImg ref={imgRef} src={currentSrc} alt="" />
       <ArtworkImg isHidden={isHidden} src={prevSrc} alt="" />
       <ProgressDiv progress={progress / trackDuration} />

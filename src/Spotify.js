@@ -15,6 +15,7 @@ import {Artwork, Span} from 'components';
 import {api} from 'utils';
 import {useSnackedApi} from 'hooks';
 import {usePalette} from 'Theme';
+import {useSnackbar} from 'Snackbar';
 
 const {
   REACT_APP_SERVER_URL,
@@ -41,10 +42,10 @@ const ControlsDiv = styled.div`
 const Track = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center;
   margin: 5vh 0;
   color: ${({theme}) => theme.palette.primary.main};
   font-size: 0.5em;
+  text-align: center;
 `;
 
 const ArtistSpan = styled.span`
@@ -85,6 +86,7 @@ const Spotify = () => {
   const [volume, setVolume] = useState(0);
   const [trackProgress, setTrackProgress] = useState(0);
 
+  const snack = useSnackbar();
   const snackedApi = useSnackedApi();
   const {setPalette} = usePalette();
 
@@ -217,24 +219,24 @@ const Spotify = () => {
           </LoaderDiv>
         )}
         <Artwork
-          onClick={() => snackedApi(['soca', 'count'], '%s client(s) connected')}
           src={activeTrack.album.images.length > 0 ? activeTrack.album.images[0].url : ''}
           isPlaying={playing}
           trackDuration={activeTrack.duration_ms}
           initProgress={trackProgress}
         />
-        <Track onClick={() => snackedApi(['spotify', 'addok', activeTrack.uri], `👌 ${activeTrack.name} added`)}>
+        <Track onClick={() => snackedApi(['spotify', 'addok', activeTrack.uri], () => `👌 ${activeTrack.name} added`)}>
           {activeTrack.name}
           <ArtistSpan>{activeTrack.artists[0].name}</ArtistSpan>
         </Track>
         <ControlsDiv>
           <IconButton
             children={<NewReleasesRounded />}
-            onClick={() =>
+            onClick={() => {
               emit('play', {
                 context_uri: REACT_APP_SPO_DISCOVER_WEEKLY_URI,
-              })
-            }
+              });
+              snack('✨ Playing Discover Weekly');
+            }}
           />
           <IconButton children={<SkipPreviousRounded />} onClick={() => emit('previous_track')} />
           <Span size="large">
@@ -245,11 +247,12 @@ const Spotify = () => {
           <IconButton children={<SkipNextRounded />} onClick={() => emit('next_track')} />
           <IconButton
             children={<FavoriteRounded />}
-            onClick={() =>
+            onClick={() => {
               emit('play', {
                 context_uri: REACT_APP_SPO_LIKES_URI,
-              })
-            }
+              });
+              snack('❤️ Playing liked songs');
+            }}
           />
         </ControlsDiv>
         <VolumeDiv>

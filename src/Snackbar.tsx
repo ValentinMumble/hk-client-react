@@ -19,6 +19,7 @@ const Snickers = styled(SnackbarContent)<{background?: string; color?: string}>`
   background-color: ${({background}) => background};
   color: ${({color}) => color};
   max-width: 90vw;
+  font-size: 2vh;
 `;
 
 type SnackbarProviderProps = {
