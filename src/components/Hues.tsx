@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import {IconButton, ButtonBase} from '@material-ui/core';
 import {PowerSettingsNewRounded} from '@material-ui/icons';
-import {useTheme} from 'Theme';
+import {usePalette} from 'Theme';
 import {useSnackbar} from 'Snackbar';
 import {api} from 'utils';
 
@@ -34,7 +34,7 @@ const ColorButton = styled(ButtonBase)<{color: string}>`
 const colors = ['#ffffff', '#ffaa71', '#01a7c2', '#57b133', '#b13333', '#ff96ca'];
 
 const Hues = () => {
-  const {palette} = useTheme();
+  const {palette} = usePalette();
   const snack = useSnackbar();
 
   const handleHueClick = (color?: string) => {

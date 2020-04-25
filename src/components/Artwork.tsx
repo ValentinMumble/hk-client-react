@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState, HTMLAttributes} from 'react';
 import styled, {css} from 'styled-components';
 import splashy from 'splashy';
 import {I, fetchImage} from 'utils';
-import {useTheme} from 'Theme';
+import {usePalette} from 'Theme';
 
 const Container = styled.div<{isPlaying: boolean}>`
   position: relative;
@@ -59,7 +59,7 @@ const Artwork = ({src, isPlaying, trackDuration, initProgress, onClick}: Artwork
   const [progress, setProgress] = useState<number>(initProgress);
   const [isHidden, setHidden] = useState<boolean>(false);
 
-  const {setPalette} = useTheme();
+  const {setPalette} = usePalette();
 
   useEffect(() => {
     const loadArtwork = async () => {

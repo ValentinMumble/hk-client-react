@@ -14,6 +14,7 @@ import {
 import {Artwork, Span} from 'components';
 import {api} from 'utils';
 import {useSnackedApi} from 'hooks';
+import {usePalette} from 'Theme';
 
 const {
   REACT_APP_SERVER_URL,
@@ -85,6 +86,7 @@ const Spotify = () => {
   const [trackProgress, setTrackProgress] = useState(0);
 
   const snackedApi = useSnackedApi();
+  const {setPalette} = usePalette();
 
   const emit = (event, value) => {
     console.info('Emit', event, value);
@@ -178,6 +180,7 @@ const Spotify = () => {
       api(['spotify', 'access-token']).then(({results: [data]}) => {
         if (data.url) {
           setAuthorizeUrl(data.url);
+          setPalette(['#777'], ['#777']);
         } else {
           setupConnect(data.accessToken);
         }
@@ -201,6 +204,7 @@ const Spotify = () => {
     setupConnect,
     accessToken,
     authorizeUrl,
+    setPalette,
   ]);
 
   return authorizeUrl === '' ? (

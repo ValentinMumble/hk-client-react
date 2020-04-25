@@ -47,8 +47,14 @@ const App = () => {
           <RowContainer>
             <IconButton children={<RadioRounded />} onClick={() => snackedApi(['hk', 'source', 'Radio'])} />
             <Span size="large">
-              <IconButton children={<VolumeDownRounded />} onClick={() => snackedApi(['hk', 'volume', 'down'])} />
-              <IconButton children={<VolumeUpRounded />} onClick={() => snackedApi(['hk', 'volume', 'up'])} />
+              <IconButton
+                children={<VolumeDownRounded />}
+                onClick={() => snackedApi(['hk', 'volume', 'down'], '👍', 'transparent')}
+              />
+              <IconButton
+                children={<VolumeUpRounded />}
+                onClick={() => snackedApi(['hk', 'volume', 'up'], '👍', 'transparent')}
+              />
             </Span>
             <IconButton children={<MusicNoteRounded />} onClick={() => snackedApi(['hk', 'source', 'TV'])} />
           </RowContainer>
@@ -56,10 +62,13 @@ const App = () => {
         </TabContainer>
         <SecondaryTab>
           <ColumnContainer>
-            <IconButton children={<BluetoothDisabledRounded />} onClick={() => snackedApi(['bluetooth', 'reset'])} />
+            <IconButton
+              children={<BluetoothDisabledRounded />}
+              onClick={() => snackedApi(['bluetooth', 'reset'], '👍', 'transparent')}
+            />
             <IconButton
               children={<BluetoothSearchingRounded />}
-              onClick={() => snackedApi(['bluetooth', 'discover'])}
+              onClick={() => snackedApi(['bluetooth', 'discover'], '👍', 'transparent')}
             />
           </ColumnContainer>
           <Hues />

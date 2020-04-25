@@ -8,21 +8,22 @@ const useSnackedApi = () => {
   const snack = useSnackbar();
 
   return useCallback(
-    async (resources: string[], template?: string) => {
+    async (resources: string[], template?: string, backgroundColor?: string) => {
       const {
         results: [message],
         errors: [error],
       } = await api<string>(resources);
 
-      snack(
-        error ? (
+      if (error) {
+        snack(
           <Span>
-            <Warning fontSize="small" /> {error.message}
+            <Warning fontSize="small" />
+            {error.message}
           </Span>
-        ) : (
-          <>{template ? template.replace('%s', message) : message}</>
-        )
-      );
+        );
+      } else {
+        snack(template ? template.replace('%s', message) : message, 2000, backgroundColor);
+      }
     },
     [snack]
   );

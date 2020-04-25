@@ -1,4 +1,5 @@
 import React, {createContext, useState, useContext, useEffect, ReactNode, useCallback} from 'react';
+import styled from 'styled-components';
 import {Snackbar, SnackbarContent, useTheme} from '@material-ui/core';
 
 type Snack = {
@@ -13,6 +14,11 @@ type SnackbarContextValue = (message: ReactNode, duration?: number, backgroundCo
 const SnackbarContext = createContext<SnackbarContextValue>(() => {});
 
 const useSnackbar = () => useContext(SnackbarContext);
+
+const Snickers = styled(SnackbarContent)<{background: string; color: string}>`
+  background-color: ${({background}) => background};
+  color: ${({color}) => color};
+`;
 
 type SnackbarProviderProps = {
   children?: ReactNode;
@@ -37,7 +43,7 @@ const SnackbarProvider = ({children}: SnackbarProviderProps) => {
           message,
           duration,
           backgroundColor,
-          color: theme.palette.getContrastText(backgroundColor),
+          color: 'transparent' === backgroundColor ? 'inherit' : theme.palette.getContrastText(backgroundColor),
         }));
     },
     [theme.palette]
@@ -56,13 +62,7 @@ const SnackbarProvider = ({children}: SnackbarProviderProps) => {
         autoHideDuration={snackbar.duration}
         onClose={handleClose}
       >
-        <SnackbarContent
-          style={{
-            backgroundColor: snackbar.backgroundColor,
-            color: snackbar.color,
-          }}
-          message={snackbar.message}
-        />
+        <Snickers background={snackbar.backgroundColor} color={snackbar.color} message={snackbar.message} />
       </Snackbar>
     </SnackbarContext.Provider>
   );

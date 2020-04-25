@@ -2,7 +2,7 @@ import React, {createContext, useState, useContext, ReactNode, useEffect, Dispat
 import {ThemeProvider} from 'styled-components';
 import {createMuiTheme, Theme, MuiThemeProvider, StylesProvider} from '@material-ui/core';
 
-const withColors = (primary = '#777', secondary = '#333') =>
+const withColors = (primary = '#000', secondary = '#333') =>
   createMuiTheme({
     typography: {
       fontFamily: 'inherit',
@@ -72,14 +72,14 @@ const withColors = (primary = '#777', secondary = '#333') =>
     },
   });
 
-type ThemeContextValue = {
+type PaletteContextValue = {
   palette: string[];
   setPalette: Dispatch<SetStateAction<string[]>>;
 };
 
-const ThemeContext = createContext<ThemeContextValue>({palette: [], setPalette: () => {}});
+const PaletteContext = createContext<PaletteContextValue>({palette: [], setPalette: () => {}});
 
-const useTheme = () => useContext(ThemeContext);
+const usePalette = () => useContext(PaletteContext);
 
 type HKThemeProviderProps = {
   children?: ReactNode;
@@ -94,14 +94,14 @@ const HKThemeProvider = ({children}: HKThemeProviderProps) => {
   }, [palette]);
 
   return (
-    <ThemeContext.Provider value={{palette, setPalette}}>
+    <PaletteContext.Provider value={{palette, setPalette}}>
       <MuiThemeProvider theme={theme}>
         <ThemeProvider theme={theme}>
           <StylesProvider injectFirst>{children}</StylesProvider>
         </ThemeProvider>
       </MuiThemeProvider>
-    </ThemeContext.Provider>
+    </PaletteContext.Provider>
   );
 };
 
-export {useTheme, HKThemeProvider};
+export {usePalette, HKThemeProvider};
