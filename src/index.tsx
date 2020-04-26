@@ -30,9 +30,9 @@ const Providers = () => (
 );
 
 const Router = () => (
-  <BrowserRouter basename="/hk">
+  <BrowserRouter>
     <Switch>
-      <Route exact path="/callback/" component={Callback} />
+      <Route exact path="/callback" component={Callback} />
       <Route exact path="*" component={Providers} />
     </Switch>
   </BrowserRouter>
