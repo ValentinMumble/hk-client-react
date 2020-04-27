@@ -16,7 +16,7 @@ type APIResponse<T> = {
   uri: string;
 };
 
-const api = async <T>(resource: string[], params: Params = {}, options?: RequestInit): Promise<APIResponse<T>> => {
+const api = async <T>(resource: Value[], params: Params = {}, options?: RequestInit): Promise<APIResponse<T>> => {
   const url = new URL(
     resource.map(sub => encodeURIComponent(sub)).join('/'),
     'hk' === resource[0] ? process.env.REACT_APP_HK_API : process.env.REACT_APP_SERVER_URL

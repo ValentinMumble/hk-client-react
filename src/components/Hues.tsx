@@ -1,7 +1,7 @@
 import React, {useCallback} from 'react';
 import styled from 'styled-components';
 import {IconButton, ButtonBase} from '@material-ui/core';
-import {PowerSettingsNewRounded} from '@material-ui/icons';
+import {PowerSettingsNewRounded, PanoramaFishEye} from '@material-ui/icons';
 import {usePalette, useSnackbar} from 'contexts';
 import {api} from 'utils';
 
@@ -59,6 +59,15 @@ const Hues = () => {
           <Hue key={i} color={color} onClick={() => handleHueClick(color)} />
         ))}
       </HueGrid>
+      <IconButton
+        color="inherit"
+        onClick={() => {
+          api(['hue', 'off', 4]);
+          snack('🌚 Turning boule off...', 1000, '#000');
+        }}
+      >
+        <PanoramaFishEye />
+      </IconButton>
     </Container>
   );
 };
