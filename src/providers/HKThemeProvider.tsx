@@ -29,6 +29,9 @@ const withColors = (primary = '#000', secondary = '#333') =>
         },
       },
       MuiSlider: {
+        root: {
+          height: 25,
+        },
         rail: {
           height: 7,
           borderRadius: 5,
@@ -47,27 +50,9 @@ const withColors = (primary = '#000', secondary = '#333') =>
           left: 'calc(-50% + 19px)',
         },
       },
-      MuiLinearProgress: {
-        root: {
-          flexGrow: 1,
-        },
-      },
       MuiTouchRipple: {
         rippleVisible: {
           animationDuration: '.3s',
-        },
-      },
-      MuiTabs: {
-        root: {
-          minHeight: 'unset',
-        },
-      },
-      MuiTab: {
-        root: {
-          minHeight: 30,
-        },
-        textColorPrimary: {
-          color: primary === '#000' ? primary : 'rgba(255, 255, 255, 0.3)',
         },
       },
     },

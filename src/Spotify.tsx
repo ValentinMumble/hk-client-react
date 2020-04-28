@@ -56,9 +56,8 @@ const Artist = styled.span`
   font-size: 0.8em;
 `;
 
-const VolumeDiv = styled.div`
+const Volume = styled(Slider)`
   width: 85%;
-  height: 75px;
 `;
 
 const Loader = styled.div`
@@ -298,14 +297,12 @@ const Spotify = () => {
           <Artist>{activeTrack.artists[0].name}</Artist>
         </Track>
         <Controls isPlaying={isPlaying} setPlaying={setPlaying} />
-        <VolumeDiv>
-          <Slider
-            valueLabelDisplay="auto"
-            value={volume}
-            onChange={(_e, v) => setVolume(Number(v))}
-            onChangeCommitted={(_e, v) => emit('set_volume', Number(v))}
-          />
-        </VolumeDiv>
+        <Volume
+          valueLabelDisplay="auto"
+          value={volume}
+          onChange={(_e, v) => setVolume(Number(v))}
+          onChangeCommitted={(_e, v) => emit('set_volume', Number(v))}
+        />
       </Container>
     ) : (
       <>{error}</>

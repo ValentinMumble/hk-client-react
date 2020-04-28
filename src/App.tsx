@@ -29,7 +29,7 @@ const ColumnContainer = styled(RowContainer)`
 `;
 
 const TabContainer = styled(ColumnContainer)`
-  height: calc(100vh - 30px); /* 30px is Tabs' height */
+  height: calc(100vh - 48px); /* minus Tabs' height */
 `;
 
 const SecondaryTab = styled(TabContainer)`

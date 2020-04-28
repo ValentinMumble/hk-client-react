@@ -1,6 +1,6 @@
 import React, {useCallback} from 'react';
 import styled from 'styled-components';
-import {IconButton, ButtonBase} from '@material-ui/core';
+import {IconButton, ButtonBase, Slider} from '@material-ui/core';
 import {PowerSettingsNewRounded, PanoramaFishEye} from '@material-ui/icons';
 import {usePalette, useSnackbar} from 'contexts';
 import {api} from 'utils';
@@ -28,6 +28,10 @@ const HueGrid = styled.div`
 
 const Hue = styled(ButtonBase)<{color: string}>`
   background-color: ${({color}) => color};
+`;
+
+const Brightness = styled(Slider)`
+  width: 140%;
 `;
 
 const colors = ['#ffffff', '#ffaa71', '#01a7c2', '#57b133', '#b13333', '#ff96ca'];
@@ -68,6 +72,11 @@ const Hues = () => {
       >
         <PanoramaFishEye />
       </IconButton>
+      <Brightness
+        defaultValue={100}
+        valueLabelDisplay="auto"
+        onChangeCommitted={(_e, v) => api(['hue', 'brightness', Number(v)])}
+      />
     </Container>
   );
 };
