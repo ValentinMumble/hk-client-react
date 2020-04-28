@@ -63,7 +63,7 @@ const Hues = () => {
         color="inherit"
         onClick={() => {
           api(['hue', 'off', 4]);
-          snack('🌚 Turning boule off...', 1000, '#000');
+          snack('🔮 Turning boule off...', 1000, '#000');
         }}
       >
         <PanoramaFishEye />

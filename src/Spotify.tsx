@@ -1,26 +1,27 @@
-import React, {useEffect, useState, useCallback} from 'react';
+import React, {useEffect, useState, useCallback, MouseEvent, Dispatch, SetStateAction} from 'react';
 import styled from 'styled-components';
 import openSocket from 'socket.io-client';
-import {Slider, LinearProgress, IconButton, ButtonBase} from '@material-ui/core';
+import {Slider, LinearProgress, IconButton, ButtonBase, Menu, MenuItem} from '@material-ui/core';
 import {
-  FavoriteRounded,
-  NewReleasesRounded,
   SkipPreviousRounded,
   PlayArrowRounded,
   PauseRounded,
   SkipNextRounded,
   LockRounded,
+  QueueMusicRounded,
+  SpeakerRounded,
 } from '@material-ui/icons';
 import {useSnackbar, usePalette} from 'contexts';
 import {useSnackedApi} from 'hooks';
-import {Artwork, Span} from 'components';
+import {Artwork, Span, Emoji} from 'components';
 import {api} from 'utils';
 
 const {
-  REACT_APP_SERVER_URL,
-  REACT_APP_SPO_DISCOVER_WEEKLY_URI,
-  REACT_APP_SPO_LIKES_URI,
-  REACT_APP_SPO_PI_ID,
+  REACT_APP_SERVER_URL: SERVER,
+  REACT_APP_SPO_DISCOVER_WEEKLY_URI: DISCO = '',
+  REACT_APP_SPO_LIKES_URI: LIKES = '',
+  REACT_APP_SPO_OK_URI: OK = '',
+  REACT_APP_SPO_PI_ID: PI = '',
 } = process.env;
 
 const Container = styled.div`
@@ -31,7 +32,7 @@ const Container = styled.div`
   flex-grow: 1;
 `;
 
-const Controls = styled.div`
+const ControlsContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-evenly;
@@ -45,6 +46,7 @@ const Track = styled.div`
   color: ${({theme}) => theme.palette.primary.main};
   font-size: 0.5em;
   text-align: center;
+  max-width: 450px;
 `;
 
 const Artist = styled.span`
@@ -116,6 +118,58 @@ const login = (authorizeUrl: string): Promise<string> =>
     };
   });
 
+type ControlsProps = {
+  isPlaying: boolean;
+  setPlaying: Dispatch<SetStateAction<boolean>>;
+};
+
+const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
+  const [menuAnchor, setMenuAnchor] = useState<HTMLElement>();
+
+  const snack = useSnackbar();
+
+  const openMenu = (event: MouseEvent<HTMLButtonElement>) => setMenuAnchor(event.currentTarget);
+  const closeMenu = () => setMenuAnchor(undefined);
+
+  const setPlaylist = (uri: string, message: string) => {
+    emit('play', {context_uri: uri});
+    const words = message.split('\n');
+    words.splice(1, 0, 'Playing');
+    snack(words.join(' '));
+    closeMenu();
+  };
+
+  return (
+    <ControlsContainer>
+      <IconButton children={<SpeakerRounded />} onClick={() => emit('transfer_playback', {id: PI})} />
+      <IconButton children={<SkipPreviousRounded />} onClick={() => emit('previous_track')} />
+      <Span size="large">
+        <IconButton
+          onClick={() => {
+            emit(isPlaying ? 'pause' : 'play');
+            setPlaying(!isPlaying);
+          }}
+        >
+          {isPlaying ? <PauseRounded /> : <PlayArrowRounded />}
+        </IconButton>
+      </Span>
+      <IconButton children={<SkipNextRounded />} onClick={() => emit('next_track')} />
+      <IconButton children={<QueueMusicRounded />} onClick={openMenu} />
+      <Menu anchorEl={menuAnchor} keepMounted open={Boolean(menuAnchor)} onClose={closeMenu}>
+        <MenuItem onClick={event => setPlaylist(DISCO, event.currentTarget.innerText)}>
+          <Emoji e="✨" /> Discover
+        </MenuItem>
+        <MenuItem onClick={event => setPlaylist(LIKES, event.currentTarget.innerText)}>
+          <Emoji e="❤️" /> Likes
+        </MenuItem>
+        <MenuItem onClick={event => setPlaylist(OK, event.currentTarget.innerText)}>
+          <Emoji e="👌" /> OK
+        </MenuItem>
+      </Menu>
+    </ControlsContainer>
+  );
+};
+
 const Spotify = () => {
   //TODO useless?
   const [error, setError] = useState<string>('');
@@ -127,7 +181,6 @@ const Spotify = () => {
   const [volume, setVolume] = useState<number>(0);
   const [trackProgress, setTrackProgress] = useState<number>(0);
 
-  const snack = useSnackbar();
   const snackedApi = useSnackedApi();
   const {setPalette} = usePalette();
 
@@ -137,7 +190,7 @@ const Spotify = () => {
     console.error('Errrrror', error);
     if (error.name === 'NoActiveDeviceError') {
       setLoading(true);
-      emit('transfer_playback', {id: `${REACT_APP_SPO_PI_ID}`});
+      emit('transfer_playback', {id: PI});
     } else if (error === 'Device not found') {
       //api(`${SERVER}/spotify/devices`); what to do?
     } else {
@@ -148,7 +201,7 @@ const Spotify = () => {
   const setupConnect = useCallback(
     (accessToken: string) => {
       setAccessToken(accessToken);
-      io = openSocket(`${REACT_APP_SERVER_URL}/connect`, {reconnection: false});
+      io = openSocket(`${SERVER}/connect`, {reconnection: false});
       const wrappedHandler = (event: any, handler: any) => {
         io.on(event, (data: any) => {
           console.info(event, data);
@@ -230,7 +283,7 @@ const Spotify = () => {
       <Container>
         {isLoading && (
           <Loader>
-            <LinearProgress color="secondary" />
+            <LinearProgress />
             <ButtonBase />
           </Loader>
         )}
@@ -244,38 +297,7 @@ const Spotify = () => {
           {activeTrack.name}
           <Artist>{activeTrack.artists[0].name}</Artist>
         </Track>
-        <Controls>
-          <IconButton
-            children={<NewReleasesRounded />}
-            onClick={() => {
-              emit('play', {
-                context_uri: `${REACT_APP_SPO_DISCOVER_WEEKLY_URI}`,
-              });
-              snack('✨ Playing Discover Weekly');
-            }}
-          />
-          <IconButton children={<SkipPreviousRounded />} onClick={() => emit('previous_track')} />
-          <Span size="large">
-            <IconButton
-              onClick={() => {
-                emit(isPlaying ? 'pause' : 'play');
-                setPlaying(!isPlaying);
-              }}
-            >
-              {isPlaying ? <PauseRounded /> : <PlayArrowRounded />}
-            </IconButton>
-          </Span>
-          <IconButton children={<SkipNextRounded />} onClick={() => emit('next_track')} />
-          <IconButton
-            children={<FavoriteRounded />}
-            onClick={() => {
-              emit('play', {
-                context_uri: `${REACT_APP_SPO_LIKES_URI}`,
-              });
-              snack('❤️ Playing liked songs');
-            }}
-          />
-        </Controls>
+        <Controls isPlaying={isPlaying} setPlaying={setPlaying} />
         <VolumeDiv>
           <Slider
             valueLabelDisplay="auto"
@@ -289,9 +311,9 @@ const Spotify = () => {
       <>{error}</>
     )
   ) : (
-    <Controls>
+    <ControlsContainer>
       <IconButton children={<LockRounded />} onClick={handleLogin} />
-    </Controls>
+    </ControlsContainer>
   );
 };
 
