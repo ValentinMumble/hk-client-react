@@ -6,7 +6,7 @@ import {App} from 'App';
 import {Callback} from 'Callback';
 import {HKThemeProvider, SnackbarProvider} from 'providers';
 
-const TRANSITION = 6000;
+const TRANSITION = 800;
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -20,8 +20,8 @@ const GlobalStyle = createGlobalStyle`
     color: #777;
     font-family: monospace;
   }
-
-  button, label {
+  /*fix this shit*/
+  button, label, .MuiSlider-root {
     transition: all ${TRANSITION}ms ease !important;
   }
 `;

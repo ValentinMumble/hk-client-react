@@ -9,7 +9,7 @@ import {
   QueueMusicRounded,
   SpeakerRounded,
 } from '@material-ui/icons';
-import {useSnackbar} from 'contexts';
+import {useSnackbar, useSocket} from 'contexts';
 import {Span, Emoji} from 'components';
 import {PlayerState} from 'models';
 import {emit} from 'components/Spotify';
@@ -33,16 +33,16 @@ const Volume = styled(Slider)`
 `;
 
 type ControlsProps = {
-  io: SocketIOClient.Socket;
   isPlaying: boolean;
   setPlaying: Dispatch<SetStateAction<boolean>>;
 };
 
-const Controls = ({io, isPlaying, setPlaying}: ControlsProps) => {
+const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
   const [menuAnchor, setMenuAnchor] = useState<HTMLElement>();
   const [volume, setVolume] = useState<number>(0);
 
   const snack = useSnackbar();
+  const soca = useSocket();
 
   const openMenu = (event: MouseEvent<HTMLButtonElement>) => setMenuAnchor(event.currentTarget);
   const closeMenu = () => setMenuAnchor(undefined);
@@ -56,11 +56,11 @@ const Controls = ({io, isPlaying, setPlaying}: ControlsProps) => {
   };
 
   useEffect(() => {
-    if (io) {
-      io.on('volume_change', setVolume);
-      io.on('initial_state', ({device: {volume_percent}}: PlayerState) => setVolume(volume_percent));
+    if (soca) {
+      soca.on('volume_change', setVolume);
+      soca.on('initial_state', ({device: {volume_percent}}: PlayerState) => setVolume(volume_percent));
     }
-  }, [io]);
+  }, [soca]);
 
   return (
     <>

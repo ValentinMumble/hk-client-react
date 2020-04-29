@@ -66,7 +66,7 @@ const HKThemeProvider = ({children}: HKThemeProviderProps) => {
   const [palette, setPalette] = useState<string[]>([]);
 
   useEffect(() => {
-    setTheme(withColors(palette[0], palette[1]));
+    if (0 < palette.length) setTheme(withColors(palette[0], palette[1]));
   }, [palette]);
 
   return (
