@@ -1,9 +1,13 @@
-import React, {useEffect, useRef, useState, HTMLAttributes} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import styled, {css} from 'styled-components';
 import splashy from 'splashy';
 import {I, fetchImage} from 'utils';
 import {useSnackedApi} from 'hooks';
 import {usePalette} from 'contexts';
+import {PlayerState} from 'models';
+
+const PROGRESS_DELAY = 2000;
+const ARTWORK_TRANSITION = 6000;
 
 const Container = styled.div<{isPlaying: boolean}>`
   position: relative;
@@ -23,40 +27,38 @@ const Container = styled.div<{isPlaying: boolean}>`
     `}
 `;
 
-const ArtworkImg = styled.img<{isHidden?: boolean}>`
+const Image = styled.img<{isHidden?: boolean}>`
   width: 100%;
   border-radius: 50%;
   position: absolute;
-  transition: all 0.6s ease;
+  transition: all ${ARTWORK_TRANSITION}ms ease;
   opacity: ${({isHidden}) => (isHidden ? 0 : 1)};
 `;
 
-const ProgressDiv = styled.div.attrs((props: HTMLAttributes<HTMLDivElement> & {progress: number}) => ({
-  style: {
-    transform: css`rotate(${-180 + props.progress * 180}deg)`,
-  },
-}))`
+const Progress = styled.div.attrs(({percent}: {percent: number}) => ({
+  style: {transform: `rotate(${percent * 180 - 180}deg)`},
+}))<{percent: number}>`
   position: absolute;
   width: 250%;
   height: 100%;
   right: -75%;
   background: black;
-  opacity: 0.2;
+  opacity: 0.3;
   transform-origin: bottom;
 `;
 
 type ArtworkProps = {
+  io: SocketIOClient.Socket;
   src: string;
   isPlaying: boolean;
-  trackDuration: number;
-  initProgress: number;
 };
 
-const Artwork = ({src, isPlaying, trackDuration, initProgress}: ArtworkProps) => {
-  const imgRef = useRef<HTMLImageElement>(null);
-  const [currentSrc, setCurrentSrc] = useState<string>('');
+const Artwork = ({io, src, isPlaying}: ArtworkProps) => {
+  const imageRef = useRef<HTMLImageElement>(null);
+  const [currentSrc, setCurrentSrc] = useState<string>(I.BLACK);
   const [prevSrc, setPrevSrc] = useState<string>(I.BLACK);
-  const [progress, setProgress] = useState<number>(initProgress);
+  const [progress, setProgress] = useState<number>(0);
+  const [duration, setDuration] = useState<number>(0);
   const [isHidden, setHidden] = useState<boolean>(false);
 
   const {setPalette} = usePalette();
@@ -66,29 +68,39 @@ const Artwork = ({src, isPlaying, trackDuration, initProgress}: ArtworkProps) =>
     const loadArtwork = async () => {
       setHidden(true);
       setCurrentSrc(await fetchImage(src));
-      const colors = src ? await splashy(imgRef.current) : ['#777', '#777'];
+      const colors = src ? await splashy(imageRef.current) : ['#777', '#777'];
       setPalette(colors);
       const prevSrcTimer = setTimeout(() => {
-        setPrevSrc(imgRef.current?.src || '');
+        setPrevSrc(imageRef.current?.src || '');
         setHidden(false);
-      }, 600);
+      }, ARTWORK_TRANSITION);
 
       return () => clearTimeout(prevSrcTimer);
     };
 
-    loadArtwork();
-  }, [src, setPalette]);
+    if (currentSrc !== src) loadArtwork();
+  }, [currentSrc, src, setPalette]);
 
   useEffect(() => {
     if (isPlaying) {
-      // const progressInterval = window.setInterval(() => setProgress(progress => progress + 200), 200);
-      // return () => clearInterval(progressInterval);
+      const progressInterval = window.setInterval(
+        () => setProgress(progress => progress + PROGRESS_DELAY),
+        PROGRESS_DELAY
+      );
+
+      return () => clearInterval(progressInterval);
     }
   }, [isPlaying]);
 
-  useEffect(() => setProgress(0), [trackDuration]);
-
-  useEffect(() => setProgress(initProgress), [initProgress]);
+  useEffect(() => {
+    if (io) {
+      io.on('seek', setProgress);
+      io.on('initial_state', ({progress_ms, item: {duration_ms}}: PlayerState) => {
+        setProgress(progress_ms);
+        if (duration_ms) setDuration(duration_ms);
+      });
+    }
+  }, [io]);
 
   return (
     <Container
@@ -100,9 +112,9 @@ const Artwork = ({src, isPlaying, trackDuration, initProgress}: ArtworkProps) =>
         )
       }
     >
-      <ArtworkImg ref={imgRef} src={currentSrc} alt="" />
-      <ArtworkImg isHidden={isHidden} src={prevSrc} alt="" />
-      <ProgressDiv progress={progress / trackDuration} />
+      <Image ref={imageRef} src={currentSrc} alt="" />
+      <Image isHidden={isHidden} src={prevSrc} alt="" />
+      <Progress percent={progress / duration} />
     </Container>
   );
 };

@@ -6,6 +6,8 @@ import {App} from 'App';
 import {Callback} from 'Callback';
 import {HKThemeProvider, SnackbarProvider} from 'providers';
 
+const TRANSITION = 6000;
+
 const GlobalStyle = createGlobalStyle`
   * {
     box-sizing: border-box;
@@ -17,7 +19,10 @@ const GlobalStyle = createGlobalStyle`
     background-color: black;
     color: #777;
     font-family: monospace;
-    font-size: 5vh;
+  }
+
+  button, label {
+    transition: all ${TRANSITION}ms ease !important;
   }
 `;
 

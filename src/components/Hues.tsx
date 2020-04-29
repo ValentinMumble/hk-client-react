@@ -22,7 +22,6 @@ const HueGrid = styled.div`
     width: 10vh;
     height: 10vh;
     border-radius: 50%;
-    transition: all 0.6s ease;
   }
 `;
 

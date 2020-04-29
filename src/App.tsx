@@ -14,8 +14,7 @@ import {
   BluetoothSearchingRounded,
   TimerRounded,
 } from '@material-ui/icons';
-import {Hues, Span} from 'components';
-import {Spotify} from 'Spotify';
+import {Hues, Span, Spotify} from 'components';
 import {useSnackedApi} from 'hooks';
 
 const RowContainer = styled.div`
@@ -30,6 +29,7 @@ const ColumnContainer = styled(RowContainer)`
 
 const TabContainer = styled(ColumnContainer)`
   height: calc(100vh - 48px); /* minus Tabs' height */
+  font-size: 5vh;
 `;
 
 const SecondaryTab = styled(TabContainer)`

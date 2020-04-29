@@ -3,7 +3,7 @@ import {ThemeProvider} from 'styled-components';
 import {createMuiTheme, Theme, MuiThemeProvider, StylesProvider} from '@material-ui/core';
 import {PaletteContext} from 'contexts';
 
-const withColors = (primary = '#000', secondary = '#333') =>
+const withColors = (primary = '#000', secondary = '#000') =>
   createMuiTheme({
     typography: {
       fontFamily: 'inherit',
@@ -25,7 +25,6 @@ const withColors = (primary = '#000', secondary = '#333') =>
       MuiIconButton: {
         root: {
           fontSize: 'inherit',
-          transition: 'all .6s ease',
         },
       },
       MuiSlider: {
