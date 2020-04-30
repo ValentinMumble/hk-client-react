@@ -48,7 +48,7 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
   const closeMenu = () => setMenuAnchor(undefined);
 
   const setPlaylist = (uri: string, message: string) => {
-    emit('play', {context_uri: uri});
+    emit(soca, 'play', {context_uri: uri});
     const words = message.split('\n');
     words.splice(1, 0, 'Playing');
     snack(words.join(' '));
@@ -67,20 +67,20 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
       <ControlsContainer>
         <IconButton
           children={<SpeakerRounded />}
-          onClick={() => emit('transfer_playback', {id: PI, play: isPlaying})}
+          onClick={() => emit(soca, 'transfer_playback', {id: PI, play: isPlaying})}
         />
-        <IconButton children={<SkipPreviousRounded />} onClick={() => emit('previous_track')} />
+        <IconButton children={<SkipPreviousRounded />} onClick={() => emit(soca, 'previous_track')} />
         <Span size="large">
           <IconButton
             onClick={() => {
-              emit(isPlaying ? 'pause' : 'play');
+              emit(soca, isPlaying ? 'pause' : 'play');
               setPlaying(!isPlaying);
             }}
           >
             {isPlaying ? <PauseRounded /> : <PlayArrowRounded />}
           </IconButton>
         </Span>
-        <IconButton children={<SkipNextRounded />} onClick={() => emit('next_track')} />
+        <IconButton children={<SkipNextRounded />} onClick={() => emit(soca, 'next_track')} />
         <IconButton children={<QueueMusicRounded />} onClick={openMenu} />
         <Menu anchorEl={menuAnchor} keepMounted open={Boolean(menuAnchor)} onClose={closeMenu}>
           <MenuItem onClick={event => setPlaylist(DISCO, event.currentTarget.innerText)}>
@@ -98,7 +98,7 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
         valueLabelDisplay="auto"
         value={volume}
         onChange={(_e, v) => setVolume(Number(v))}
-        onChangeCommitted={(_e, v) => emit('set_volume', Number(v))}
+        onChangeCommitted={(_e, v) => emit(soca, 'set_volume', Number(v))}
       />
     </>
   );

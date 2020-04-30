@@ -4,8 +4,9 @@ import {BrowserRouter, Route, Switch} from 'react-router-dom';
 import {createGlobalStyle} from 'styled-components';
 import {App} from 'App';
 import {Callback} from 'Callback';
-import {HKThemeProvider, SnackbarProvider} from 'providers';
+import {HKThemeProvider, SnackbarProvider, SocketProvider} from 'providers';
 
+const {REACT_APP_SERVER_URL: SERVER = ''} = process.env;
 const TRANSITION = 800;
 
 const GlobalStyle = createGlobalStyle`
@@ -29,7 +30,9 @@ const GlobalStyle = createGlobalStyle`
 const Providers = () => (
   <HKThemeProvider>
     <SnackbarProvider>
-      <App />
+      <SocketProvider url={`${SERVER}/connect`} opts={{reconnection: false}}>
+        <App />
+      </SocketProvider>
     </SnackbarProvider>
   </HKThemeProvider>
 );

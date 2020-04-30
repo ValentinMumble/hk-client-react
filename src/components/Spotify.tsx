@@ -1,15 +1,16 @@
 import React, {useEffect, useState, useCallback} from 'react';
 import styled from 'styled-components';
-import openSocket from 'socket.io-client';
-import {LinearProgress, IconButton, ButtonBase} from '@material-ui/core';
+import {LinearProgress, IconButton} from '@material-ui/core';
 import {LockRounded} from '@material-ui/icons';
-import {usePalette, SocketContext} from 'contexts';
+import {usePalette, useSocket} from 'contexts';
 import {useSnackedApi} from 'hooks';
 import {Artwork, Controls} from 'components';
 import {api} from 'utils';
 import {ServerError, Track, emptyTrack} from 'models';
 
-const {REACT_APP_SERVER_URL: SERVER, REACT_APP_SPO_PI_ID: PI = ''} = process.env;
+const MITIGATE = 100;
+
+const {REACT_APP_SPO_PI_ID: PI = ''} = process.env;
 
 const Container = styled.div`
   display: flex;
@@ -43,19 +44,12 @@ const Loader = styled.div`
   top: 0;
   z-index: 1;
   overflow: hidden;
-
-  button {
-    width: 100%;
-    height: 100%;
-  }
 `;
 
-let soca: SocketIOClient.Socket;
-
 //TODO
-export const emit = (event: string, value?: number | string | {[key: string]: string | number | boolean}) => {
+export const emit = (io: any, event: string, value?: number | string | {[key: string]: string | number | boolean}) => {
   console.info('Emit', event, value);
-  soca.emit(event, value);
+  if (io) io.emit(event, value);
 };
 
 const login = (authorizeUrl: string): Promise<string> =>
@@ -82,68 +76,75 @@ const Spotify = () => {
 
   const snackedApi = useSnackedApi();
   const {setPalette} = usePalette();
+  const soca = useSocket();
 
   const handleLogin = async () => {
+    setLoading(true);
     setPalette(['#000', '#000']);
     setupConnect(await login(authorizeUrl));
-    setLoading(true);
   };
 
-  const setupConnect = useCallback((accessToken: string) => {
-    setAccessToken(accessToken);
-    setAuthorizeUrl('');
-    const wrappedHandler = (event: any, handler: any) => {
-      soca.on(event, (data: any) => {
-        console.info(event, data);
-        handler(data);
+  const setupConnect = useCallback(
+    (accessToken: string) => {
+      setAccessToken(accessToken);
+      setAuthorizeUrl('');
+      const wrappedHandler = (event: any, handler: any) => {
+        if (soca)
+          soca.on(event, (data: any) => {
+            console.info(event, data);
+            handler(data);
+          });
+      };
+      wrappedHandler(
+        'initial_state',
+        (state: {
+          progress_ms: React.SetStateAction<number>;
+          item: any;
+          device: {volume_percent: React.SetStateAction<number>};
+          is_playing: React.SetStateAction<boolean>;
+        }) => {
+          setLoading(false);
+          setActiveTrack(state.item);
+          setPlaying(state.is_playing);
+        }
+      );
+      wrappedHandler('track_change', setActiveTrack);
+      wrappedHandler('playback_started', () => setPlaying(true));
+      wrappedHandler('playback_paused', () => setPlaying(false));
+      wrappedHandler('track_end', () => {});
+      wrappedHandler('connect_error', (error: ServerError) => {
+        console.log('Error', error);
+        if (error.name === 'NoActiveDeviceError') {
+          setLoading(true);
+          emit(soca, 'transfer_playback', {id: PI}); //TODO maybe add isPlaying
+        } else if (error.name === 'Device not found') {
+          //TODO not sure
+          //api(`${SERVER}/spotify/devices`); what to do?
+        }
       });
-    };
-    wrappedHandler(
-      'initial_state',
-      (state: {
-        progress_ms: React.SetStateAction<number>;
-        item: any;
-        device: {volume_percent: React.SetStateAction<number>};
-        is_playing: React.SetStateAction<boolean>;
-      }) => {
-        setLoading(false);
-        setActiveTrack(state.item);
-        setPlaying(state.is_playing);
-      }
-    );
-    wrappedHandler('track_change', setActiveTrack);
-    wrappedHandler('playback_started', () => setPlaying(true));
-    wrappedHandler('playback_paused', () => setPlaying(false));
-    wrappedHandler('track_end', () => {});
-    wrappedHandler('connect_error', (error: ServerError) => {
-      console.log('Error', error);
-      if (error.name === 'NoActiveDeviceError') {
-        setLoading(true);
-        emit('transfer_playback', {id: PI}); //TODO maybe add isPlaying
-      } else if (error.name === 'Device not found') {
-        //TODO not sure
-        //api(`${SERVER}/spotify/devices`); what to do?
-      }
-    });
-    emit('initiate', {accessToken});
-  }, []);
+      if (soca) soca.connect();
+      emit(soca, 'initiate', {accessToken});
+    },
+    [soca]
+  );
 
   const connect = useCallback(() => {
     if (soca && soca.disconnected && !isLoading) {
       setLoading(true);
-      console.info('Socket disconnected, reconnecting now...');
-      soca.open();
-      emit('initiate', {accessToken});
+      setTimeout(() => {
+        console.info('Socket disconnected, reconnecting now...');
+        soca.connect();
+        emit(soca, 'initiate', {accessToken});
+      }, MITIGATE);
     }
-  }, [isLoading, accessToken]);
+  }, [isLoading, accessToken, soca]);
 
   const disconnect = useCallback(() => {
     console.info('disconnecting');
-    soca.close();
-  }, []);
+    if (soca) soca.disconnect();
+  }, [soca]);
 
   useEffect(() => {
-    soca = openSocket(`${SERVER}/connect`, {reconnection: false});
     (async () => {
       const {
         status,
@@ -172,24 +173,21 @@ const Spotify = () => {
   if ('' === authorizeUrl && '' === accessToken) return null;
 
   return '' === authorizeUrl ? (
-    <SocketContext.Provider value={soca}>
-      <Container>
-        {isLoading && (
-          <Loader>
-            <LinearProgress />
-            <ButtonBase />
-          </Loader>
-        )}
-        <Artwork src={activeTrack.album.images[0]?.url} isPlaying={isPlaying} />
-        <TrackContainer
-          onClick={() => snackedApi(['spotify', 'addok', activeTrack.uri], () => `👌 ${activeTrack.name} added`)}
-        >
-          {activeTrack.name}
-          <Artist>{activeTrack.artists[0].name}</Artist>
-        </TrackContainer>
-        <Controls isPlaying={isPlaying} setPlaying={setPlaying} />
-      </Container>
-    </SocketContext.Provider>
+    <Container>
+      {isLoading && (
+        <Loader>
+          <LinearProgress />
+        </Loader>
+      )}
+      <Artwork src={activeTrack.album.images[0]?.url} isPlaying={isPlaying} />
+      <TrackContainer
+        onClick={() => snackedApi(['spotify', 'addok', activeTrack.uri], () => `👌 ${activeTrack.name} added`)}
+      >
+        {activeTrack.name}
+        <Artist>{activeTrack.artists[0].name}</Artist>
+      </TrackContainer>
+      <Controls isPlaying={isPlaying} setPlaying={setPlaying} />
+    </Container>
   ) : (
     <IconButton children={<LockRounded />} onClick={handleLogin} />
   );

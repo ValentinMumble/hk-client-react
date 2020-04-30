@@ -20,12 +20,7 @@ const Callback = () => {
   useEffect(() => {
     if ('' !== accessToken) {
       window.addEventListener('message', event => {
-        if (
-          'login' === event.data &&
-          null !== event.source &&
-          !(event.source instanceof MessagePort) &&
-          !(event.source instanceof ServiceWorker)
-        ) {
+        if ('login' === event.data && null !== event.source && !(event.source instanceof MessagePort)) {
           event.source.postMessage(accessToken, event.origin);
           window.close();
         }
