@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import {LinearProgress, IconButton} from '@material-ui/core';
 import {LockRounded} from '@material-ui/icons';
 import {usePalette, useSocket} from 'contexts';
-import {useSnackedApi} from 'hooks';
+import {useSnackedApi, useIdle} from 'hooks';
 import {Artwork, Controls} from 'components';
 import {api} from 'utils';
 import {ServerError, Track, emptyTrack} from 'models';
@@ -39,7 +39,6 @@ const Artist = styled.span`
 
 const Loader = styled.div`
   width: 100%;
-  height: 100%;
   position: absolute;
   top: 0;
   z-index: 1;
@@ -113,13 +112,13 @@ const Spotify = () => {
       wrappedHandler('playback_paused', () => setPlaying(false));
       wrappedHandler('track_end', () => {});
       wrappedHandler('connect_error', (error: ServerError) => {
-        console.log('Error', error);
         if (error.name === 'NoActiveDeviceError') {
           setLoading(true);
           emit(soca, 'transfer_playback', {id: PI}); //TODO maybe add isPlaying
-        } else if (error.name === 'Device not found') {
+        } else {
           //TODO not sure
           //api(`${SERVER}/spotify/devices`); what to do?
+          console.log('Error', error);
         }
       });
       if (soca) soca.connect();
@@ -160,15 +159,7 @@ const Spotify = () => {
     })();
   }, [setPalette, setupConnect]);
 
-  useEffect(() => {
-    // inactivityTime(connect, disconnect);
-
-    const handleVisibility = () => (document.hidden ? disconnect() : connect());
-
-    document.addEventListener('visibilitychange', handleVisibility);
-
-    return () => document.removeEventListener('visibilitychange', handleVisibility);
-  }, [connect, disconnect]);
+  useIdle(connect, disconnect);
 
   if ('' === authorizeUrl && '' === accessToken) return null;
 

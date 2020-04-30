@@ -49,20 +49,6 @@ const fetchImage = (url: string): Promise<string> =>
     } else resolve(I.GRAY);
   });
 
-const inactivityTime = (on: () => void, off: () => void) => {
-  let time: number;
-  const resetTimer = () => {
-    clearTimeout(time);
-    time = setTimeout(off, 10000);
-    on();
-  };
-
-  window.addEventListener('load', resetTimer, true);
-  ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
-    document.addEventListener(event, resetTimer, true);
-  });
-};
-
 const I = {
   BLACK:
     'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
@@ -70,4 +56,4 @@ const I = {
     'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mMs/w8AAfMBeIBXwkoAAAAASUVORK5CYII=',
 };
 
-export {api, fetchImage, inactivityTime, I};
+export {api, fetchImage, I};
