@@ -13,6 +13,7 @@ import {
   PowerOffRounded,
   BluetoothSearchingRounded,
   TimerRounded,
+  OpacityRounded,
 } from '@material-ui/icons';
 import {Hues, Span, Spotify} from 'components';
 import {useSnackedApi} from 'hooks';
@@ -73,6 +74,7 @@ const App = () => {
           </ColumnContainer>
           <Hues />
           <ColumnContainer>
+            <IconButton children={<OpacityRounded />} onClick={() => snackedApi(['hk', 'dim'])} />
             <IconButton children={<TimerRounded />} onClick={() => snackedApi(['hk', 'timer'])} />
             <IconButton children={<PowerOffRounded />} onClick={() => snackedApi(['hk', ''])} />
           </ColumnContainer>

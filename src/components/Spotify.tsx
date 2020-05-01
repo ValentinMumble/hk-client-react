@@ -2,11 +2,11 @@ import React, {useEffect, useState, useCallback} from 'react';
 import styled from 'styled-components';
 import {LinearProgress, IconButton} from '@material-ui/core';
 import {LockRounded} from '@material-ui/icons';
-import {usePalette, useSocket} from 'contexts';
+import {usePalette, useSocket, useSnackbar} from 'contexts';
 import {useSnackedApi, useIdle} from 'hooks';
 import {Artwork, Controls} from 'components';
 import {api} from 'utils';
-import {ServerError, Track, emptyTrack} from 'models';
+import {ServerError, Track, emptyTrack, PlayerState} from 'models';
 
 const MITIGATE = 100;
 
@@ -73,6 +73,7 @@ const Spotify = () => {
   const [authorizeUrl, setAuthorizeUrl] = useState<string>('');
   const [activeTrack, setActiveTrack] = useState<Track>(emptyTrack);
 
+  const snack = useSnackbar();
   const snackedApi = useSnackedApi();
   const {setPalette} = usePalette();
   const soca = useSocket();
@@ -85,46 +86,43 @@ const Spotify = () => {
 
   const setupConnect = useCallback(
     (accessToken: string) => {
+      console.log('Setuping connect');
       setAccessToken(accessToken);
       setAuthorizeUrl('');
-      const wrappedHandler = (event: any, handler: any) => {
-        if (soca)
-          soca.on(event, (data: any) => {
-            console.info(event, data);
-            handler(data);
-          });
-      };
-      wrappedHandler(
-        'initial_state',
-        (state: {
-          progress_ms: React.SetStateAction<number>;
-          item: any;
-          device: {volume_percent: React.SetStateAction<number>};
-          is_playing: React.SetStateAction<boolean>;
-        }) => {
-          setLoading(false);
-          setActiveTrack(state.item);
-          setPlaying(state.is_playing);
-        }
-      );
-      wrappedHandler('track_change', setActiveTrack);
-      wrappedHandler('playback_started', () => setPlaying(true));
-      wrappedHandler('playback_paused', () => setPlaying(false));
-      wrappedHandler('track_end', () => {});
-      wrappedHandler('connect_error', (error: ServerError) => {
+
+      if (!soca) return;
+
+      soca.on('initial_state', (state: PlayerState) => {
+        setLoading(false);
+        setActiveTrack(state.item);
+        setPlaying(state.is_playing);
+      });
+      soca.on('track_change', setActiveTrack);
+      soca.on('playback_started', () => setPlaying(true));
+      soca.on('playback_paused', () => setPlaying(false));
+
+      soca.on('connect_error', async (error: ServerError) => {
+        console.log('Connect error', error);
         if (error.name === 'NoActiveDeviceError') {
           setLoading(true);
-          emit(soca, 'transfer_playback', {id: PI}); //TODO maybe add isPlaying
-        } else {
-          //TODO not sure
-          //api(`${SERVER}/spotify/devices`); what to do?
-          console.log('Error', error);
+          emit(soca, 'transfer_playback', {id: PI});
+          snack('Setting π', 1000);
+        } else if (error.name === 'The access token expired') {
+          setLoading(true);
+          snack('Refreshing token', 1000);
+          const {
+            results: [accessToken],
+          } = await api<string>(['spotify', 'refresh-token']);
+          setAccessToken(accessToken);
+          if (soca) soca.connect();
+          emit(soca, 'initiate', {accessToken});
         }
       });
-      if (soca) soca.connect();
+
+      soca.connect();
       emit(soca, 'initiate', {accessToken});
     },
-    [soca]
+    [soca, snack]
   );
 
   const connect = useCallback(() => {
@@ -145,6 +143,7 @@ const Spotify = () => {
 
   useEffect(() => {
     (async () => {
+      if ('' !== authorizeUrl || '' !== accessToken) return;
       const {
         status,
         results: [data],
@@ -157,7 +156,7 @@ const Spotify = () => {
         setupConnect(data);
       }
     })();
-  }, [setPalette, setupConnect]);
+  }, [setPalette, setupConnect, authorizeUrl, accessToken]);
 
   useIdle(connect, disconnect);
 
