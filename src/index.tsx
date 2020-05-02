@@ -30,7 +30,7 @@ const GlobalStyle = createGlobalStyle`
 const Providers = () => (
   <HKThemeProvider>
     <SnackbarProvider>
-      <SocketProvider url={`${SERVER}/connect`} opts={{reconnection: false}}>
+      <SocketProvider url={`${SERVER}/connect`} opts={{autoConnect: false, reconnection: false}}>
         <App />
       </SocketProvider>
     </SnackbarProvider>

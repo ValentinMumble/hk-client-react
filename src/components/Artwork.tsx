@@ -4,12 +4,12 @@ import splashy from 'splashy';
 import {I, fetchImage} from 'utils';
 import {useSnackedApi} from 'hooks';
 import {usePalette, useSocket} from 'contexts';
-import {PlayerState} from 'models';
+import {PlayerState, emptyTrack, Track} from 'models';
 
 const PROGRESS_DELAY = 2000;
 const ARTWORK_TRANSITION = 800;
 
-const Container = styled.div<{isPlaying: boolean}>`
+const ArtworkContainer = styled.div<{isPlaying: boolean}>`
   position: relative;
   width: 100vw;
   max-width: 450px;
@@ -47,18 +47,34 @@ const Progress = styled.div.attrs(({percent}: {percent: number}) => ({
   transform-origin: bottom;
 `;
 
+const TrackContainer = styled.label`
+  display: flex;
+  flex-direction: column;
+  margin: 4vh 0;
+  color: ${({theme}) => theme.palette.primary.main};
+  font-size: 0.5em;
+  text-align: center;
+  max-width: 450px;
+`;
+
+const Artist = styled.span`
+  justify-content: center;
+  opacity: 0.6;
+  font-style: italic;
+  font-size: 0.8em;
+`;
+
 type ArtworkProps = {
-  src: string;
   isPlaying: boolean;
 };
 
-const Artwork = ({src, isPlaying}: ArtworkProps) => {
+const Artwork = ({isPlaying}: ArtworkProps) => {
   const imageRef = useRef<HTMLImageElement>(null);
   const [currentSrc, setCurrentSrc] = useState<string>('');
   const [prevSrc, setPrevSrc] = useState<string>(I.BLACK);
   const [progress, setProgress] = useState<number>(0);
-  const [duration, setDuration] = useState<number>(0);
   const [isHidden, setHidden] = useState<boolean>(false);
+  const [activeTrack, setActiveTrack] = useState<Track>(emptyTrack);
 
   const {setPalette} = usePalette();
   const soca = useSocket();
@@ -81,8 +97,8 @@ const Artwork = ({src, isPlaying}: ArtworkProps) => {
   );
 
   useEffect(() => {
-    if (I.BLACK !== src) loadArtwork(src);
-  }, [src, loadArtwork]);
+    if (I.BLACK !== activeTrack.album.images[0].url) loadArtwork(activeTrack.album.images[0].url);
+  }, [activeTrack, loadArtwork]);
 
   useEffect(() => {
     if (isPlaying) {
@@ -98,27 +114,36 @@ const Artwork = ({src, isPlaying}: ArtworkProps) => {
   useEffect(() => {
     if (soca) {
       soca.on('seek', setProgress);
-      soca.on('initial_state', ({progress_ms, item: {duration_ms}}: PlayerState) => {
+      soca.on('track_change', setActiveTrack);
+      soca.on('initial_state', ({progress_ms, item}: PlayerState) => {
         setProgress(progress_ms);
-        if (duration_ms) setDuration(duration_ms);
+        setActiveTrack(item);
       });
     }
   }, [soca]);
 
   return (
-    <Container
-      isPlaying={isPlaying}
-      onClick={() =>
-        snackedApi(
-          ['soca', 'count'],
-          clientCount => `🔌 ${clientCount} client${Number(clientCount) > 1 ? 's' : ''} connected`
-        )
-      }
-    >
-      <Image ref={imageRef} src={currentSrc} alt="" />
-      <Image isHidden={isHidden} src={prevSrc} alt="" />
-      <Progress percent={progress / duration} />
-    </Container>
+    <>
+      <ArtworkContainer
+        isPlaying={isPlaying}
+        onClick={() =>
+          snackedApi(
+            ['soca', 'count'],
+            clientCount => `🔌 ${clientCount} client${Number(clientCount) > 1 ? 's' : ''} connected`
+          )
+        }
+      >
+        <Image ref={imageRef} src={currentSrc} alt="" />
+        <Image isHidden={isHidden} src={prevSrc} alt="" />
+        <Progress percent={progress / activeTrack.duration_ms} />
+      </ArtworkContainer>
+      <TrackContainer
+        onClick={() => snackedApi(['spotify', 'addok', activeTrack.uri], () => `👌 ${activeTrack.name} added`)}
+      >
+        {activeTrack.name}
+        <Artist>{activeTrack.artists[0].name}</Artist>
+      </TrackContainer>
+    </>
   );
 };
 
