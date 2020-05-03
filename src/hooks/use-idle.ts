@@ -1,35 +1,28 @@
-import {useEffect} from 'react';
+import {useEffect, useCallback} from 'react';
+
+const IDLE_DELAY = 20000;
+const events = ['scroll', 'click'];
+let timer: number;
 
 const useIdle = (on: () => void, off: () => void) => {
+  const resetTimer = useCallback(() => {
+    clearTimeout(timer);
+    timer = setTimeout(() => off(), IDLE_DELAY);
+    on();
+  }, [on, off]);
+
   useEffect(() => {
-    let timer: number;
-
-    const resetTimer = () => {
-      clearTimeout(timer);
-      timer = setTimeout(() => {
-        // off();
-        console.log('offf -- idle');
-      }, 10000);
-      //on();
-      console.log('onn- -- idle');
-    };
-
     const handleVisibility = () => (document.hidden ? off() : on());
 
-    // ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
-    //   document.addEventListener(event, resetTimer, true);
-    // });
-
     document.addEventListener('visibilitychange', handleVisibility);
+    events.forEach(event => document.addEventListener(event, resetTimer));
 
     return () => {
       clearTimeout(timer);
       document.removeEventListener('visibilitychange', handleVisibility);
-      ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
-        document.removeEventListener(event, resetTimer);
-      });
+      events.forEach(event => document.removeEventListener(event, resetTimer));
     };
-  }, [on, off]);
+  }, [resetTimer, on, off]);
 };
 
 export {useIdle};
