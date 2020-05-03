@@ -10,16 +10,19 @@ import {
   SpeakerRounded,
 } from '@material-ui/icons';
 import {useSnackbar, useSocket} from 'contexts';
-import {Span, Emoji} from 'components';
-import {PlayerState, Device} from 'models';
+import {Span} from 'components';
+import {PlayerState, Device, Playlist} from 'models';
 import {emit} from 'components/Spotify';
 import {api} from 'utils';
 
-const {
-  REACT_APP_SPO_DISCOVER_WEEKLY_URI: DISCO = '',
-  REACT_APP_SPO_LIKES_URI: LIKES = '',
-  REACT_APP_SPO_OK_URI: OK = '',
-} = process.env;
+const labels: {[key: string]: string} = {
+  OK: '👌 OK',
+  'Discover Weekly': '✨ Discover',
+  '<3': '❤️ Likes',
+  Pi: '🔈 π',
+  MacMumble: '💻 MacMumble',
+  'ONEPLUS A6013': '📱 OnePlus',
+};
 
 const ControlsContainer = styled.div`
   display: flex;
@@ -39,6 +42,7 @@ type ControlsProps = {
 
 const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
   const [devices, setDevices] = useState<Device[]>([]);
+  const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [deviceMenuAnchor, setDeviceMenuAnchor] = useState<HTMLElement>();
   const [playlistMenuAnchor, setPlaylistMenuAnchor] = useState<HTMLElement>();
   const [volume, setVolume] = useState<number>(0);
@@ -51,36 +55,38 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
     setDevices(results);
   };
 
+  const fetchPlaylists = async () => {
+    const {results} = await api<Playlist>(['spotify', 'playlists']);
+    setPlaylists(results);
+  };
+
   const openDeviceMenu = (event: MouseEvent<HTMLButtonElement>) => setDeviceMenuAnchor(event.currentTarget);
   const openPlaylistMenu = (event: MouseEvent<HTMLButtonElement>) => setPlaylistMenuAnchor(event.currentTarget);
   const closeMenus = () => {
-    setPlaylistMenuAnchor(undefined);
     setDeviceMenuAnchor(undefined);
+    setPlaylistMenuAnchor(undefined);
   };
 
-  const setPlaylist = (uri: string, message: string) => {
-    emit(soca, 'play', {context_uri: uri});
-    const words = message.split('\n');
-    words.splice(1, 0, 'Playing');
-    snack(words.join(' '));
+  const setDevice = (device: Device) => {
+    emit(soca, 'transfer_playback', {id: device.id, play: isPlaying});
+    snack(`Listening on ${labels[device.name]}`);
     closeMenus();
   };
 
-  //TODO factorize
-  const setDevice = (id: string, message: string) => {
-    emit(soca, 'transfer_playback', {id, play: isPlaying});
-    const words = message.split('\n');
-    words.splice(1, 0, 'Playing');
-    snack(words.join(' '));
+  const setPlaylist = (playlist: Playlist) => {
+    emit(soca, 'play', {context_uri: playlist.uri});
+    snack(`Playing ${labels[playlist.name] || playlist.name}`);
     closeMenus();
   };
 
   useEffect(() => {
-    if (soca) {
-      soca.on('volume_change', setVolume);
-      soca.on('initial_state', ({device: {volume_percent}}: PlayerState) => setVolume(volume_percent));
-      fetchDevices();
-    }
+    if (!soca) return;
+
+    soca.on('volume_change', setVolume);
+    soca.on('initial_state', ({device: {volume_percent}}: PlayerState) => setVolume(volume_percent));
+
+    fetchDevices();
+    fetchPlaylists();
   }, [soca]);
 
   return (
@@ -89,8 +95,8 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
         <IconButton children={<SpeakerRounded />} onClick={openDeviceMenu} />
         <Menu anchorEl={deviceMenuAnchor} keepMounted open={Boolean(deviceMenuAnchor)} onClose={closeMenus}>
           {devices.map(device => (
-            <MenuItem key={device.id} onClick={() => setDevice(device.id, device.name)}>
-              {device.name}
+            <MenuItem key={device.id} onClick={() => setDevice(device)}>
+              {labels[device.name]}
             </MenuItem>
           ))}
         </Menu>
@@ -108,15 +114,11 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
         <IconButton children={<SkipNextRounded />} onClick={() => emit(soca, 'next_track')} />
         <IconButton children={<QueueMusicRounded />} onClick={openPlaylistMenu} />
         <Menu anchorEl={playlistMenuAnchor} keepMounted open={Boolean(playlistMenuAnchor)} onClose={closeMenus}>
-          <MenuItem onClick={event => setPlaylist(DISCO, event.currentTarget.innerText)}>
-            <Emoji e="✨" /> Discover
-          </MenuItem>
-          <MenuItem onClick={event => setPlaylist(LIKES, event.currentTarget.innerText)}>
-            <Emoji e="❤️" /> Likes
-          </MenuItem>
-          <MenuItem onClick={event => setPlaylist(OK, event.currentTarget.innerText)}>
-            <Emoji e="👌" /> OK
-          </MenuItem>
+          {playlists.map(playlist => (
+            <MenuItem key={playlist.uri} onClick={() => setPlaylist(playlist)}>
+              {labels[playlist.name] || playlist.name}
+            </MenuItem>
+          ))}
         </Menu>
       </ControlsContainer>
       <Volume

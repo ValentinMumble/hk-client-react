@@ -101,25 +101,25 @@ const Artwork = ({isPlaying}: ArtworkProps) => {
   }, [activeTrack, loadArtwork]);
 
   useEffect(() => {
-    if (isPlaying) {
-      const progressInterval = window.setInterval(
-        () => setProgress(progress => progress + PROGRESS_DELAY),
-        PROGRESS_DELAY
-      );
+    if (!isPlaying) return;
 
-      return () => clearInterval(progressInterval);
-    }
+    const progressInterval = window.setInterval(
+      () => setProgress(progress => progress + PROGRESS_DELAY),
+      PROGRESS_DELAY
+    );
+
+    return () => clearInterval(progressInterval);
   }, [isPlaying]);
 
   useEffect(() => {
-    if (soca) {
-      soca.on('seek', setProgress);
-      soca.on('track_change', setActiveTrack);
-      soca.on('initial_state', ({progress_ms, item}: PlayerState) => {
-        setProgress(progress_ms);
-        setActiveTrack(item);
-      });
-    }
+    if (!soca) return;
+
+    soca.on('seek', setProgress);
+    soca.on('track_change', setActiveTrack);
+    soca.on('initial_state', ({progress_ms, item}: PlayerState) => {
+      setProgress(progress_ms);
+      setActiveTrack(item);
+    });
   }, [soca]);
 
   return (

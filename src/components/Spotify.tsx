@@ -101,22 +101,22 @@ const Spotify = () => {
       if (error.name === 'NoActiveDeviceError') {
         setLoading(true);
         emit(soca, 'transfer_playback', {id: PI});
-        snack('Setting π', 1000);
+        snack('Setting π', 1000, '#000');
       } else if (error.name === 'The access token expired') {
-        setAccessToken('');
+        disconnect();
         setLoading(true);
-        snack('Refreshing token', 1000);
+        snack('Refreshing token', 1000, '#000');
         const {
           results: [accessToken],
         } = await api<string>(['spotify', 'refresh-token']);
         setAccessToken(accessToken);
       }
     },
-    [snack, soca]
+    [snack, soca, disconnect]
   );
 
   useEffect(() => {
-    if (!soca || '' === accessToken) return;
+    if (!soca || soca.connected || '' === accessToken) return;
 
     soca.on('initial_state', (state: PlayerState) => {
       setLoading(false);
