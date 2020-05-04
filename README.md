@@ -1,6 +1,6 @@
-# HK React client
+# 🔈HK React client ⚛️
 
-> React version of a HK client
+> HK frontend
 
 ## Install
 
@@ -8,7 +8,7 @@
 $ yarn install
 ```
 
-Fill in the .env file using provided .env.dist
+Fill in the `.env` file using provided `.env.dist`
 
 ```bash
 $ cp .env.dist .env

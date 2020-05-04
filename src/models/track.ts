@@ -1,5 +1,3 @@
-import {I} from 'utils';
-
 type Image = {
   url: string;
 };
@@ -20,13 +18,4 @@ type Track = {
   duration_ms: number;
 };
 
-const emptyTrack: Track = {
-  uri: '',
-  name: '',
-  artists: [{name: ''}],
-  album: {images: [{url: I.BLACK}]},
-  duration_ms: 0,
-};
-
 export type {Track};
-export {emptyTrack};

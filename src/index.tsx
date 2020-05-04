@@ -6,7 +6,6 @@ import {App} from 'App';
 import {Callback} from 'Callback';
 import {HKThemeProvider, SnackbarProvider, SocketProvider} from 'providers';
 
-const {REACT_APP_SERVER_URL: SERVER = ''} = process.env;
 const TRANSITION = 800;
 
 const GlobalStyle = createGlobalStyle`
@@ -30,7 +29,10 @@ const GlobalStyle = createGlobalStyle`
 const Providers = () => (
   <HKThemeProvider>
     <SnackbarProvider>
-      <SocketProvider url={`${SERVER}/connect`} opts={{autoConnect: false, reconnection: false}}>
+      <SocketProvider
+        url={`${process.env.REACT_APP_SERVER_URL}/connect`}
+        opts={{autoConnect: false, reconnection: false}}
+      >
         <App />
       </SocketProvider>
     </SnackbarProvider>

@@ -1,12 +1,9 @@
+import {ServerError} from 'models';
+
 type Value = string | number | boolean;
 
 type Params = {
   [key: string]: Value;
-};
-
-type ServerError = {
-  name: string;
-  message: string;
 };
 
 type APIResponse<T> = {

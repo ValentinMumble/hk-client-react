@@ -1,4 +1,4 @@
-import React, {useEffect, useState, MouseEvent, Dispatch, SetStateAction} from 'react';
+import React, {useEffect, useState, MouseEvent, Dispatch, SetStateAction, useCallback} from 'react';
 import styled from 'styled-components';
 import {IconButton, Menu, MenuItem, Slider} from '@material-ui/core';
 import {
@@ -11,7 +11,7 @@ import {
 } from '@material-ui/icons';
 import {useSnackbar, useSocket} from 'contexts';
 import {Span} from 'components';
-import {PlayerState, Device, Playlist} from 'models';
+import {PlayerState, Device, Playlist, ServerError} from 'models';
 import {emit} from 'components/Spotify';
 import {api} from 'utils';
 
@@ -80,15 +80,28 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
     closeMenus();
   };
 
+  const handleError = useCallback(
+    (error: ServerError) => {
+      if ('Device not found' === error.name) {
+        snack('😳 Device not found');
+        fetchDevices();
+      }
+    },
+    [snack]
+  );
+
   useEffect(() => {
     if (!soca) return;
 
     soca.on('volume_change', setVolume);
     soca.on('initial_state', ({device: {volume_percent}}: PlayerState) => setVolume(volume_percent));
+    soca.on('connect_error', handleError);
+  }, [soca, handleError]);
 
+  useEffect(() => {
     fetchDevices();
     fetchPlaylists();
-  }, [soca]);
+  }, []);
 
   return (
     <>

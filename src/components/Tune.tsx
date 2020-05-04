@@ -1,10 +1,10 @@
-import React, {useEffect, useRef, useState, useCallback} from 'react';
+import React, {useEffect, useState, useCallback} from 'react';
 import styled, {css} from 'styled-components';
 import splashy from 'splashy';
 import {I, fetchImage} from 'utils';
 import {useSnackedApi} from 'hooks';
 import {usePalette, useSocket} from 'contexts';
-import {PlayerState, emptyTrack, Track} from 'models';
+import {PlayerState, Track} from 'models';
 
 const PROGRESS_DELAY = 2000;
 const ARTWORK_TRANSITION = 800;
@@ -31,8 +31,13 @@ const Image = styled.img<{isHidden?: boolean}>`
   width: 100%;
   border-radius: 50%;
   position: absolute;
-  transition: all ${ARTWORK_TRANSITION}ms ease;
-  opacity: ${({isHidden}) => (isHidden ? 0 : 1)};
+
+  ${({isHidden}) =>
+    isHidden &&
+    css`
+      opacity: 0;
+      transition: all ${ARTWORK_TRANSITION}ms ease;
+    `};
 `;
 
 const Progress = styled.div.attrs(({percent}: {percent: number}) => ({
@@ -64,17 +69,18 @@ const Artist = styled.span`
   font-size: 0.8em;
 `;
 
+let prevSrcTimer: number;
+
 type ArtworkProps = {
   isPlaying: boolean;
 };
 
-const Artwork = ({isPlaying}: ArtworkProps) => {
-  const imageRef = useRef<HTMLImageElement>(null);
+const Tune = ({isPlaying}: ArtworkProps) => {
   const [currentSrc, setCurrentSrc] = useState<string>('');
   const [prevSrc, setPrevSrc] = useState<string>(I.BLACK);
   const [progress, setProgress] = useState<number>(0);
   const [isHidden, setHidden] = useState<boolean>(false);
-  const [activeTrack, setActiveTrack] = useState<Track>(emptyTrack);
+  const [activeTrack, setActiveTrack] = useState<Track>();
 
   const {setPalette} = usePalette();
   const soca = useSocket();
@@ -82,12 +88,14 @@ const Artwork = ({isPlaying}: ArtworkProps) => {
 
   const loadArtwork = useCallback(
     async (src: string) => {
+      clearTimeout(prevSrcTimer);
+      const base64 = await fetchImage(src);
+      const colors = src ? await splashy(base64) : ['#777', '#777'];
+      setCurrentSrc(base64);
       setHidden(true);
-      setCurrentSrc(await fetchImage(src));
-      const colors = src ? await splashy(imageRef.current) : ['#777', '#777'];
       setPalette(colors);
-      const prevSrcTimer = setTimeout(() => {
-        setPrevSrc(imageRef.current?.src || '');
+      prevSrcTimer = setTimeout(() => {
+        setPrevSrc(base64);
         setHidden(false);
       }, ARTWORK_TRANSITION);
 
@@ -97,7 +105,7 @@ const Artwork = ({isPlaying}: ArtworkProps) => {
   );
 
   useEffect(() => {
-    if (I.BLACK !== activeTrack.album.images[0].url) loadArtwork(activeTrack.album.images[0].url);
+    if (activeTrack) loadArtwork(activeTrack.album.images[0]?.url);
   }, [activeTrack, loadArtwork]);
 
   useEffect(() => {
@@ -122,6 +130,8 @@ const Artwork = ({isPlaying}: ArtworkProps) => {
     });
   }, [soca]);
 
+  if (!activeTrack) return null;
+
   return (
     <>
       <ArtworkContainer
@@ -133,7 +143,7 @@ const Artwork = ({isPlaying}: ArtworkProps) => {
           )
         }
       >
-        <Image ref={imageRef} src={currentSrc} alt="" />
+        <Image src={currentSrc} alt="" />
         <Image isHidden={isHidden} src={prevSrc} alt="" />
         <Progress percent={progress / activeTrack.duration_ms} />
       </ArtworkContainer>
@@ -147,4 +157,4 @@ const Artwork = ({isPlaying}: ArtworkProps) => {
   );
 };
 
-export {Artwork};
+export {Tune};

@@ -4,7 +4,7 @@ import {LinearProgress, IconButton} from '@material-ui/core';
 import {LockRounded} from '@material-ui/icons';
 import {usePalette, useSocket, useSnackbar} from 'contexts';
 import {useIdle} from 'hooks';
-import {Artwork, Controls} from 'components';
+import {Tune, Controls} from 'components';
 import {api} from 'utils';
 import {ServerError, PlayerState} from 'models';
 
@@ -144,7 +144,7 @@ const Spotify = () => {
           <LinearProgress />
         </Loader>
       )}
-      <Artwork isPlaying={isPlaying} />
+      <Tune isPlaying={isPlaying} />
       <Controls isPlaying={isPlaying} setPlaying={setPlaying} />
     </Container>
   ) : (
