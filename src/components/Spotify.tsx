@@ -105,7 +105,7 @@ const Spotify = () => {
       } else if (error.name === 'The access token expired') {
         disconnect();
         setLoading(true);
-        snack('Refreshing token', 1000, '#000');
+        snack('♻️', 1000, 'transparent');
         const {
           results: [accessToken],
         } = await api<string>(['spotify', 'refresh-token']);

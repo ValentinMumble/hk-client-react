@@ -22,6 +22,7 @@ const labels: {[key: string]: string} = {
   Pi: '🔈 π',
   MacMumble: '💻 MacMumble',
   'ONEPLUS A6013': '📱 OnePlus',
+  'Akeneo Mumble 16': '👾 Akeneo Mumble',
 };
 
 const ControlsContainer = styled.div`
@@ -69,7 +70,7 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
 
   const setDevice = (device: Device) => {
     emit(soca, 'transfer_playback', {id: device.id, play: isPlaying});
-    snack(`Listening on ${labels[device.name]}`);
+    snack(`Listening on ${labels[device.name] || device.name}`);
     closeMenus();
   };
 
@@ -96,20 +97,19 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
         <Menu anchorEl={deviceMenuAnchor} keepMounted open={Boolean(deviceMenuAnchor)} onClose={closeMenus}>
           {devices.map(device => (
             <MenuItem key={device.id} onClick={() => setDevice(device)}>
-              {labels[device.name]}
+              {labels[device.name] || device.name}
             </MenuItem>
           ))}
         </Menu>
         <IconButton children={<SkipPreviousRounded />} onClick={() => emit(soca, 'previous_track')} />
         <Span size="large">
           <IconButton
+            children={isPlaying ? <PauseRounded /> : <PlayArrowRounded />}
             onClick={() => {
               emit(soca, isPlaying ? 'pause' : 'play');
               setPlaying(!isPlaying);
             }}
-          >
-            {isPlaying ? <PauseRounded /> : <PlayArrowRounded />}
-          </IconButton>
+          />
         </Span>
         <IconButton children={<SkipNextRounded />} onClick={() => emit(soca, 'next_track')} />
         <IconButton children={<QueueMusicRounded />} onClick={openPlaylistMenu} />
