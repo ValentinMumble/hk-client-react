@@ -52,8 +52,8 @@ const login = (authorizeUrl: string): Promise<string> =>
 const Spotify = () => {
   const [isLoading, setLoading] = useState<boolean>(false);
   const [isPlaying, setPlaying] = useState<boolean>(false);
-  const [accessToken, setAccessToken] = useState<string>('');
-  const [authorizeUrl, setAuthorizeUrl] = useState<string>('');
+  const [accessToken, setAccessToken] = useState<string>();
+  const [authorizeUrl, setAuthorizeUrl] = useState<string>();
 
   const snack = useSnackbar();
   const {setPalette} = usePalette();
@@ -74,13 +74,15 @@ const Spotify = () => {
   }, [setPalette]);
 
   const handleLogin = async () => {
+    if (!authorizeUrl) return;
+
     setPalette(['#000', '#000']);
     setAccessToken(await login(authorizeUrl));
-    setAuthorizeUrl('');
+    setAuthorizeUrl(undefined);
   };
 
   const connect = useCallback(() => {
-    if (soca && soca.disconnected) {
+    if (soca && soca.disconnected && accessToken) {
       setLoading(true);
       setTimeout(() => {
         console.info('Connecting');
@@ -116,7 +118,7 @@ const Spotify = () => {
   );
 
   useEffect(() => {
-    if (!soca || soca.connected || '' === accessToken) return;
+    if (!soca || soca.connected || !accessToken) return;
 
     soca.on('initial_state', (state: PlayerState) => {
       setLoading(false);
@@ -130,14 +132,16 @@ const Spotify = () => {
   }, [soca, accessToken, handleError, connect]);
 
   useEffect(() => {
-    if ('' === authorizeUrl && '' === accessToken) fetchToken();
+    if (!authorizeUrl && !accessToken) fetchToken();
   }, [fetchToken, authorizeUrl, accessToken]);
 
   useIdle(connect, disconnect);
 
-  if ('' === authorizeUrl && '' === accessToken) return null;
+  if (!authorizeUrl && !accessToken) return null;
 
-  return '' === authorizeUrl ? (
+  return authorizeUrl ? (
+    <IconButton children={<LockRounded />} onClick={handleLogin} />
+  ) : (
     <Container>
       {isLoading && (
         <Loader>
@@ -147,8 +151,6 @@ const Spotify = () => {
       <Tune isPlaying={isPlaying} />
       <Controls isPlaying={isPlaying} setPlaying={setPlaying} />
     </Container>
-  ) : (
-    <IconButton children={<LockRounded />} onClick={handleLogin} />
   );
 };
 

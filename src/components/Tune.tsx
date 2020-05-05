@@ -71,11 +71,11 @@ const Artist = styled.span`
 
 let prevSrcTimer: number;
 
-type ArtworkProps = {
+type TuneProps = {
   isPlaying: boolean;
 };
 
-const Tune = ({isPlaying}: ArtworkProps) => {
+const Tune = ({isPlaying}: TuneProps) => {
   const [currentSrc, setCurrentSrc] = useState<string>('');
   const [prevSrc, setPrevSrc] = useState<string>(I.BLACK);
   const [progress, setProgress] = useState<number>(0);
