@@ -6,18 +6,19 @@ import {useSnackedApi} from 'hooks';
 import {usePalette, useSocket} from 'contexts';
 import {PlayerState, Track} from 'models';
 
-const PROGRESS_DELAY = 2000;
+const PROGRESS_DELAY = 400;
 const ARTWORK_TRANSITION = 800;
 
 const ArtworkContainer = styled.div<{isPlaying: boolean}>`
   position: relative;
   width: 100vw;
   max-width: 450px;
-  max-height: 100vw;
+  max-height: 450px;
   flex-grow: 1;
   overflow: hidden;
   transition: all 0.2s ease;
   transform-origin: bottom;
+  border-radius: 50%;
 
   ${({isPlaying}) =>
     !isPlaying &&
@@ -29,7 +30,6 @@ const ArtworkContainer = styled.div<{isPlaying: boolean}>`
 
 const Image = styled.img<{isHidden?: boolean}>`
   width: 100%;
-  border-radius: 50%;
   position: absolute;
 
   ${({isHidden}) =>
@@ -55,7 +55,7 @@ const Progress = styled.div.attrs(({percent}: {percent: number}) => ({
 const TrackContainer = styled.label`
   display: flex;
   flex-direction: column;
-  margin: 4vh 0;
+  margin: 3vh 0;
   color: ${({theme}) => theme.palette.primary.main};
   font-size: 0.5em;
   text-align: center;
