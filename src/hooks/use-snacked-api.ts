@@ -2,15 +2,15 @@ import {useCallback, ReactNode} from 'react';
 import {useSnackbar} from 'contexts';
 import {api} from 'utils';
 
-const useSnackedApi = () => {
+const useSnackedApi = <T>() => {
   const snack = useSnackbar();
 
   return useCallback(
-    async (resources: string[], template?: (result: string) => ReactNode, backgroundColor?: string) => {
+    async (resources: string[], template?: (result: T) => ReactNode, backgroundColor?: string) => {
       const {
         results: [message],
         errors: [error],
-      } = await api<string>(resources);
+      } = await api<T>(resources);
 
       if (error) {
         snack(`😩 ${error.message}`);

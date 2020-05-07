@@ -39,7 +39,7 @@ const SecondaryTab = styled(TabContainer)`
 
 const App = () => {
   const [currentTabIndex, setCurrentTabIndex] = useState<number>(0);
-  const snackedApi = useSnackedApi();
+  const snackedApi = useSnackedApi<string>();
 
   return (
     <>
@@ -76,7 +76,7 @@ const App = () => {
           <ColumnContainer>
             <IconButton children={<OpacityRounded />} onClick={() => snackedApi(['hk', 'dim'])} />
             <IconButton children={<TimerRounded />} onClick={() => snackedApi(['hk', 'timer'])} />
-            <IconButton children={<PowerOffRounded />} onClick={() => snackedApi(['hk', ''])} />
+            <IconButton children={<PowerOffRounded />} onClick={() => snackedApi(['hk', 'off'])} />
           </ColumnContainer>
         </SecondaryTab>
       </SwipeableViews>

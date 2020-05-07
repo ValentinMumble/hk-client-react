@@ -84,7 +84,7 @@ const Tune = ({isPlaying}: TuneProps) => {
 
   const {setPalette} = usePalette();
   const soca = useSocket();
-  const snackedApi = useSnackedApi();
+  const snackedApi = useSnackedApi<number>();
 
   const loadArtwork = useCallback(
     async (src: string) => {
@@ -137,9 +137,8 @@ const Tune = ({isPlaying}: TuneProps) => {
       <ArtworkContainer
         isPlaying={isPlaying}
         onClick={() =>
-          snackedApi(
-            ['soca', 'count'],
-            clientCount => `🔌 ${clientCount} client${Number(clientCount) > 1 ? 's' : ''} connected`
+          snackedApi(['soca', 'count'], clientCount =>
+            0 === clientCount ? '✨ Reconnecting' : `🔌 ${clientCount} client${clientCount > 1 ? 's' : ''} connected`
           )
         }
       >
