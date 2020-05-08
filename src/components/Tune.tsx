@@ -6,7 +6,7 @@ import {useSnackedApi} from 'hooks';
 import {usePalette, useSocket} from 'contexts';
 import {PlayerState, Track} from 'models';
 
-const PROGRESS_DELAY = 400;
+const PROGRESS_DELAY = 500;
 const ARTWORK_TRANSITION = 800;
 
 const ArtworkContainer = styled.div<{isPlaying: boolean}>`
@@ -14,7 +14,7 @@ const ArtworkContainer = styled.div<{isPlaying: boolean}>`
   width: 100vw;
   max-width: 450px;
   max-height: 450px;
-  flex-grow: 1;
+  padding-top: 100%;
   overflow: hidden;
   transition: all 0.2s ease;
   transform-origin: bottom;
@@ -29,8 +29,9 @@ const ArtworkContainer = styled.div<{isPlaying: boolean}>`
 `;
 
 const Image = styled.img<{isHidden?: boolean}>`
-  width: 100%;
   position: absolute;
+  top: 0;
+  width: 100%;
 
   ${({isHidden}) =>
     isHidden &&
@@ -40,16 +41,23 @@ const Image = styled.img<{isHidden?: boolean}>`
     `};
 `;
 
-const Progress = styled.div.attrs(({percent}: {percent: number}) => ({
-  style: {transform: `rotate(${percent * 180 - 180}deg)`},
-}))<{percent: number}>`
+const Progress = styled.svg<{ratio: number}>`
   position: absolute;
-  width: 250%;
+  top: 0;
+  width: 100%;
   height: 100%;
-  right: -75%;
-  background: black;
-  opacity: 0.3;
-  transform-origin: bottom;
+
+  circle {
+    fill: transparent;
+    stroke: ${({theme}) => theme.palette.primary.main};
+    stroke-linecap: round;
+    stroke-width: 14px;
+    stroke-dasharray: calc(100% * 3.14), calc(100% * 3.14);
+    stroke-dashoffset: calc(100% * 3.14 - 100% * 3.14 * ${({ratio}) => ratio});
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+    transition: all ${PROGRESS_DELAY * 2}ms linear;
+  }
 `;
 
 const TrackContainer = styled.label`
@@ -144,7 +152,9 @@ const Tune = ({isPlaying}: TuneProps) => {
       >
         <Image src={currentSrc} alt="" />
         <Image isHidden={isHidden} src={prevSrc} alt="" />
-        <Progress percent={progress / activeTrack.duration_ms} />
+        <Progress ratio={progress / activeTrack.duration_ms}>
+          <circle r="50%" cx="50%" cy="50%" />
+        </Progress>
       </ArtworkContainer>
       <TrackContainer
         onClick={() => snackedApi(['spotify', 'addok', activeTrack.uri], () => `👌 ${activeTrack.name} added`)}
