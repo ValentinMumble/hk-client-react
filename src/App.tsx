@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
 import styled from 'styled-components';
-//@ts-ignore //TODO
 import SwipeableViews from 'react-swipeable-views';
 import {IconButton, Tabs, Tab} from '@material-ui/core';
 import {
