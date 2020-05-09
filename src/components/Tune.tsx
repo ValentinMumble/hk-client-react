@@ -41,7 +41,9 @@ const Image = styled.img<{isHidden?: boolean}>`
     `};
 `;
 
-const Progress = styled.svg<{ratio: number}>`
+const Progress = styled.svg.attrs(({ratio}: {ratio: number}) => ({
+  style: {strokeDashoffset: `calc(100% * 3.14 - 100% * 3.14 * ${ratio})`},
+}))<{ratio: number}>`
   position: absolute;
   top: 0;
   width: 100%;
@@ -53,7 +55,6 @@ const Progress = styled.svg<{ratio: number}>`
     stroke-linecap: round;
     stroke-width: 2.5%;
     stroke-dasharray: calc(100% * 3.14), calc(100% * 3.14);
-    stroke-dashoffset: calc(100% * 3.14 - 100% * 3.14 * ${({ratio}) => ratio});
     transform: rotate(-90deg);
     transform-origin: 50% 50%;
     transition: all ${PROGRESS_DELAY * 2}ms linear;
