@@ -146,11 +146,8 @@ const Tune = ({isPlaying}: TuneProps) => {
       <ArtworkContainer
         isPlaying={isPlaying}
         onClick={() =>
-          snackedApi(
-            ['soca', 'count'],
-            clientCount =>
-              0 === clientCount ? '🔌' : `🤵 ${clientCount} client${clientCount > 1 ? 's' : ''} connected`,
-            '#000'
+          snackedApi(['soca', 'count'], clientCount =>
+            clientCount ? `🤵 ${clientCount} client${clientCount > 1 ? 's' : ''} connected` : '🔌'
           )
         }
       >

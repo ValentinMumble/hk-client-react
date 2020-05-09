@@ -8,6 +8,7 @@ const useSnackedApi = <T>() => {
   return useCallback(
     async (resources: string[], template?: (result: T) => ReactNode, backgroundColor?: string) => {
       const {
+        status,
         results: [message],
         errors: [error],
       } = await api<T>(resources);
@@ -15,7 +16,7 @@ const useSnackedApi = <T>() => {
       if (error) {
         snack(`😩 ${error.message}`);
       } else {
-        snack(template ? template(message) : message, 2000, backgroundColor);
+        snack(template ? template(message) : message, 2000, 204 === status ? 'transparent' : backgroundColor);
       }
     },
     [snack]
