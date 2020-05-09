@@ -74,13 +74,13 @@ const Spotify = () => {
     }
   }, [setPalette]);
 
-  const handleLogin = async () => {
+  const handleLogin = useCallback(async () => {
     if (!authorizeUrl) return;
 
     setPalette(['#000', '#000']);
     setAccessToken(await login(authorizeUrl));
     setAuthorizeUrl(undefined);
-  };
+  }, [authorizeUrl, setPalette]);
 
   const connect = useCallback(() => {
     if (soca && soca.disconnected && accessToken) {
@@ -104,7 +104,7 @@ const Spotify = () => {
       if (error.name === 'NoActiveDeviceError') {
         setLoading(true);
         emit(soca, 'transfer_playback', {id: PI});
-        snack('π', 1000, '#000');
+        snack('π', 1000, 'transparent');
       } else if (error.name === 'The access token expired') {
         disconnect();
         setLoading(true);

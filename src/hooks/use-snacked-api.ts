@@ -1,12 +1,13 @@
 import {useCallback, ReactNode} from 'react';
 import {useSnackbar} from 'contexts';
+import {Value} from 'models';
 import {api} from 'utils';
 
 const useSnackedApi = <T>() => {
   const snack = useSnackbar();
 
   return useCallback(
-    async (resources: string[], template?: (result: T) => ReactNode, backgroundColor?: string) => {
+    async (resources: Value[], template?: (result: T) => ReactNode, backgroundColor?: string) => {
       const {
         status,
         results: [message],

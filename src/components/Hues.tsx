@@ -2,7 +2,8 @@ import React, {useCallback} from 'react';
 import styled from 'styled-components';
 import {IconButton, ButtonBase, Slider} from '@material-ui/core';
 import {PowerSettingsNewRounded, PanoramaFishEye} from '@material-ui/icons';
-import {usePalette, useSnackbar} from 'contexts';
+import {usePalette} from 'contexts';
+import {useSnackedApi} from 'hooks';
 import {api} from 'utils';
 
 const Container = styled.div`
@@ -37,24 +38,22 @@ const colors = ['#ffffff', '#ffaa71', '#01a7c2', '#57b133', '#b13333', '#ff96ca'
 
 const Hues = () => {
   const {palette} = usePalette();
-  const snack = useSnackbar();
+  const snackedApi = useSnackedApi();
 
   const handleHueClick = useCallback(
     (color?: string) => {
       if (color) {
-        api(['hue', 'on', color.substring(1)]);
-        snack('🌞 Turning lights on...', 1000, color);
+        snackedApi(['hue', 'on', color], () => '🌞 Turning lights on...', color);
       } else {
-        api(['hue', 'off']);
-        snack('🌚 Turning lights off...', 1000, '#000');
+        snackedApi(['hue', 'off'], () => '🌚 Turning lights off...', '#000');
       }
     },
-    [snack]
+    [snackedApi]
   );
 
   return (
     <Container>
-      <IconButton color="inherit" onClick={() => handleHueClick()}>
+      <IconButton color="secondary" onClick={() => handleHueClick()}>
         <PowerSettingsNewRounded />
       </IconButton>
       <HueGrid>
@@ -63,10 +62,9 @@ const Hues = () => {
         ))}
       </HueGrid>
       <IconButton
-        color="inherit"
+        color="secondary"
         onClick={() => {
-          api(['hue', 'off', 4]);
-          snack('🔮 Turning boule off...', 1000, '#000');
+          snackedApi(['hue', 'off', 4], () => '🔮 Turning boule off...', '#000');
         }}
       >
         <PanoramaFishEye />

@@ -1,6 +1,4 @@
-import {ServerError} from 'models';
-
-type Value = string | number | boolean;
+import {ServerError, Value} from 'models';
 
 type Params = {
   [key: string]: Value;
