@@ -44,6 +44,7 @@ const login = (authorizeUrl: string): Promise<string> =>
       if (popup === event.source) {
         clearInterval(listener);
         window.onmessage = null;
+
         return resolve(event.data);
       }
     };
@@ -103,7 +104,7 @@ const Spotify = () => {
       if (error.name === 'NoActiveDeviceError') {
         setLoading(true);
         emit(soca, 'transfer_playback', {id: PI});
-        snack('Setting π', 1000, '#000');
+        snack('π', 1000, '#000');
       } else if (error.name === 'The access token expired') {
         disconnect();
         setLoading(true);

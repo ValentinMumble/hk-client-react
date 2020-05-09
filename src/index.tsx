@@ -17,12 +17,12 @@ const GlobalStyle = createGlobalStyle`
     margin: 0;
     padding: 0;
     background-color: black;
-    color: #777;
+    color: white;
     font-family: monospace;
   }
-  /*fix this shit*/
+
   button, label, .MuiSlider-root {
-    transition: all ${TRANSITION}ms ease !important;
+    transition: color ${TRANSITION}ms ease !important;
   }
 `;
 

@@ -51,7 +51,7 @@ const withColors = (primary = '#000', secondary = '#000') =>
       },
       MuiTouchRipple: {
         rippleVisible: {
-          animationDuration: '.3s',
+          animationDuration: '400ms',
         },
       },
     },

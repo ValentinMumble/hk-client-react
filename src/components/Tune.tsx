@@ -51,7 +51,7 @@ const Progress = styled.svg<{ratio: number}>`
     fill: transparent;
     stroke: ${({theme}) => theme.palette.primary.main};
     stroke-linecap: round;
-    stroke-width: 14px;
+    stroke-width: 2.5%;
     stroke-dasharray: calc(100% * 3.14), calc(100% * 3.14);
     stroke-dashoffset: calc(100% * 3.14 - 100% * 3.14 * ${({ratio}) => ratio});
     transform: rotate(-90deg);
@@ -145,15 +145,18 @@ const Tune = ({isPlaying}: TuneProps) => {
       <ArtworkContainer
         isPlaying={isPlaying}
         onClick={() =>
-          snackedApi(['soca', 'count'], clientCount =>
-            0 === clientCount ? '✨ Reconnecting' : `🔌 ${clientCount} client${clientCount > 1 ? 's' : ''} connected`
+          snackedApi(
+            ['soca', 'count'],
+            clientCount =>
+              0 === clientCount ? '🔌' : `🤵 ${clientCount} client${clientCount > 1 ? 's' : ''} connected`,
+            '#000'
           )
         }
       >
         <Image src={currentSrc} alt="" />
         <Image isHidden={isHidden} src={prevSrc} alt="" />
         <Progress ratio={progress / activeTrack.duration_ms}>
-          <circle r="50%" cx="50%" cy="50%" />
+          <circle r="49.1%" cx="50%" cy="50%" />
         </Progress>
       </ArtworkContainer>
       <TrackContainer
