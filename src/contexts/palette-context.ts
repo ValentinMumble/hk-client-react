@@ -1,4 +1,4 @@
-import {useContext, createContext, Dispatch, SetStateAction} from 'react';
+import {createContext, Dispatch, SetStateAction} from 'react';
 
 type PaletteContextValue = {
   palette: string[];
@@ -7,6 +7,4 @@ type PaletteContextValue = {
 
 const PaletteContext = createContext<PaletteContextValue>({palette: [], setPalette: () => {}});
 
-const usePalette = () => useContext(PaletteContext);
-
-export {PaletteContext, usePalette};
+export {PaletteContext};

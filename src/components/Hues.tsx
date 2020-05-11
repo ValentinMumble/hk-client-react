@@ -2,8 +2,7 @@ import React, {useCallback} from 'react';
 import styled from 'styled-components';
 import {IconButton, ButtonBase, Slider} from '@material-ui/core';
 import {PowerSettingsNewRounded, PanoramaFishEye} from '@material-ui/icons';
-import {usePalette} from 'contexts';
-import {useSnackedApi} from 'hooks';
+import {useSnackedApi, usePalette} from 'hooks';
 import {api} from 'utils';
 
 const Container = styled.div`
@@ -11,6 +10,7 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: space-evenly;
+  color: #777;
 `;
 
 const HueGrid = styled.div`
@@ -53,7 +53,7 @@ const Hues = () => {
 
   return (
     <Container>
-      <IconButton color="secondary" onClick={() => handleHueClick()}>
+      <IconButton color="inherit" onClick={() => handleHueClick()}>
         <PowerSettingsNewRounded />
       </IconButton>
       <HueGrid>
@@ -62,7 +62,7 @@ const Hues = () => {
         ))}
       </HueGrid>
       <IconButton
-        color="secondary"
+        color="inherit"
         onClick={() => {
           snackedApi(['hue', 'off', 4], () => '🔮 Turning boule off...', '#000');
         }}

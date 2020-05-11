@@ -1,7 +1,14 @@
-import {createContext, useContext} from 'react';
+import {createContext} from 'react';
 
-const SocketContext = createContext<SocketIOClient.Socket | undefined>(undefined);
+type Primitive = string | number | boolean;
+type Payload = Primitive | {[key: string]: Primitive};
+type SocketContextValue = [
+  SocketIOClient.Socket,
+  (event: string, payload?: Payload) => void,
+  (key: string, event: string, callback: Function) => void
+];
 
-const useSocket = () => useContext(SocketContext);
+const SocketContext = createContext<SocketContextValue | undefined>(undefined);
 
-export {SocketContext, useSocket};
+export type {SocketContextValue, Payload};
+export {SocketContext};

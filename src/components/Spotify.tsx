@@ -2,12 +2,12 @@ import React, {useEffect, useState, useCallback} from 'react';
 import styled from 'styled-components';
 import {LinearProgress, IconButton} from '@material-ui/core';
 import {LockRounded} from '@material-ui/icons';
-import {usePalette, useSocket, useSnackbar} from 'contexts';
-import {useIdle} from 'hooks';
+import {usePalette, useSocket, useSnackbar, useIdle} from 'hooks';
 import {Tune, Controls} from 'components';
 import {api} from 'utils';
 import {ServerError, PlayerState} from 'models';
 
+const ID = 'Spotify';
 const MITIGATE = 100;
 
 const {REACT_APP_SPO_PI_ID: PI = ''} = process.env;
@@ -20,19 +20,15 @@ const Container = styled.div`
   flex-grow: 1;
 `;
 
-const Loader = styled.div`
+const Loader = styled.div<{isLoading: boolean}>`
   width: 100%;
   position: absolute;
   top: 0;
   z-index: 1;
   overflow: hidden;
+  opacity: ${({isLoading}) => (isLoading ? 1 : 0)};
+  transition: opacity 400ms ease;
 `;
-
-//TODO
-export const emit = (io: any, event: string, value?: number | string | {[key: string]: string | number | boolean}) => {
-  console.info('Emit', event, value);
-  if (io) io.emit(event, value);
-};
 
 const login = (authorizeUrl: string): Promise<string> =>
   new Promise(resolve => {
@@ -58,7 +54,7 @@ const Spotify = () => {
 
   const snack = useSnackbar();
   const {setPalette} = usePalette();
-  const soca = useSocket();
+  const [soca, emit, sub] = useSocket();
 
   const fetchToken = useCallback(async () => {
     const {
@@ -88,10 +84,10 @@ const Spotify = () => {
       setTimeout(() => {
         console.info('Connecting');
         soca.connect();
-        emit(soca, 'initiate', {accessToken});
+        emit('initiate', {accessToken});
       }, MITIGATE);
     }
-  }, [accessToken, soca]);
+  }, [accessToken, soca, emit]);
 
   const disconnect = useCallback(() => {
     console.info('Disconnecting');
@@ -103,7 +99,7 @@ const Spotify = () => {
       console.log('Connect error', error);
       if (error.name === 'NoActiveDeviceError') {
         setLoading(true);
-        emit(soca, 'transfer_playback', {id: PI});
+        emit('transfer_playback', {id: PI});
         snack('π', 1000, 'transparent');
       } else if (error.name === 'The access token expired') {
         disconnect();
@@ -115,22 +111,22 @@ const Spotify = () => {
         setAccessToken(accessToken);
       }
     },
-    [snack, soca, disconnect]
+    [snack, disconnect, emit]
   );
 
   useEffect(() => {
-    if (!soca || soca.connected || !accessToken) return;
+    if (soca.connected || !accessToken) return;
 
-    soca.on('initial_state', (state: PlayerState) => {
+    sub(ID, 'initial_state', (state: PlayerState) => {
       setLoading(false);
       setPlaying(state.is_playing);
     });
-    soca.on('playback_started', () => setPlaying(true));
-    soca.on('playback_paused', () => setPlaying(false));
-    soca.on('connect_error', handleError);
+    sub(ID, 'playback_started', () => setPlaying(true));
+    sub(ID, 'playback_paused', () => setPlaying(false));
+    sub(ID, 'connect_error', handleError);
 
     connect();
-  }, [soca, accessToken, handleError, connect]);
+  }, [soca, sub, accessToken, handleError, connect]);
 
   useEffect(() => {
     if (!authorizeUrl && !accessToken) fetchToken();
@@ -144,11 +140,9 @@ const Spotify = () => {
     <IconButton children={<LockRounded />} onClick={handleLogin} />
   ) : (
     <Container>
-      {isLoading && (
-        <Loader>
-          <LinearProgress />
-        </Loader>
-      )}
+      <Loader isLoading={isLoading}>
+        <LinearProgress />
+      </Loader>
       <Tune isPlaying={isPlaying} />
       <Controls isPlaying={isPlaying} setPlaying={setPlaying} />
     </Container>

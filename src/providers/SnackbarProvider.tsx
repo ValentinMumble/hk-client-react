@@ -30,7 +30,7 @@ const SnackbarProvider = ({children}: SnackbarProviderProps) => {
 
   const snack = useCallback(
     (message: ReactNode, duration = 2000, backgroundColor = theme.palette.primary.main) => {
-      message &&
+      if (message)
         setSnackbar(snackbar => ({
           ...snackbar,
           message,
@@ -43,7 +43,7 @@ const SnackbarProvider = ({children}: SnackbarProviderProps) => {
   );
 
   useEffect(() => {
-    snackbar.message && setOpen(true);
+    if (snackbar.message) setOpen(true);
   }, [snackbar]);
 
   return (

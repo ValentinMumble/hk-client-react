@@ -9,12 +9,12 @@ import {
   QueueMusicRounded,
   SpeakerRounded,
 } from '@material-ui/icons';
-import {useSnackbar, useSocket} from 'contexts';
+import {useSnackbar, useSocket} from 'hooks';
 import {Span} from 'components';
 import {PlayerState, Device, Playlist, ServerError} from 'models';
-import {emit} from 'components/Spotify';
 import {api} from 'utils';
 
+const ID = 'Controls';
 const labels: {[key: string]: string} = {
   OK: '👌 OK',
   'Discover Weekly': '✨ Discover',
@@ -49,7 +49,7 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
   const [volume, setVolume] = useState<number>(0);
 
   const snack = useSnackbar();
-  const soca = useSocket();
+  const [, emit, sub] = useSocket();
 
   const fetchDevices = async () => {
     const {results} = await api<Device>(['spotify', 'devices']);
@@ -69,13 +69,13 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
   };
 
   const setDevice = (device: Device) => {
-    emit(soca, 'transfer_playback', {id: device.id, play: isPlaying});
+    emit('transfer_playback', {id: device.id, play: isPlaying});
     snack(`Listening on ${labels[device.name] || device.name}`);
     closeMenus();
   };
 
   const setPlaylist = (playlist: Playlist) => {
-    emit(soca, 'play', {context_uri: playlist.uri});
+    emit('play', {context_uri: playlist.uri});
     snack(`Playing ${labels[playlist.name] || playlist.name}`);
     closeMenus();
   };
@@ -91,12 +91,10 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
   );
 
   useEffect(() => {
-    if (!soca) return;
-
-    soca.on('volume_change', setVolume);
-    soca.on('initial_state', ({device: {volume_percent}}: PlayerState) => setVolume(volume_percent));
-    soca.on('connect_error', handleError);
-  }, [soca, handleError]);
+    sub(ID, 'volume_change', setVolume);
+    sub(ID, 'initial_state', ({device: {volume_percent}}: PlayerState) => setVolume(volume_percent));
+    sub(ID, 'connect_error', handleError);
+  }, [sub, handleError]);
 
   useEffect(() => {
     fetchDevices();
@@ -114,17 +112,17 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
             </MenuItem>
           ))}
         </Menu>
-        <IconButton children={<SkipPreviousRounded />} onClick={() => emit(soca, 'previous_track')} />
+        <IconButton children={<SkipPreviousRounded />} onClick={() => emit('previous_track')} />
         <Span size="large">
           <IconButton
             children={isPlaying ? <PauseRounded /> : <PlayArrowRounded />}
             onClick={() => {
-              emit(soca, isPlaying ? 'pause' : 'play');
+              emit(isPlaying ? 'pause' : 'play');
               setPlaying(!isPlaying);
             }}
           />
         </Span>
-        <IconButton children={<SkipNextRounded />} onClick={() => emit(soca, 'next_track')} />
+        <IconButton children={<SkipNextRounded />} onClick={() => emit('next_track')} />
         <IconButton children={<QueueMusicRounded />} onClick={openPlaylistMenu} />
         <Menu anchorEl={playlistMenuAnchor} keepMounted open={Boolean(playlistMenuAnchor)} onClose={closeMenus}>
           {playlists.map(playlist => (
@@ -138,7 +136,7 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
         valueLabelDisplay="auto"
         value={volume}
         onChange={(_e, v) => setVolume(Number(v))}
-        onChangeCommitted={(_e, v) => emit(soca, 'set_volume', Number(v))}
+        onChangeCommitted={(_e, v) => emit('set_volume', Number(v))}
       />
     </>
   );

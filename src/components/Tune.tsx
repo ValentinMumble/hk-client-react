@@ -2,10 +2,10 @@ import React, {useEffect, useState, useCallback} from 'react';
 import styled, {css} from 'styled-components';
 import splashy from 'splashy';
 import {I, fetchImage} from 'utils';
-import {useSnackedApi} from 'hooks';
-import {usePalette, useSocket} from 'contexts';
+import {usePalette, useSocket, useSnackedApi} from 'hooks';
 import {PlayerState, Track} from 'models';
 
+const ID = 'Tune';
 const PROGRESS_DELAY = 500;
 const ARTWORK_TRANSITION = 800;
 
@@ -92,7 +92,7 @@ const Tune = ({isPlaying}: TuneProps) => {
   const [activeTrack, setActiveTrack] = useState<Track>();
 
   const {setPalette} = usePalette();
-  const soca = useSocket();
+  const [, , sub] = useSocket();
   const snackedApi = useSnackedApi<number>();
 
   const loadArtwork = useCallback(
@@ -129,15 +129,13 @@ const Tune = ({isPlaying}: TuneProps) => {
   }, [isPlaying]);
 
   useEffect(() => {
-    if (!soca) return;
-
-    soca.on('seek', setProgress);
-    soca.on('track_change', setActiveTrack);
-    soca.on('initial_state', ({progress_ms, item}: PlayerState) => {
+    sub(ID, 'seek', setProgress);
+    sub(ID, 'track_change', setActiveTrack);
+    sub(ID, 'initial_state', ({progress_ms, item}: PlayerState) => {
       setProgress(progress_ms);
       setActiveTrack(item);
     });
-  }, [soca]);
+  }, [sub]);
 
   if (!activeTrack) return null;
 

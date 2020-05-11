@@ -1,9 +1,7 @@
-import {createContext, useContext, ReactNode} from 'react';
+import {createContext, ReactNode} from 'react';
 
 type SnackbarContextValue = (message: ReactNode, duration?: number, backgroundColor?: string) => void;
 
 const SnackbarContext = createContext<SnackbarContextValue>(() => {});
 
-const useSnackbar = () => useContext(SnackbarContext);
-
-export {SnackbarContext, useSnackbar};
+export {SnackbarContext};

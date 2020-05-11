@@ -1,5 +1,5 @@
 import {useCallback, ReactNode} from 'react';
-import {useSnackbar} from 'contexts';
+import {useSnackbar} from 'hooks';
 import {Value} from 'models';
 import {api} from 'utils';
 
