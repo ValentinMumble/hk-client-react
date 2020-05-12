@@ -4,7 +4,7 @@ import {BrowserRouter, Route, Switch} from 'react-router-dom';
 import {createGlobalStyle} from 'styled-components';
 import {App} from 'App';
 import {Callback} from 'Callback';
-import {HKThemeProvider, SnackbarProvider, SocketProvider} from 'providers';
+import {HKThemeProvider, SnackbarProvider, SocketProvider, TrackProvider} from 'providers';
 
 const TRANSITION = 800;
 
@@ -33,7 +33,9 @@ const Providers = () => (
         url={`${process.env.REACT_APP_SERVER_URL}/connect`}
         opts={{autoConnect: false, reconnection: false}}
       >
-        <App />
+        <TrackProvider>
+          <App />
+        </TrackProvider>
       </SocketProvider>
     </SnackbarProvider>
   </HKThemeProvider>

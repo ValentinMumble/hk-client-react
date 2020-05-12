@@ -37,7 +37,7 @@ const Brightness = styled(Slider)`
 const colors = ['#ffffff', '#ffaa71', '#01a7c2', '#57b133', '#b13333', '#ff96ca'];
 
 const Hues = () => {
-  const {palette} = usePalette();
+  const [palette] = usePalette();
   const snackedApi = useSnackedApi();
 
   const handleHueClick = useCallback(

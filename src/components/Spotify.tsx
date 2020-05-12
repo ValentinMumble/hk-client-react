@@ -53,7 +53,7 @@ const Spotify = () => {
   const [authorizeUrl, setAuthorizeUrl] = useState<string>();
 
   const snack = useSnackbar();
-  const {setPalette} = usePalette();
+  const [, setPalette] = usePalette();
   const [soca, emit, sub] = useSocket();
 
   const fetchToken = useCallback(async () => {

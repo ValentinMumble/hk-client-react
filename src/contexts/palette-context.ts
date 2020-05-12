@@ -1,10 +1,8 @@
 import {createContext, Dispatch, SetStateAction} from 'react';
 
-type PaletteContextValue = {
-  palette: string[];
-  setPalette: Dispatch<SetStateAction<string[]>>;
-};
+type PaletteContextValue = [string[], Dispatch<SetStateAction<string[]>>];
 
-const PaletteContext = createContext<PaletteContextValue>({palette: [], setPalette: () => {}});
+const PaletteContext = createContext<PaletteContextValue | undefined>(undefined);
 
+export type {PaletteContextValue};
 export {PaletteContext};

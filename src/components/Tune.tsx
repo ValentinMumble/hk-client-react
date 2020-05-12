@@ -2,8 +2,8 @@ import React, {useEffect, useState, useCallback} from 'react';
 import styled, {css} from 'styled-components';
 import splashy from 'splashy';
 import {I, fetchImage} from 'utils';
-import {usePalette, useSocket, useSnackedApi} from 'hooks';
-import {PlayerState, Track} from 'models';
+import {usePalette, useSocket, useSnackedApi, useTrack} from 'hooks';
+import {PlayerState} from 'models';
 
 const ID = 'Tune';
 const PROGRESS_DELAY = 500;
@@ -89,9 +89,9 @@ const Tune = ({isPlaying}: TuneProps) => {
   const [prevSrc, setPrevSrc] = useState<string>(I.BLACK);
   const [progress, setProgress] = useState<number>(0);
   const [isHidden, setHidden] = useState<boolean>(false);
-  const [activeTrack, setActiveTrack] = useState<Track>();
 
-  const {setPalette} = usePalette();
+  const [activeTrack, setActiveTrack] = useTrack();
+  const [, setPalette] = usePalette();
   const [, , sub] = useSocket();
   const snackedApi = useSnackedApi<number>();
 
@@ -135,7 +135,7 @@ const Tune = ({isPlaying}: TuneProps) => {
       setProgress(progress_ms);
       setActiveTrack(item);
     });
-  }, [sub]);
+  }, [sub, setActiveTrack]);
 
   if (!activeTrack) return null;
 

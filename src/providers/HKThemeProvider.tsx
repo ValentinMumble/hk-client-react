@@ -70,7 +70,7 @@ const HKThemeProvider = ({children}: HKThemeProviderProps) => {
   }, [palette]);
 
   return (
-    <PaletteContext.Provider value={{palette, setPalette}}>
+    <PaletteContext.Provider value={[palette, setPalette]}>
       <MuiThemeProvider theme={theme}>
         <ThemeProvider theme={theme}>
           <StylesProvider injectFirst>{children}</StylesProvider>
