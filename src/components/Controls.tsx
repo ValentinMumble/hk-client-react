@@ -12,7 +12,7 @@ import {
 import {useSnackbar, useSocket} from 'hooks';
 import {Span} from 'components';
 import {PlayerState, Device, Playlist, ServerError} from 'models';
-import {api} from 'utils';
+import {api, emojiFirst} from 'utils';
 
 const ID = 'Controls';
 const labels: {[key: string]: string} = {
@@ -70,13 +70,13 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
 
   const setDevice = (device: Device) => {
     emit('transfer_playback', {id: device.id, play: isPlaying});
-    snack(`Listening on ${labels[device.name] || device.name}`);
+    snack(emojiFirst(`Listening on ${labels[device.name] || device.name}`));
     closeMenus();
   };
 
   const setPlaylist = (playlist: Playlist) => {
     emit('play', {context_uri: playlist.uri});
-    snack(`Playing ${labels[playlist.name] || playlist.name}`);
+    snack(emojiFirst(`Playing ${labels[playlist.name] || playlist.name}`));
     closeMenus();
   };
 

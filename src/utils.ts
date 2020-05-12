@@ -44,6 +44,18 @@ const fetchImage = (url: string): Promise<string> =>
     } else resolve(I.GRAY);
   });
 
+const emojiFirst = (string: string): string => {
+  const array = Array.from(string);
+  array.forEach((char, index) => {
+    if (char.match(/\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff]/)) {
+      array.splice(index, 1);
+      array.unshift(char, ' ');
+    }
+  });
+
+  return array.join('').replace(/ +(?= )/g, '');
+};
+
 const I = {
   BLACK:
     'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
@@ -51,4 +63,4 @@ const I = {
     'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mMs/w8AAfMBeIBXwkoAAAAASUVORK5CYII=',
 };
 
-export {api, fetchImage, I};
+export {api, fetchImage, I, emojiFirst};
