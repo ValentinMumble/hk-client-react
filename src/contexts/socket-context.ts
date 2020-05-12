@@ -1,7 +1,8 @@
 import {createContext} from 'react';
+import {Value} from 'models';
 
-type Primitive = string | number | boolean;
-type Payload = Primitive | {[key: string]: Primitive};
+type Payload = Value | {[key: string]: Value};
+
 type SocketContextValue = [
   SocketIOClient.Socket,
   (event: string, payload?: Payload) => void,

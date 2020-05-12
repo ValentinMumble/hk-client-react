@@ -13,8 +13,9 @@ import {
   BluetoothSearchingRounded,
   TimerRounded,
   OpacityRounded,
+  ChatRounded,
 } from '@material-ui/icons';
-import {Hues, Span, Spotify} from 'components';
+import {Hues, Span, Spotify, Lyrics} from 'components';
 import {useSnackedApi} from 'hooks';
 
 const RowContainer = styled.div`
@@ -78,6 +79,9 @@ const App = () => {
             <IconButton children={<PowerOffRounded />} onClick={() => snackedApi(['hk', 'off'])} />
           </ColumnContainer>
         </SecondaryTab>
+        <TabContainer>
+          <Lyrics />
+        </TabContainer>
       </SwipeableViews>
       <Tabs
         variant="fullWidth"
@@ -88,6 +92,7 @@ const App = () => {
       >
         <Tab icon={<MusicNoteRounded />} />
         <Tab icon={<WbIncandescentRounded />} />
+        <Tab icon={<ChatRounded />} />
       </Tabs>
     </>
   );
