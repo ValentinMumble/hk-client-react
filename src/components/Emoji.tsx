@@ -9,7 +9,7 @@ const EmojiContainer = styled.span`
   width: 1.2em;
 
   :first-child {
-    margin-right: 5px;
+    margin-right: 10px;
   }
 `;
 

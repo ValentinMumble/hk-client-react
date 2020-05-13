@@ -16,7 +16,7 @@ const api = async <T>(resource: Value[], params: Params = {}, options?: RequestI
     resource.map(sub => encodeURIComponent(sub)).join('/'),
     'hk' === resource[0] ? process.env.REACT_APP_HK_API : process.env.REACT_APP_SERVER_URL
   );
-  Object.keys(params).forEach((key: string) => {
+  Object.keys(params).forEach(key => {
     url.searchParams.append(key, params[key].toString());
   });
   const response = await fetch(url.toString(), options);
@@ -27,20 +27,20 @@ const api = async <T>(resource: Value[], params: Params = {}, options?: RequestI
 const fetchImage = (url: string): Promise<string> =>
   new Promise((resolve, reject) => {
     if (url) {
-      const newImg = new Image();
-      newImg.crossOrigin = 'Anonymous';
-      newImg.src = url;
-      newImg.addEventListener('load', () => {
+      const image = new Image();
+      image.crossOrigin = 'Anonymous';
+      image.src = url;
+      image.addEventListener('load', () => {
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d');
         if (null !== context) {
-          canvas.width = newImg.width;
-          canvas.height = newImg.height;
-          context.drawImage(newImg, 0, 0);
+          canvas.width = image.width;
+          canvas.height = image.height;
+          context.drawImage(image, 0, 0);
         }
         resolve(canvas.toDataURL('image/png'));
       });
-      newImg.addEventListener('error', () => reject(new Error(`Failed to load image's URL: ${url}`)));
+      image.addEventListener('error', () => reject(Error(`Failed to load image's URL: ${url}`)));
     } else resolve(I.GRAY);
   });
 

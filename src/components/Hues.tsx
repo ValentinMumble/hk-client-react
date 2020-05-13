@@ -72,7 +72,7 @@ const Hues = () => {
       <Brightness
         defaultValue={100}
         valueLabelDisplay="auto"
-        onChangeCommitted={(_e, v) => api(['hue', 'brightness', Number(v)])}
+        onChangeCommitted={(_, v) => api(['hue', 'brightness', Number(v)])}
       />
     </Container>
   );

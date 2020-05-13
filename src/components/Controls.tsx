@@ -10,7 +10,7 @@ import {
   SpeakerRounded,
 } from '@material-ui/icons';
 import {useSnackbar, useSocket} from 'hooks';
-import {Span} from 'components';
+import {Span, Emoji} from 'components';
 import {PlayerState, Device, Playlist, ServerError} from 'models';
 import {api, emojiFirst} from 'utils';
 
@@ -80,6 +80,12 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
     closeMenus();
   };
 
+  const playRadio = () => {
+    api(['spotify', 'radio']);
+    snack('📻 Playing song radio');
+    closeMenus();
+  };
+
   const handleError = useCallback(
     (error: ServerError) => {
       if ('Device not found' === error.name) {
@@ -125,8 +131,11 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
         <IconButton children={<SkipNextRounded />} onClick={() => emit('next_track')} />
         <IconButton children={<QueueMusicRounded />} onClick={openPlaylistMenu} />
         <Menu anchorEl={playlistMenuAnchor} keepMounted open={Boolean(playlistMenuAnchor)} onClose={closeMenus}>
+          <MenuItem onClick={playRadio}>
+            <Emoji e="📻" /> Song radio
+          </MenuItem>
           {playlists.map(playlist => (
-            <MenuItem key={playlist.uri} onClick={() => setPlaylist(playlist)}>
+            <MenuItem key={playlist.id} onClick={() => setPlaylist(playlist)}>
               {labels[playlist.name] || playlist.name}
             </MenuItem>
           ))}
@@ -135,8 +144,8 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
       <Volume
         valueLabelDisplay="auto"
         value={volume}
-        onChange={(_e, v) => setVolume(Number(v))}
-        onChangeCommitted={(_e, v) => emit('set_volume', Number(v))}
+        onChange={(_, v) => setVolume(Number(v))}
+        onChangeCommitted={(_, v) => emit('set_volume', Number(v))}
       />
     </>
   );
