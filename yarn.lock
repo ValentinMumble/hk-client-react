@@ -1730,6 +1730,13 @@
   resolved "https://registry.yarnpkg.com/@types/socket.io-client/-/socket.io-client-1.4.32.tgz#988a65a0386c274b1c22a55377fab6a30789ac14"
   integrity sha512-Vs55Kq8F+OWvy1RLA31rT+cAyemzgm0EWNeax6BWF8H7QiiOYMJIdcwSDdm5LVgfEkoepsWkS+40+WNb7BUMbg==
 
+"@types/splashy@^5.0.0":
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/@types/splashy/-/splashy-5.0.0.tgz#a96b6ee3c7ca277823db7677587b447d7903fc3c"
+  integrity sha512-mDU1YfB5jJiiFOcm6acKdCeFYzGOGQpDJxMoaNmNcaDyiV4ne72cRSoE/bdknz1kVfLgpkIg7qdz06KoQmPyGA==
+  dependencies:
+    "@types/node" "*"
+
 "@types/stack-utils@^1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@types/stack-utils/-/stack-utils-1.0.1.tgz#0a851d3bd96498fa25c33ab7278ed3bd65f06c3e"
