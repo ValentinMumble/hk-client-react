@@ -19,7 +19,7 @@ const LyricsContainer = styled.div<{stale: boolean; isLoading: boolean}>`
   font-size: 2vh;
   white-space: pre-wrap;
   line-height: 1.5;
-  padding: 0 10%;
+  padding: 0 8vw;
   overflow: auto;
   width: 100%;
   max-width: 600px;

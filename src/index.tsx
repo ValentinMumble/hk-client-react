@@ -5,6 +5,7 @@ import {createGlobalStyle} from 'styled-components';
 import {App} from 'App';
 import {Callback} from 'Callback';
 import {HKThemeProvider, SnackbarProvider, SocketProvider, TrackProvider} from 'providers';
+import * as serviceWorker from './serviceWorker';
 
 const TRANSITION = 800;
 
@@ -57,3 +58,5 @@ ReactDOM.render(
   </>,
   document.getElementById('root')
 );
+
+serviceWorker.register();
