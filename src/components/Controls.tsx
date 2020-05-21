@@ -10,7 +10,7 @@ import {
   SpeakerRounded,
 } from '@material-ui/icons';
 import {useSnackbar, useSocket} from 'hooks';
-import {Span, Emoji} from 'components';
+import {Emoji} from 'components';
 import {PlayerState, Device, Playlist, ServerError} from 'models';
 import {api, emojiFirst} from 'utils';
 
@@ -36,6 +36,20 @@ const Volume = styled(Slider)`
   width: 85%;
 `;
 
+const PlayPause = styled.span`
+  position: relative;
+  color: transparent;
+  font-size: 10vh;
+`;
+
+const PlayPauseButton = styled.div<{isHidden: boolean}>`
+  position: absolute;
+  top: 0;
+  display: flex;
+  transform: scale(${({isHidden}) => (isHidden ? 0 : 1)});
+  transition: transform 300ms ease;
+`;
+
 type ControlsProps = {
   isPlaying: boolean;
   setPlaying: Dispatch<SetStateAction<boolean>>;
@@ -50,6 +64,11 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
 
   const snack = useSnackbar();
   const [, emit, sub] = useSocket();
+
+  const togglePlayback = () => {
+    emit(isPlaying ? 'pause' : 'play');
+    setPlaying(!isPlaying);
+  };
 
   const fetchDevices = async () => {
     const {results} = await api<Device>(['spotify', 'devices']);
@@ -119,15 +138,15 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
           ))}
         </Menu>
         <IconButton children={<SkipPreviousRounded />} onClick={() => emit('previous_track')} />
-        <Span size="large">
-          <IconButton
-            children={isPlaying ? <PauseRounded /> : <PlayArrowRounded />}
-            onClick={() => {
-              emit(isPlaying ? 'pause' : 'play');
-              setPlaying(!isPlaying);
-            }}
-          />
-        </Span>
+        <PlayPause onClick={togglePlayback}>
+          <IconButton color="inherit" children={<PauseRounded />} />
+          <PlayPauseButton isHidden={!isPlaying}>
+            <IconButton children={<PauseRounded />} />
+          </PlayPauseButton>
+          <PlayPauseButton isHidden={isPlaying}>
+            <IconButton children={<PlayArrowRounded />} />
+          </PlayPauseButton>
+        </PlayPause>
         <IconButton children={<SkipNextRounded />} onClick={() => emit('next_track')} />
         <IconButton children={<QueueMusicRounded />} onClick={openPlaylistMenu} />
         <Menu anchorEl={playlistMenuAnchor} keepMounted open={Boolean(playlistMenuAnchor)} onClose={closeMenus}>
