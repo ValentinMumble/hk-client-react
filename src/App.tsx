@@ -14,6 +14,8 @@ import {
   TimerRounded,
   OpacityRounded,
   ChatRounded,
+  SyncProblemRounded,
+  ErrorOutlineRounded,
 } from '@material-ui/icons';
 import {Hues, Span, Spotify, Lyrics} from 'components';
 import {useSnackedApi} from 'hooks';
@@ -40,6 +42,7 @@ const SecondaryTab = styled(TabContainer)`
 const App = () => {
   const [currentTabIndex, setCurrentTabIndex] = useState<number>(0);
   const snackedApi = useSnackedApi<string>();
+  const ok = () => '👍';
 
   return (
     <>
@@ -65,12 +68,14 @@ const App = () => {
           <ColumnContainer>
             <IconButton
               children={<BluetoothDisabledRounded />}
-              onClick={() => snackedApi(['bluetooth', 'reset'], () => '👍')}
+              onClick={() => snackedApi(['bluetooth', 'reset'], ok)}
             />
             <IconButton
               children={<BluetoothSearchingRounded />}
-              onClick={() => snackedApi(['bluetooth', 'discover'], () => '👍')}
+              onClick={() => snackedApi(['bluetooth', 'discover'], ok)}
             />
+            <IconButton children={<SyncProblemRounded />} onClick={() => snackedApi(['raspotify', 'restart'], ok)} />
+            <IconButton children={<ErrorOutlineRounded />} onClick={() => snackedApi(['reboot'], ok)} />
           </ColumnContainer>
           <Hues />
           <ColumnContainer>
@@ -88,7 +93,7 @@ const App = () => {
         textColor="primary"
         indicatorColor="primary"
         value={currentTabIndex}
-        onChange={(_, tab) => setCurrentTabIndex(tab)}
+        onChange={(_event, tab) => setCurrentTabIndex(tab)}
       >
         <Tab icon={<MusicNoteRounded />} />
         <Tab icon={<WbIncandescentRounded />} />

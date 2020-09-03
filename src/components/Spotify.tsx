@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import {LinearProgress, IconButton} from '@material-ui/core';
 import {LockRounded} from '@material-ui/icons';
 import {usePalette, useSocket, useSnackbar, useIdle} from 'hooks';
-import {Tune, Controls} from 'components';
+import {Tune, Controls, Search} from 'components';
 import {api} from 'utils';
 import {ServerError, PlayerState} from 'models';
 
@@ -145,6 +145,7 @@ const Spotify = () => {
       </Loader>
       <Tune isPlaying={isPlaying} />
       <Controls isPlaying={isPlaying} setPlaying={setPlaying} />
+      <Search />
     </Container>
   );
 };
