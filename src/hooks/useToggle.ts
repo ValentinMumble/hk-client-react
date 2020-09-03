@@ -5,9 +5,9 @@ const useToggle = (
 ): [boolean, EffectCallback, EffectCallback, EffectCallback, Dispatch<SetStateAction<boolean>>] => {
   const [value, setValue] = useState<boolean>(initial);
 
-  const setTrue = useCallback(() => setValue(true), [setValue]);
-  const setFalse = useCallback(() => setValue(false), [setValue]);
-  const toggle = useCallback(() => setValue(value => !value), [setValue]);
+  const toggle = useCallback(() => setValue(value => !value), []);
+  const setTrue = useCallback(() => setValue(true), []);
+  const setFalse = useCallback(() => setValue(false), []);
 
   return [value, toggle, setTrue, setFalse, setValue];
 };
