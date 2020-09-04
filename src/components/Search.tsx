@@ -26,11 +26,26 @@ const Suggestion = styled.div`
 const Artwork = styled.img`
   height: 32px;
   margin-right: 16px;
+  border-radius: 50%;
 `;
 
 const Artist = styled.div`
   opacity: 0.7;
   font-size: 0.7em;
+`;
+
+const SearchDialog = styled(Dialog)`
+  .MuiDialog-container {
+    align-items: flex-start;
+  }
+`;
+
+const TallList = styled.ul`
+  max-height: 80vh;
+`;
+
+const Bastien = styled(Fab)`
+  font-size: 0.6em;
 `;
 
 const Search = () => {
@@ -63,23 +78,24 @@ const Search = () => {
 
   return (
     <Container>
-      <Fab color="primary" onClick={toggle}>
+      <Bastien color="primary" onClick={toggle}>
         <SearchRounded />
-      </Fab>
-      <Dialog open={isOpen} onClose={close}>
+      </Bastien>
+      <SearchDialog open={isOpen} onClose={close}>
         <Autocomplete
           options={tracks}
           onClose={close}
           autoHighlight
           freeSolo
-          getOptionSelected={(option, value) => option.uri === value.uri}
+          filterOptions={x => x}
+          ListboxComponent={TallList}
           getOptionLabel={option => option.name}
           onInputChange={(_event, newInputValue) => setSearchValue(newInputValue)}
           onChange={(_event, track) => isTrack(track) && playTrack(track)}
           renderInput={props => <SearchBar {...props} variant="outlined" autoFocus />}
           renderOption={track => (
             <Suggestion>
-              <Artwork alt="artwork" src={track.album.images[0].url} />
+              <Artwork src={track.album.images[0].url} alt="" />
               <div>
                 {track.name}
                 <Artist>{track.artists[0].name}</Artist>
@@ -87,7 +103,7 @@ const Search = () => {
             </Suggestion>
           )}
         />
-      </Dialog>
+      </SearchDialog>
     </Container>
   );
 };
