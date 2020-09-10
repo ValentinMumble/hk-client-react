@@ -83,10 +83,10 @@ const Search = () => {
       </Bastien>
       <SearchDialog open={isOpen} onClose={close}>
         <Autocomplete
+          open={0 < tracks.length}
           options={tracks}
           onClose={close}
           autoHighlight
-          freeSolo
           filterOptions={x => x}
           ListboxComponent={TallList}
           getOptionLabel={option => option.name}

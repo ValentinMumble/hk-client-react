@@ -18,7 +18,7 @@ import {
   ErrorOutlineRounded,
 } from '@material-ui/icons';
 import {Hues, Span, Spotify, Lyrics} from 'components';
-import {useSnackedApi} from 'hooks';
+import {useSnackedApi, useShortcut} from 'hooks';
 
 const RowContainer = styled.div`
   display: flex;
@@ -43,6 +43,9 @@ const App = () => {
   const [currentTabIndex, setCurrentTabIndex] = useState<number>(0);
   const snackedApi = useSnackedApi<string>();
   const ok = () => '👍';
+
+  useShortcut('ArrowLeft', () => setCurrentTabIndex(index => Math.max(0, index - 1)));
+  useShortcut('ArrowRight', () => setCurrentTabIndex(index => Math.min(2, index + 1)));
 
   return (
     <>

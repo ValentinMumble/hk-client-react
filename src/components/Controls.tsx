@@ -9,7 +9,7 @@ import {
   QueueMusicRounded,
   SpeakerRounded,
 } from '@material-ui/icons';
-import {useSnackbar, useSocket} from 'hooks';
+import {useSnackbar, useSocket, useShortcut} from 'hooks';
 import {Emoji} from 'components';
 import {PlayerState, Device, Playlist, ServerError} from 'models';
 import {api, emojiFirst} from 'utils';
@@ -125,6 +125,8 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
     fetchDevices();
     fetchPlaylists();
   }, []);
+
+  useShortcut('Space', togglePlayback);
 
   return (
     <>

@@ -11,7 +11,7 @@ const ARTWORK_TRANSITION = 800;
 
 const ArtworkContainer = styled.div<{isPlaying: boolean}>`
   position: relative;
-  width: 100vw;
+  width: 95vw;
   max-width: 450px;
   max-height: 450px;
   padding-top: 100%;
@@ -32,6 +32,7 @@ const Image = styled.img<{isHidden?: boolean}>`
   position: absolute;
   top: 0;
   width: 100%;
+  border-radius: 50%;
 
   ${({isHidden}) =>
     isHidden &&
