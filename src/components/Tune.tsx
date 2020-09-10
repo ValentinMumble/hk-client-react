@@ -98,20 +98,23 @@ const Tune = ({isPlaying}: TuneProps) => {
 
   const loadArtwork = useCallback(
     async (src: string) => {
-      clearTimeout(prevSrcTimer);
       const base64 = await fetchImage(src);
-      const colors = src ? await splashy(base64) : ['#777', '#777'];
-      setCurrentSrc(base64);
-      setHidden(true);
-      setPalette(colors);
-      prevSrcTimer = setTimeout(() => {
-        setPrevSrc(base64);
-        setHidden(false);
-      }, ARTWORK_TRANSITION);
 
-      return () => clearTimeout(prevSrcTimer);
+      if (base64 !== prevSrc) {
+        clearTimeout(prevSrcTimer);
+        const colors = src ? await splashy(base64) : ['#777', '#777'];
+        setCurrentSrc(base64);
+        setHidden(true);
+        setPalette(colors);
+        prevSrcTimer = setTimeout(() => {
+          setPrevSrc(base64);
+          setHidden(false);
+        }, ARTWORK_TRANSITION);
+
+        return () => clearTimeout(prevSrcTimer);
+      }
     },
-    [setPalette]
+    [setPalette, prevSrc]
   );
 
   useEffect(() => {
