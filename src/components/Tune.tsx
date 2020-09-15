@@ -11,7 +11,7 @@ const ARTWORK_TRANSITION = 800;
 
 const ArtworkContainer = styled.div<{isPlaying: boolean}>`
   position: relative;
-  width: 95vw;
+  width: 100vw;
   max-width: 450px;
   max-height: 450px;
   padding-top: 100%;
@@ -97,8 +97,8 @@ const Tune = ({isPlaying}: TuneProps) => {
   const snackedApi = useSnackedApi<number>();
 
   const loadArtwork = useCallback(
-    async (src: string) => {
-      const base64 = await fetchImage(src);
+    async (src?: string) => {
+      const base64 = src ? await fetchImage(src) : I.GRAY;
 
       if (base64 !== prevSrc) {
         clearTimeout(prevSrcTimer);

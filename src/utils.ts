@@ -26,22 +26,20 @@ const api = async <T>(resource: Value[], params: Params = {}, options?: RequestI
 
 const fetchImage = (url: string): Promise<string> =>
   new Promise((resolve, reject) => {
-    if (url) {
-      const image = new Image();
-      image.crossOrigin = 'Anonymous';
-      image.src = url;
-      image.addEventListener('load', () => {
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
-        if (null !== context) {
-          canvas.width = image.width;
-          canvas.height = image.height;
-          context.drawImage(image, 0, 0);
-        }
-        resolve(canvas.toDataURL('image/png'));
-      });
-      image.addEventListener('error', () => reject(Error(`Failed to load image's URL: ${url}`)));
-    } else resolve(I.GRAY);
+    const image = new Image();
+    image.crossOrigin = 'Anonymous';
+    image.src = url;
+    image.addEventListener('load', () => {
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      if (null !== context) {
+        canvas.width = image.width;
+        canvas.height = image.height;
+        context.drawImage(image, 0, 0);
+      }
+      resolve(canvas.toDataURL('image/png'));
+    });
+    image.addEventListener('error', () => reject(Error(`Failed to load image's URL: ${url}`)));
   });
 
 const emojiFirst = (string: string): string => {
