@@ -1,9 +1,7 @@
-import {Track} from 'models';
+import {Track, Device} from 'models';
 
 type PlayerState = {
-  device: {
-    volume_percent: number;
-  };
+  device: Device;
   progress_ms: number;
   item: Track;
   is_playing: boolean;

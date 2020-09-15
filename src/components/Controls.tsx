@@ -61,6 +61,7 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
   const [deviceMenuAnchor, setDeviceMenuAnchor] = useState<HTMLElement>();
   const [playlistMenuAnchor, setPlaylistMenuAnchor] = useState<HTMLElement>();
   const [volume, setVolume] = useState<number>(0);
+  const [currentDeviceId, setCurrentDeviceId] = useState<string>('');
 
   const snack = useSnackbar();
   const [, emit, sub] = useSocket();
@@ -88,9 +89,12 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
   };
 
   const setDevice = (device: Device) => {
+    closeMenus();
+
+    if (device.id === currentDeviceId) return;
+
     emit('transfer_playback', {id: device.id, play: isPlaying});
     snack(emojiFirst(`Listening on ${labels[device.name] || device.name}`));
-    closeMenus();
   };
 
   const setPlaylist = (playlist: Playlist) => {
@@ -117,7 +121,11 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
 
   useEffect(() => {
     sub(ID, 'volume_change', setVolume);
-    sub(ID, 'initial_state', ({device: {volume_percent}}: PlayerState) => setVolume(volume_percent));
+    sub(ID, 'initial_state', ({device: {volume_percent, id}}: PlayerState) => {
+      setVolume(volume_percent);
+      setCurrentDeviceId(id);
+    });
+    sub(ID, 'device_change', (device: Device) => setCurrentDeviceId(device.id));
     sub(ID, 'connect_error', handleError);
   }, [sub, handleError]);
 
@@ -134,7 +142,7 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
         <IconButton children={<SpeakerRounded />} onClick={openDeviceMenu} />
         <Menu anchorEl={deviceMenuAnchor} keepMounted open={Boolean(deviceMenuAnchor)} onClose={closeMenus}>
           {devices.map(device => (
-            <MenuItem key={device.id} onClick={() => setDevice(device)}>
+            <MenuItem selected={currentDeviceId === device.id} key={device.id} onClick={() => setDevice(device)}>
               {labels[device.name] || device.name}
             </MenuItem>
           ))}
