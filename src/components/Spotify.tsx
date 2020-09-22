@@ -66,7 +66,7 @@ const Spotify = () => {
       setPalette(['#777', '#777']);
     } else {
       setAccessToken(accessToken);
-      setPalette(palette);
+      setPalette(palette || ['#000', '#000']);
     }
   }, [setPalette]);
 
