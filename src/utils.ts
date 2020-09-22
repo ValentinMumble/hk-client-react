@@ -19,7 +19,7 @@ const api = async <T>(resource: Value[], params: Params = {}, options?: RequestI
   Object.keys(params).forEach(key => {
     url.searchParams.append(key, params[key].toString());
   });
-  const response = await fetch(url.toString(), options);
+  const response = await fetch(url.toString(), {headers: {'Content-Type': 'application/json'}, ...options});
 
   return response.json();
 };

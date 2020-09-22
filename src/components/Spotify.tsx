@@ -5,11 +5,10 @@ import {LockRounded} from '@material-ui/icons';
 import {usePalette, useSocket, useSnackbar, useIdle} from 'hooks';
 import {Tune, Controls, Search} from 'components';
 import {api} from 'utils';
-import {ServerError, PlayerState} from 'models';
+import {ServerError, PlayerState, Welcome} from 'models';
 
 const ID = 'Spotify';
 const MITIGATE = 100;
-
 const {REACT_APP_SPO_PI_ID: PI = ''} = process.env;
 
 const Container = styled.div`
@@ -59,14 +58,15 @@ const Spotify = () => {
   const fetchToken = useCallback(async () => {
     const {
       status,
-      results: [data],
-    } = await api<string>(['spotify', 'access-token']);
+      results: [{accessToken, authorizeUrl, palette}],
+    } = await api<Welcome>(['spotify', 'access-token']);
 
     if (401 === status) {
-      setAuthorizeUrl(data);
+      setAuthorizeUrl(authorizeUrl);
       setPalette(['#777', '#777']);
     } else {
-      setAccessToken(data);
+      setAccessToken(accessToken);
+      setPalette(palette);
     }
   }, [setPalette]);
 
@@ -106,8 +106,8 @@ const Spotify = () => {
         setLoading(true);
         snack('♻️', 1000, 'transparent');
         const {
-          results: [accessToken],
-        } = await api<string>(['spotify', 'refresh-token']);
+          results: [{accessToken}],
+        } = await api<Welcome>(['spotify', 'refresh-token']);
         setAccessToken(accessToken);
       }
     },

@@ -1,5 +1,5 @@
 import React, {useEffect, useState, MouseEvent, Dispatch, SetStateAction, useCallback} from 'react';
-import styled from 'styled-components';
+import styled, {css} from 'styled-components';
 import {IconButton, Menu, MenuItem, Slider} from '@material-ui/core';
 import {
   SkipPreviousRounded,
@@ -34,6 +34,12 @@ const ControlsContainer = styled.div`
 
 const Volume = styled(Slider)`
   width: 85%;
+
+  ${({value}) =>
+    -1 === value &&
+    css`
+      color: black;
+    `}
 `;
 
 const PlayPause = styled.span`
@@ -60,7 +66,7 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [deviceMenuAnchor, setDeviceMenuAnchor] = useState<HTMLElement>();
   const [playlistMenuAnchor, setPlaylistMenuAnchor] = useState<HTMLElement>();
-  const [volume, setVolume] = useState<number>(0);
+  const [volume, setVolume] = useState<number>(-1);
   const [currentDeviceId, setCurrentDeviceId] = useState<string>('');
 
   const snack = useSnackbar();
@@ -173,8 +179,8 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
       <Volume
         valueLabelDisplay="auto"
         value={volume}
-        onChange={(_, v) => setVolume(Number(v))}
-        onChangeCommitted={(_, v) => emit('set_volume', Number(v))}
+        onChange={(_event, volume) => setVolume(Number(volume))}
+        onChangeCommitted={(_event, volume) => emit('set_volume', Number(volume))}
       />
     </>
   );

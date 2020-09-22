@@ -77,6 +77,7 @@ const Artist = styled.span`
   opacity: 0.6;
   font-style: italic;
   font-size: 0.8em;
+  margin-top: 0.6vh;
 `;
 
 let prevSrcTimer: number;
@@ -141,8 +142,6 @@ const Tune = ({isPlaying}: TuneProps) => {
     });
   }, [sub, setActiveTrack]);
 
-  if (!activeTrack) return null;
-
   return (
     <>
       <ArtworkContainer
@@ -155,16 +154,22 @@ const Tune = ({isPlaying}: TuneProps) => {
       >
         <Image src={currentSrc} alt="" />
         <Image isHidden={isHidden} src={prevSrc} alt="" />
-        <Progress ratio={progress / activeTrack.duration_ms}>
+        <Progress ratio={activeTrack ? progress / activeTrack.duration_ms : 0}>
           <circle r="49.1%" cx="50%" cy="50%" />
         </Progress>
       </ArtworkContainer>
-      <TrackContainer
-        onClick={() => snackedApi(['spotify', 'addok', activeTrack.uri], () => `👌 ${activeTrack.name} added`)}
-      >
-        {activeTrack.name}
-        <Artist>{activeTrack.artists[0].name}</Artist>
-      </TrackContainer>
+      {activeTrack ? (
+        <TrackContainer
+          onClick={() => snackedApi(['spotify', 'addok', activeTrack.uri], () => `👌 ${activeTrack.name} added`)}
+        >
+          {activeTrack.name}
+          <Artist>{activeTrack.artists[0].name}</Artist>
+        </TrackContainer>
+      ) : (
+        <TrackContainer>
+          This is<Artist>loading...</Artist>
+        </TrackContainer>
+      )}
     </>
   );
 };

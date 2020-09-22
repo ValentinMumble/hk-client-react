@@ -2,6 +2,7 @@ import React, {useState, ReactNode, useEffect} from 'react';
 import {ThemeProvider} from 'styled-components';
 import {createMuiTheme, Theme, MuiThemeProvider, StylesProvider} from '@material-ui/core';
 import {PaletteContext} from 'contexts';
+import {api} from 'utils';
 
 const withColors = (primary = '#000', secondary = '#000') =>
   createMuiTheme({
@@ -57,6 +58,8 @@ const withColors = (primary = '#000', secondary = '#000') =>
     },
   });
 
+const postPalette = (palette: string[]) => api(['palette'], {}, {method: 'POST', body: JSON.stringify(palette)});
+
 type HKThemeProviderProps = {
   children?: ReactNode;
 };
@@ -66,7 +69,10 @@ const HKThemeProvider = ({children}: HKThemeProviderProps) => {
   const [palette, setPalette] = useState<string[]>([]);
 
   useEffect(() => {
-    if (0 < palette.length) setTheme(withColors(palette[0], palette[1]));
+    if (0 === palette.length) return;
+
+    postPalette(palette);
+    setTheme(withColors(palette[0], palette[1]));
   }, [palette]);
 
   return (
