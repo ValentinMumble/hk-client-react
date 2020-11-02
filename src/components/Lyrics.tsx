@@ -14,7 +14,8 @@ const Container = styled.div`
   height: 100%;
 `;
 
-const LyricsContainer = styled.div<{stale: boolean; isLoading: boolean}>`
+type LyricsContainerProps = {stale: boolean; isLoading: boolean};
+const LyricsContainer = styled.div<LyricsContainerProps>`
   margin-top: 10px;
   font-size: 2vh;
   white-space: pre-wrap;

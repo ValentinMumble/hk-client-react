@@ -1,4 +1,4 @@
-import React, {useEffect, useState, MouseEvent, Dispatch, SetStateAction, useCallback} from 'react';
+import React, {useEffect, useState, MouseEvent, Dispatch, SetStateAction, useCallback, useRef} from 'react';
 import styled, {css} from 'styled-components';
 import {IconButton, Menu, MenuItem, Slider} from '@material-ui/core';
 import {
@@ -46,6 +46,7 @@ const PlayPause = styled.span`
   position: relative;
   color: transparent;
   font-size: 10vh;
+  outline: none;
 `;
 
 const PlayPauseButton = styled.div<{isHidden: boolean}>`
@@ -68,6 +69,7 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
   const [playlistMenuAnchor, setPlaylistMenuAnchor] = useState<HTMLElement>();
   const [volume, setVolume] = useState<number>(-1);
   const [currentDeviceId, setCurrentDeviceId] = useState<string>('');
+  const playPauseRef = useRef<HTMLSpanElement>(null);
 
   const snack = useSnackbar();
   const [, emit, sub] = useSocket();
@@ -138,9 +140,10 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
   useEffect(() => {
     fetchDevices();
     fetchPlaylists();
+    playPauseRef.current?.focus();
   }, []);
 
-  useShortcut('Space', togglePlayback);
+  useShortcut('Space', togglePlayback, false, () => playPauseRef?.current === document.activeElement);
 
   return (
     <>
@@ -154,7 +157,7 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
           ))}
         </Menu>
         <IconButton children={<SkipPreviousRounded />} onClick={() => emit('previous_track')} />
-        <PlayPause onClick={togglePlayback}>
+        <PlayPause tabIndex={0} ref={playPauseRef} onClick={togglePlayback}>
           <IconButton color="inherit" children={<PauseRounded />} />
           <PlayPauseButton isHidden={!isPlaying}>
             <IconButton children={<PauseRounded />} />

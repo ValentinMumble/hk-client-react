@@ -1,9 +1,18 @@
-import React, {useCallback} from 'react';
+import React, {ReactElement, useCallback, useEffect, useState} from 'react';
 import styled from 'styled-components';
 import {IconButton, ButtonBase, Slider} from '@material-ui/core';
-import {PowerSettingsNewRounded, PanoramaFishEye} from '@material-ui/icons';
+import {
+  PowerSettingsNewRounded,
+  PanoramaFishEye,
+  EmojiObjectsRounded,
+  HighlightRounded,
+  GestureRounded,
+} from '@material-ui/icons';
+import {Light} from 'models';
 import {useSnackedApi, usePalette} from 'hooks';
 import {api} from 'utils';
+
+const DEFAULT_COLORS = ['#ffffff', '#ffaa71', '#01a7c2', '#57b133', '#b13333', '#ff96ca'];
 
 const Container = styled.div`
   display: flex;
@@ -34,11 +43,33 @@ const Brightness = styled(Slider)`
   width: 140%;
 `;
 
-const colors = ['#ffffff', '#ffaa71', '#01a7c2', '#57b133', '#b13333', '#ff96ca'];
+const Lights = styled.div`
+  margin: 10px 0;
+`;
+
+const getLightIcon = (id: number): ReactElement => {
+  switch (id) {
+    case 1:
+      return <EmojiObjectsRounded />;
+    case 3:
+      return <GestureRounded />;
+    case 5:
+      return <HighlightRounded />;
+    case 4:
+    default:
+      return <PanoramaFishEye />;
+  }
+};
 
 const Hues = () => {
   const [palette] = usePalette();
-  const snackedApi = useSnackedApi();
+  const snackedApi = useSnackedApi<boolean>();
+  const [lights, setLights] = useState<Light[]>([]);
+
+  const fetchLights = async () => {
+    const {results} = await api<Light>(['hue', 'lights']);
+    setLights(results);
+  };
 
   const handleHueClick = useCallback(
     (color?: string) => {
@@ -51,24 +82,35 @@ const Hues = () => {
     [snackedApi]
   );
 
+  useEffect(() => {
+    fetchLights();
+  }, []);
+
   return (
     <Container>
       <IconButton color="inherit" onClick={() => handleHueClick()}>
         <PowerSettingsNewRounded />
       </IconButton>
       <HueGrid>
-        {colors.concat(palette).map((color, i) => (
+        {DEFAULT_COLORS.concat(palette).map((color, i) => (
           <Hue key={i} color={color} onClick={() => handleHueClick(color)} />
         ))}
       </HueGrid>
-      <IconButton
-        color="inherit"
-        onClick={() => {
-          snackedApi(['hue', 'off', 4], () => '🔮 Turning boule off...', '#000');
-        }}
-      >
-        <PanoramaFishEye />
-      </IconButton>
+      <Lights>
+        {lights
+          .filter(light => light.isReachable)
+          .map(({id, name}) => (
+            <IconButton
+              key={id}
+              color="secondary"
+              onClick={() => {
+                snackedApi(['hue', 'toggle', id], on => `🔮 Toggling ${name} ${on ? 'on' : 'off'}...`, '#000');
+              }}
+            >
+              {React.cloneElement(getLightIcon(id))}
+            </IconButton>
+          ))}
+      </Lights>
       <Brightness
         defaultValue={100}
         valueLabelDisplay="auto"

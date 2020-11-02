@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 
-const Span = styled.span<{size?: number | string}>`
+type SpanProps = {size?: number | string};
+const Span = styled.span<SpanProps>`
   display: flex;
   font-size: ${props => {
     if (Number(props.size)) return props.size + 'vh';

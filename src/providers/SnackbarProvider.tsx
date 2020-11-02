@@ -10,7 +10,8 @@ type Snack = {
   duration?: number;
 };
 
-const Snickers = styled(SnackbarContent)<{background?: string; color?: string}>`
+type SnickersProps = {background?: string; color?: string};
+const Snickers = styled(SnackbarContent)<SnickersProps>`
   background-color: ${({background}) => background};
   color: ${({color}) => color};
   max-width: 90vw;

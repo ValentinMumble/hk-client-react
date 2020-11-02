@@ -3,7 +3,7 @@ import {Autocomplete} from '@material-ui/lab';
 import {TextField, Fab, Dialog} from '@material-ui/core';
 import {SearchRounded} from '@material-ui/icons';
 import {useToggle, useShortcut, useSocket} from 'hooks';
-import {Track, isTrack} from 'models';
+import {Track} from 'models';
 import {api} from 'utils';
 import styled from 'styled-components';
 
@@ -91,7 +91,7 @@ const Search = () => {
           ListboxComponent={TallList}
           getOptionLabel={option => option.name}
           onInputChange={(_event, newInputValue) => setSearchValue(newInputValue)}
-          onChange={(_event, track) => isTrack(track) && playTrack(track)}
+          onChange={(_event, track) => track && playTrack(track)}
           renderInput={props => <SearchBar {...props} variant="outlined" autoFocus />}
           renderOption={track => (
             <Suggestion>

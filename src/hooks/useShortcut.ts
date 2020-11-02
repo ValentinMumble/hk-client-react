@@ -1,11 +1,11 @@
 import {useCallback, useEffect} from 'react';
 
-const useShortcut = (key: string, callback: Function, preventDefault: boolean = false) => {
+const useShortcut = (key: string, callback: Function, preventDefault: boolean = false, condition?: () => boolean) => {
   const memoizedCallback = useCallback(
     (event: KeyboardEvent) => {
       if (key === event.code) {
         if (preventDefault) event.preventDefault();
-        callback(event);
+        if (undefined === condition || condition()) callback(event);
       }
     },
     [key, callback, preventDefault]

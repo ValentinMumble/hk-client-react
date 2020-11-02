@@ -18,7 +18,4 @@ type Track = {
   duration_ms: number;
 };
 
-const isTrack = (thing: any): thing is Track => undefined !== (thing as Track).uri;
-
 export type {Track};
-export {isTrack};

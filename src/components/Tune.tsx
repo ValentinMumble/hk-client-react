@@ -28,7 +28,8 @@ const ArtworkContainer = styled.div<{isPlaying: boolean}>`
     `}
 `;
 
-const Image = styled.img<{isHidden?: boolean}>`
+type ImageProps = {isHidden?: boolean};
+const Image = styled.img<ImageProps>`
   position: absolute;
   top: 0;
   width: 100%;
