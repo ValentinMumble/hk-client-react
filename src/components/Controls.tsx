@@ -133,7 +133,7 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
       setVolume(volume_percent);
       setCurrentDeviceId(id);
     });
-    sub(ID, 'device_change', (device: Device) => setCurrentDeviceId(device.id));
+    sub(ID, 'device_change', ({id}: Device) => setCurrentDeviceId(id));
     sub(ID, 'connect_error', handleError);
   }, [sub, handleError]);
 
@@ -174,7 +174,7 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
           </MenuItem>
           {playlists.map(playlist => (
             <MenuItem key={playlist.id} onClick={() => setPlaylist(playlist)}>
-              {labels[playlist.name] || playlist.name}
+              {labels[playlist.name] ?? playlist.name}
             </MenuItem>
           ))}
         </Menu>

@@ -5,4 +5,5 @@ export * from './Lyrics';
 export * from './Search';
 export * from './Span';
 export * from './Spotify';
+export * from './Suggestion';
 export * from './Tune';

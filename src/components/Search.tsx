@@ -1,11 +1,12 @@
 import React, {useState, useEffect} from 'react';
+import styled from 'styled-components';
 import {Autocomplete} from '@material-ui/lab';
 import {TextField, Fab, Dialog} from '@material-ui/core';
 import {SearchRounded} from '@material-ui/icons';
 import {useToggle, useShortcut, useSocket} from 'hooks';
 import {Track} from 'models';
+import {Suggestion} from 'components';
 import {api} from 'utils';
-import styled from 'styled-components';
 
 const Container = styled.div`
   position: fixed;
@@ -16,22 +17,6 @@ const Container = styled.div`
 const SearchBar = styled(TextField)`
   width: 400px;
   max-width: 80vw;
-`;
-
-const Suggestion = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-const Artwork = styled.img`
-  height: 32px;
-  margin-right: 16px;
-  border-radius: 50%;
-`;
-
-const Artist = styled.div`
-  opacity: 0.7;
-  font-size: 0.7em;
 `;
 
 const SearchDialog = styled(Dialog)`
@@ -54,12 +39,10 @@ const Search = () => {
   const [searchValue, setSearchValue] = useState<string>('');
   const [, emit] = useSocket();
 
-  const playTrack = (track: Track) => {
-    emit('play', {uris: [track.uri]});
+  const playTrack = ({uri}: Track) => {
+    emit('play', {uris: [uri]});
     close();
   };
-
-  useShortcut('KeyS', open, !isOpen);
 
   useEffect(() => {
     if ('' === searchValue) return;
@@ -75,6 +58,8 @@ const Search = () => {
       isActive = false;
     };
   }, [searchValue]);
+
+  useShortcut('KeyS', open, !isOpen);
 
   return (
     <Container>
@@ -93,15 +78,7 @@ const Search = () => {
           onInputChange={(_event, newInputValue) => setSearchValue(newInputValue)}
           onChange={(_event, track) => track && playTrack(track)}
           renderInput={props => <SearchBar {...props} variant="outlined" autoFocus />}
-          renderOption={track => (
-            <Suggestion>
-              <Artwork src={track.album.images[0].url} alt="" />
-              <div>
-                {track.name}
-                <Artist>{track.artists[0].name}</Artist>
-              </div>
-            </Suggestion>
-          )}
+          renderOption={track => <Suggestion track={track} />}
         />
       </SearchDialog>
     </Container>
