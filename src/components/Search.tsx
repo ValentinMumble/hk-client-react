@@ -27,6 +27,10 @@ const SearchDialog = styled(Dialog)`
 
 const TallList = styled.ul`
   max-height: 80vh;
+
+  li {
+    padding: 2px;
+  }
 `;
 
 const Bastien = styled(Fab)`
@@ -61,6 +65,7 @@ const Search = React.forwardRef<HTMLDivElement, SearchProps>(({}, ref) => {
     };
   }, [searchValue]);
 
+  // Prevent default when opening to prevent inputing a S
   useShortcut('KeyS', open, !isOpen);
 
   return (

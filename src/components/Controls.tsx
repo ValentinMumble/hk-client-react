@@ -146,7 +146,6 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
 
   return (
     <>
-      <Search ref={searchRef} />
       <ControlsContainer>
         <IconButton children={<SpeakerRounded />} onClick={openDeviceMenu} />
         <Menu anchorEl={deviceMenuAnchor} keepMounted open={Boolean(deviceMenuAnchor)} onClose={closeMenus}>
@@ -185,6 +184,7 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
         onChange={(_event, volume) => setVolume(Number(volume))}
         onChangeCommitted={(_event, volume) => emit('set_volume', Number(volume))}
       />
+      <Search ref={searchRef} />
     </>
   );
 };

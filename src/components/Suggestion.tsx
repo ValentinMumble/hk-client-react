@@ -1,9 +1,9 @@
-import React, {ReactElement, useState} from 'react';
+import React, {ReactElement, SyntheticEvent, useState} from 'react';
 import styled from 'styled-components';
+import {Avatar, IconButton} from '@material-ui/core';
 import {PlaylistAddCheckRounded, PlaylistAddRounded} from '@material-ui/icons';
 import {Track} from 'models';
 import {api} from 'utils';
-import {IconButton} from '@material-ui/core';
 
 const Container = styled.div`
   display: flex;
@@ -13,12 +13,6 @@ const Container = styled.div`
 
 const Tune = styled.div`
   flex: 1;
-`;
-
-const Artwork = styled.img`
-  height: 32px;
-  margin-right: 16px;
-  border-radius: 50%;
 `;
 
 const Artist = styled.div`
@@ -45,9 +39,15 @@ type SuggestionProps = {
 const Suggestion = ({track}: SuggestionProps) => {
   const [state, setState] = useState<State>(State.NOT_ADDED);
 
-  const addToQueue = async ({uri}: Track) => {
+  const handleArtist = (event: SyntheticEvent) => {
+    event.stopPropagation();
+    console.log('TODO');
+  };
+
+  const handleQueue = async (event: SyntheticEvent) => {
+    event.stopPropagation();
     setState(State.LOADING);
-    const {status} = await api(['spotify', 'queue', uri]);
+    const {status} = await api(['spotify', 'queue', track.uri]);
     setState(204 === status ? State.ADDED : State.NOT_ADDED);
   };
 
@@ -63,21 +63,17 @@ const Suggestion = ({track}: SuggestionProps) => {
 
   return (
     <Container>
-      <Artwork src={track.album.images[0].url} alt="" />
+      <IconButton
+        size="medium"
+        onClick={handleArtist}
+        children={<Avatar src={track.album.images[0].url} alt={track.artists[0].name} />}
+      />
       <Tune>
         {track.name}
         <Artist>{track.artists[0].name}</Artist>
       </Tune>
       <Buttons>
-        <IconButton
-          color="inherit"
-          disabled={State.NOT_ADDED !== state}
-          onClick={event => {
-            event.stopPropagation();
-            addToQueue(track);
-          }}
-          children={getIcon()}
-        />
+        <IconButton color="inherit" disabled={State.NOT_ADDED !== state} onClick={handleQueue} children={getIcon()} />
       </Buttons>
     </Container>
   );
