@@ -52,17 +52,14 @@ const Lyrics = () => {
     setLoading(true);
     setDisplayedTrack(track.name);
 
-    const {
-      results: [lyrics],
-      errors: [error],
-    } = await api<string>(['lyrics', track.artists[0].name, track.name]);
-
-    if (error) {
+    try {
+      const {result} = await api<string>(['lyrics', track.artists[0].name, track.name]);
+      setLyrics(result);
+    } catch (error) {
       snack(`🥺 ${error.message}`);
       setLyrics(undefined);
-    } else {
-      setLyrics(lyrics);
     }
+
     setLoading(false);
   };
 

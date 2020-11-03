@@ -51,9 +51,9 @@ const Search = React.forwardRef<HTMLDivElement, SearchProps>(({}, ref) => {
 
     let isActive = true;
     (async () => {
-      const {results} = await api<Track>(['spotify', 'search', searchValue]);
+      const {result} = await api<Track[]>(['spotify', 'search', searchValue]);
 
-      if (isActive) setTracks(results);
+      if (isActive) setTracks(result);
     })();
 
     return () => {

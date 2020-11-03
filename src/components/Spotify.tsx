@@ -58,7 +58,7 @@ const Spotify = () => {
   const fetchToken = useCallback(async () => {
     const {
       status,
-      results: [{accessToken, authorizeUrl, palette}],
+      result: {accessToken, authorizeUrl, palette},
     } = await api<Welcome>(['spotify', 'access-token']);
 
     if (401 === status) {
@@ -106,7 +106,7 @@ const Spotify = () => {
         setLoading(true);
         snack('♻️', 1000, 'transparent');
         const {
-          results: [{accessToken}],
+          result: {accessToken},
         } = await api<Welcome>(['spotify', 'refresh-token']);
         setAccessToken(accessToken);
       }

@@ -5,10 +5,9 @@ type Params = {
 };
 
 type APIResponse<T> = {
-  results: T[];
-  errors: ServerError[];
+  result: T;
   status: number;
-  uri: string;
+  url: string;
 };
 
 const api = async <T>(resource: Value[], params: Params = {}, options?: RequestInit): Promise<APIResponse<T>> => {
@@ -21,7 +20,15 @@ const api = async <T>(resource: Value[], params: Params = {}, options?: RequestI
   });
   const response = await fetch(url.toString(), {headers: {'Content-Type': 'application/json'}, ...options});
 
-  return response.json();
+  if (500 === response.status) {
+    throw new Error(response.statusText);
+  }
+
+  return {
+    url: response.url,
+    status: response.status,
+    result: 204 === response.status ? undefined : (await response.json()).result,
+  };
 };
 
 const fetchImage = (url: string): Promise<string> =>

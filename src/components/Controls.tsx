@@ -80,13 +80,13 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
   };
 
   const fetchDevices = async () => {
-    const {results} = await api<Device>(['spotify', 'devices']);
-    setDevices(results);
+    const {result} = await api<Device[]>(['spotify', 'devices']);
+    setDevices(result);
   };
 
   const fetchPlaylists = async () => {
-    const {results} = await api<Playlist>(['spotify', 'playlists']);
-    setPlaylists(results);
+    const {result} = await api<Playlist[]>(['spotify', 'playlists']);
+    setPlaylists(result);
   };
 
   const openDeviceMenu = (event: MouseEvent<HTMLButtonElement>) => setDeviceMenuAnchor(event.currentTarget);
