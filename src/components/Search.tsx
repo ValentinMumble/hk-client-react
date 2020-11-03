@@ -33,7 +33,9 @@ const Bastien = styled(Fab)`
   font-size: 0.6em;
 `;
 
-const Search = () => {
+type SearchProps = {};
+
+const Search = React.forwardRef<HTMLDivElement, SearchProps>(({}, ref) => {
   const [isOpen, toggle, open, close] = useToggle(false);
   const [tracks, setTracks] = useState<Track[]>([]);
   const [searchValue, setSearchValue] = useState<string>('');
@@ -77,12 +79,12 @@ const Search = () => {
           getOptionLabel={option => option.name}
           onInputChange={(_event, newInputValue) => setSearchValue(newInputValue)}
           onChange={(_event, track) => track && playTrack(track)}
-          renderInput={props => <SearchBar {...props} variant="outlined" autoFocus />}
+          renderInput={props => <SearchBar {...props} ref={ref} variant="outlined" autoFocus />}
           renderOption={track => <Suggestion track={track} />}
         />
       </SearchDialog>
     </Container>
   );
-};
+});
 
 export {Search};

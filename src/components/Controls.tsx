@@ -10,7 +10,7 @@ import {
   SpeakerRounded,
 } from '@material-ui/icons';
 import {useSnackbar, useSocket, useShortcut} from 'hooks';
-import {Emoji} from 'components';
+import {Emoji, Search} from 'components';
 import {PlayerState, Device, Playlist, ServerError} from 'models';
 import {api, emojiFirst} from 'utils';
 
@@ -69,7 +69,7 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
   const [playlistMenuAnchor, setPlaylistMenuAnchor] = useState<HTMLElement>();
   const [volume, setVolume] = useState<number>(-1);
   const [currentDeviceId, setCurrentDeviceId] = useState<string>('');
-  const playPauseRef = useRef<HTMLSpanElement>(null);
+  const searchRef = useRef<HTMLDivElement>(null);
 
   const snack = useSnackbar();
   const [, emit, sub] = useSocket();
@@ -140,13 +140,13 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
   useEffect(() => {
     fetchDevices();
     fetchPlaylists();
-    playPauseRef.current?.focus();
   }, []);
 
-  useShortcut('Space', togglePlayback, false, () => playPauseRef?.current === document.activeElement);
+  useShortcut('Space', togglePlayback, false, () => null === searchRef.current);
 
   return (
     <>
+      <Search ref={searchRef} />
       <ControlsContainer>
         <IconButton children={<SpeakerRounded />} onClick={openDeviceMenu} />
         <Menu anchorEl={deviceMenuAnchor} keepMounted open={Boolean(deviceMenuAnchor)} onClose={closeMenus}>
@@ -157,7 +157,7 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
           ))}
         </Menu>
         <IconButton children={<SkipPreviousRounded />} onClick={() => emit('previous_track')} />
-        <PlayPause tabIndex={0} ref={playPauseRef} onClick={togglePlayback}>
+        <PlayPause onClick={togglePlayback}>
           <IconButton color="inherit" children={<PauseRounded />} />
           <PlayPauseButton isHidden={!isPlaying}>
             <IconButton children={<PauseRounded />} />
