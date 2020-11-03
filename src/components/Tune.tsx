@@ -12,9 +12,8 @@ const ARTWORK_TRANSITION = 800;
 const ArtworkContainer = styled.div<{isPlaying: boolean}>`
   position: relative;
   width: 100vw;
-  max-width: 450px;
-  max-height: 450px;
-  padding-top: 100%;
+  max-width: min(450px, 40vh);
+  padding-top: min(450px, 40vh);
   overflow: hidden;
   transition: all 0.2s ease;
   transform-origin: bottom;

@@ -30,7 +30,7 @@ const SocketProvider = ({url, opts, children}: SocketProviderProps) => {
   };
 
   if (!soca.current) {
-    soca.current = io(url, opts || {});
+    soca.current = io(url, opts ?? {});
   }
 
   return <SocketContext.Provider value={[soca.current, emit, subscribe]}>{children}</SocketContext.Provider>;

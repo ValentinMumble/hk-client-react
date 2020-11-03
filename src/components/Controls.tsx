@@ -102,12 +102,12 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
     if (device.id === currentDeviceId) return;
 
     emit('transfer_playback', {id: device.id, play: isPlaying});
-    snack(emojiFirst(`Listening on ${labels[device.name] || device.name}`));
+    snack(emojiFirst(`Listening on ${labels[device.name] ?? device.name}`));
   };
 
   const setPlaylist = (playlist: Playlist) => {
     emit('play', {context_uri: playlist.uri});
-    snack(emojiFirst(`Playing ${labels[playlist.name] || playlist.name}`));
+    snack(emojiFirst(`Playing ${labels[playlist.name] ?? playlist.name}`));
     closeMenus();
   };
 
@@ -152,7 +152,7 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
         <Menu anchorEl={deviceMenuAnchor} keepMounted open={Boolean(deviceMenuAnchor)} onClose={closeMenus}>
           {devices.map(device => (
             <MenuItem selected={currentDeviceId === device.id} key={device.id} onClick={() => setDevice(device)}>
-              {labels[device.name] || device.name}
+              {labels[device.name] ?? device.name}
             </MenuItem>
           ))}
         </Menu>
