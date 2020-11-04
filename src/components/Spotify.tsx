@@ -56,24 +56,28 @@ const Spotify = () => {
   const [soca, emit, sub] = useSocket();
 
   const fetchToken = useCallback(async () => {
-    const {
-      status,
-      result: {accessToken, authorizeUrl, palette},
-    } = await api<Welcome>(['spotify', 'access-token']);
+    try {
+      const {
+        status,
+        result: {accessToken, authorizeUrl, palette},
+      } = await api<Welcome>(['spotify', 'access-token']);
 
-    if (401 === status) {
-      setAuthorizeUrl(authorizeUrl);
-      setPalette(['#777', '#777']);
-    } else {
-      setAccessToken(accessToken);
-      setPalette(palette ?? ['#000', '#000']);
+      if (401 === status) {
+        setAuthorizeUrl(authorizeUrl);
+        setPalette(['#777']);
+      } else {
+        setAccessToken(accessToken);
+        setPalette(palette ?? ['#777']);
+      }
+    } catch (error) {
+      setPalette(['#777']);
+      snack('😖 Server seems down...');
     }
   }, [setPalette]);
 
   const handleLogin = useCallback(async () => {
     if (!authorizeUrl) return;
 
-    setPalette(['#000', '#000']);
     setAccessToken(await login(authorizeUrl));
     setAuthorizeUrl(undefined);
   }, [authorizeUrl, setPalette]);

@@ -86,6 +86,8 @@ const Hues = () => {
     fetchLights();
   }, []);
 
+  if (0 === lights.length) return null;
+
   return (
     <Container>
       <IconButton color="inherit" onClick={() => handleHueClick()}>
@@ -103,9 +105,9 @@ const Hues = () => {
             <IconButton
               key={id}
               color="secondary"
-              onClick={() => {
-                snackedApi(['hue', 'toggle', id], on => `🔮 Toggling ${name} ${on ? 'on' : 'off'}...`, '#000');
-              }}
+              onClick={() =>
+                snackedApi(['hue', 'toggle', id], on => `🔮 Toggling ${name} ${on ? 'on' : 'off'}...`, '#000')
+              }
             >
               {React.cloneElement(getLightIcon(id))}
             </IconButton>
