@@ -1,10 +1,4 @@
-type Image = {
-  url: string;
-};
-
-type Artist = {
-  name: string;
-};
+import {Artist, Image} from 'models';
 
 type Album = {
   images: Image[];

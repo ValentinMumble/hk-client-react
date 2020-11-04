@@ -1,8 +1,9 @@
 import React, {ReactElement, SyntheticEvent, useState} from 'react';
 import styled from 'styled-components';
 import {Avatar, IconButton} from '@material-ui/core';
+import {ThemedComponentProps} from '@material-ui/core/styles/withTheme';
 import {PlaylistAddCheckRounded, PlaylistAddRounded} from '@material-ui/icons';
-import {Track} from 'models';
+import {Artist, Track} from 'models';
 import {api} from 'utils';
 
 const Container = styled.div`
@@ -15,7 +16,7 @@ const Tune = styled.div`
   flex: 1;
 `;
 
-const Artist = styled.div`
+const ArtistName = styled.div`
   opacity: 0.7;
   font-size: 0.7em;
 `;
@@ -26,6 +27,16 @@ const Buttons = styled.div`
   margin-left: 16px;
 `;
 
+const AvatarButton = styled(IconButton)`
+  .MuiAvatar-root {
+    background-color: ${({theme}: ThemedComponentProps) => theme?.palette.primary.main};
+  }
+
+  :disabled img {
+    mix-blend-mode: luminosity;
+  }
+`;
+
 enum State {
   NOT_ADDED,
   ADDED,
@@ -34,14 +45,22 @@ enum State {
 
 type SuggestionProps = {
   track: Track;
+  onArtistSelect: (artist: Artist, tracks: Track[]) => void;
 };
 
-const Suggestion = ({track}: SuggestionProps) => {
+const Suggestion = ({track, onArtistSelect}: SuggestionProps) => {
   const [state, setState] = useState<State>(State.NOT_ADDED);
+  const [isArtistLoading, setArtistLoading] = useState<boolean>(false);
+  const lightArtist = track.artists[0];
 
-  const handleArtist = (event: SyntheticEvent) => {
+  const handleArtist = async (event: SyntheticEvent) => {
     event.stopPropagation();
-    console.log('TODO');
+    setArtistLoading(true);
+    const {
+      result: {artist, tracks},
+    } = await api<{tracks: Track[]; artist: Artist}>(['spotify', 'artist', lightArtist.id, 'top', 'GB']);
+    setArtistLoading(false);
+    onArtistSelect(artist, tracks);
   };
 
   const handleQueue = async (event: SyntheticEvent) => {
@@ -63,14 +82,14 @@ const Suggestion = ({track}: SuggestionProps) => {
 
   return (
     <Container>
-      <IconButton
-        size="medium"
+      <AvatarButton
+        disabled={isArtistLoading}
         onClick={handleArtist}
-        children={<Avatar src={track.album.images[0].url} alt={track.artists[0].name} />}
+        children={<Avatar src={track.album.images[0].url} alt={lightArtist.name} />}
       />
       <Tune>
         {track.name}
-        <Artist>{track.artists[0].name}</Artist>
+        <ArtistName>{lightArtist.name}</ArtistName>
       </Tune>
       <Buttons>
         <IconButton color="inherit" disabled={State.NOT_ADDED !== state} onClick={handleQueue} children={getIcon()} />

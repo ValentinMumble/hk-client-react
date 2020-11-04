@@ -1,5 +1,7 @@
+export * from './artist';
 export * from './device';
 export * from './light';
+export * from './image';
 export * from './player-state';
 export * from './playlist';
 export * from './server-error';

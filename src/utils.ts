@@ -1,4 +1,4 @@
-import {ServerError, Value} from 'models';
+import {Value} from 'models';
 
 type Params = {
   [key: string]: Value;
@@ -19,15 +19,12 @@ const api = async <T>(resource: Value[], params: Params = {}, options?: RequestI
     url.searchParams.append(key, params[key].toString());
   });
   const response = await fetch(url.toString(), {headers: {'Content-Type': 'application/json'}, ...options});
-
-  if (500 === response.status) {
-    throw new Error(response.statusText);
-  }
+  const result = (await response.json()).result;
 
   return {
     url: response.url,
     status: response.status,
-    result: 204 === response.status ? undefined : (await response.json()).result,
+    result,
   };
 };
 
