@@ -7,8 +7,10 @@ const Callback = () => {
   const [accessToken, setAccessToken] = useState<string>('');
 
   const fetchAccessToken = async (code: string) => {
-    const {result} = await api<string>(['spotify', 'authorize', code]);
-    setAccessToken(result);
+    const {
+      data: {accessToken},
+    } = await api<{accessToken: string}>(['spotify', 'authorize', code]);
+    setAccessToken(accessToken);
   };
 
   useEffect(() => {

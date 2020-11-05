@@ -58,9 +58,9 @@ const Search = forwardRef<HTMLDivElement, SearchProps>(({}, ref) => {
 
     let isActive = true;
     (async () => {
-      const {result} = await api<Track[]>(['spotify', 'search', searchValue]);
+      const {data} = await api<Track[]>(['spotify', 'search', searchValue]);
 
-      if (isActive && result) setTracks(result);
+      if (isActive && data) setTracks(data);
     })();
 
     return () => {
@@ -80,7 +80,7 @@ const Search = forwardRef<HTMLDivElement, SearchProps>(({}, ref) => {
         <Autocomplete
           open={0 < tracks.length}
           options={tracks}
-          // onClose={close}
+          onClose={close}
           autoHighlight={true}
           disableClearable={true}
           forcePopupIcon={false}

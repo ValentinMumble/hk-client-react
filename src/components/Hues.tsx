@@ -67,8 +67,8 @@ const Hues = () => {
   const [lights, setLights] = useState<Light[]>([]);
 
   const fetchLights = async () => {
-    const {result} = await api<Light[]>(['hue', 'lights']);
-    setLights(result);
+    const {data} = await api<Light[]>(['hue', 'lights']);
+    setLights(data);
   };
 
   const handleHueClick = useCallback(

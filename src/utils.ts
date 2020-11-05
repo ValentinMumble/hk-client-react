@@ -5,7 +5,7 @@ type Params = {
 };
 
 type APIResponse<T> = {
-  result: T;
+  data: T;
   status: number;
   url: string;
 };
@@ -19,12 +19,12 @@ const api = async <T>(resource: Value[], params: Params = {}, options?: RequestI
     url.searchParams.append(key, params[key].toString());
   });
   const response = await fetch(url.toString(), {headers: {'Content-Type': 'application/json'}, ...options});
-  const result = (await response.json()).result;
+  const data = 204 === response.status ? undefined : await response.json();
 
   return {
     url: response.url,
     status: response.status,
-    result,
+    data,
   };
 };
 

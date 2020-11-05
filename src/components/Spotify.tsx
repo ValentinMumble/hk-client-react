@@ -59,7 +59,7 @@ const Spotify = () => {
     try {
       const {
         status,
-        result: {accessToken, authorizeUrl, palette},
+        data: {accessToken, authorizeUrl, palette},
       } = await api<Welcome>(['spotify', 'access-token']);
 
       if (401 === status) {
@@ -110,7 +110,7 @@ const Spotify = () => {
         setLoading(true);
         snack('♻️', 1000, 'transparent');
         const {
-          result: {accessToken},
+          data: {accessToken},
         } = await api<Welcome>(['spotify', 'refresh-token']);
         setAccessToken(accessToken);
       }

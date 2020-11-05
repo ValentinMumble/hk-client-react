@@ -7,13 +7,13 @@ const useSnackedApi = <T>() => {
   const snack = useSnackbar();
 
   return useCallback(
-    async (resources: Value[], template?: (result: T) => ReactNode, backgroundColor?: string) => {
+    async (resources: Value[], template?: (data: T) => ReactNode, backgroundColor?: string) => {
       try {
-        const {status, result} = await api<T>(resources);
+        const {data} = await api<T>(resources);
         snack(
-          template ? template(result) : result,
+          template ? template(data) : data,
           2000,
-          backgroundColor ?? (204 === status ? 'transparent' : undefined)
+          backgroundColor ?? (undefined === data ? 'transparent' : undefined)
         );
       } catch (error) {
         snack(`😩 ${error.message}`);

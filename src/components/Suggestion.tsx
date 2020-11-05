@@ -57,7 +57,7 @@ const Suggestion = ({track, onArtistSelect}: SuggestionProps) => {
     event.stopPropagation();
     setArtistLoading(true);
     const {
-      result: {artist, tracks},
+      data: {artist, tracks},
     } = await api<{tracks: Track[]; artist: Artist}>(['spotify', 'artist', lightArtist.id, 'top', 'GB']);
     setArtistLoading(false);
     onArtistSelect(artist, tracks);

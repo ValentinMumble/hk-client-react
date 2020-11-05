@@ -53,8 +53,8 @@ const Lyrics = () => {
     setDisplayedTrack(track.name);
 
     try {
-      const {result} = await api<string>(['lyrics', track.artists[0].name, track.name]);
-      setLyrics(result);
+      const {data} = await api<string>(['lyrics', track.artists[0].name, track.name]);
+      setLyrics(data);
     } catch (error) {
       snack(`🥺 ${error.message}`);
       setLyrics(undefined);
