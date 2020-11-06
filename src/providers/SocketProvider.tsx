@@ -1,17 +1,20 @@
 import React, {useRef, ReactNode} from 'react';
-import io from 'socket.io-client';
+import {Manager} from 'socket.io-client';
+import {ManagerOptions} from 'socket.io-client/build/manager';
+import {Socket} from 'socket.io-client/build/socket';
 import {SocketContext, Payload} from 'contexts';
 
 const dico: {[event: string]: {[key: string]: Function}} = {};
 
 type SocketProviderProps = {
   url: string;
-  opts?: SocketIOClient.ConnectOpts;
+  namespace: string;
+  opts?: Partial<ManagerOptions>;
   children?: ReactNode;
 };
 
-const SocketProvider = ({url, opts, children}: SocketProviderProps) => {
-  const soca = useRef<SocketIOClient.Socket>();
+const SocketProvider = ({url, namespace, opts, children}: SocketProviderProps) => {
+  const soca = useRef<Socket>();
 
   const emit = (event: string, payload?: Payload) => {
     console.info('Emit', event, payload);
@@ -30,7 +33,7 @@ const SocketProvider = ({url, opts, children}: SocketProviderProps) => {
   };
 
   if (!soca.current) {
-    soca.current = io(url, opts ?? {});
+    soca.current = new Manager(url, opts ?? {}).socket(`/${namespace}`);
   }
 
   return <SocketContext.Provider value={[soca.current, emit, subscribe]}>{children}</SocketContext.Provider>;
