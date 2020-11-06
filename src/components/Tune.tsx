@@ -43,7 +43,7 @@ const Image = styled.img<ImageProps>`
 `;
 
 const Progress = styled.svg.attrs(({ratio}: {ratio: number}) => ({
-  style: {strokeDashoffset: `calc(100% * 3.14 - 100% * 3.14 * ${ratio})`},
+  style: {strokeDashoffset: `calc(100% * ${Math.PI} - 98% * ${Math.PI * ratio})`},
 }))<{ratio: number}>`
   position: absolute;
   top: 0;
@@ -55,8 +55,8 @@ const Progress = styled.svg.attrs(({ratio}: {ratio: number}) => ({
     stroke: ${({theme}) => theme.palette.primary.main};
     stroke-linecap: round;
     stroke-width: 2.5%;
-    stroke-dasharray: calc(100% * 3.14), calc(100% * 3.14);
-    transform: rotate(-90deg);
+    stroke-dasharray: calc(100% * ${Math.PI});
+    transform: rotate(-88deg);
     transform-origin: 50% 50%;
     transition: all ${PROGRESS_DELAY * 2}ms linear;
   }
@@ -81,6 +81,7 @@ const Artist = styled.span`
 `;
 
 let prevSrcTimer: number;
+let progressInterval: number;
 
 type TuneProps = {
   isPlaying: boolean;
@@ -127,12 +128,9 @@ const Tune = ({isPlaying}: TuneProps) => {
   }, [activeTrack, loadArtwork]);
 
   useEffect(() => {
-    if (!isPlaying) return;
-
-    const progressInterval = window.setInterval(
-      () => setProgress(progress => progress + PROGRESS_DELAY),
-      PROGRESS_DELAY
-    );
+    if (isPlaying) {
+      progressInterval = window.setInterval(() => setProgress(progress => progress + PROGRESS_DELAY), PROGRESS_DELAY);
+    }
 
     return () => clearInterval(progressInterval);
   }, [isPlaying]);

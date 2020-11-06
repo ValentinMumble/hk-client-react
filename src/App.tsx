@@ -99,7 +99,7 @@ const App = () => {
         textColor="primary"
         indicatorColor="primary"
         value={currentTabIndex}
-        onChange={(_event, tab) => setCurrentTabIndex(tab)}
+        onChange={(_, tab) => setCurrentTabIndex(tab)}
       >
         <Tab icon={<MusicNoteRounded />} />
         <Tab icon={<WbIncandescentRounded />} />
