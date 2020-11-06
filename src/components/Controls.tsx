@@ -80,12 +80,12 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
   };
 
   const fetchDevices = async () => {
-    const {data} = await api<Device[]>(['spotify', 'devices']);
+    const {data} = await api<Device[]>(['spotify', 'device']);
     setDevices(data);
   };
 
   const fetchPlaylists = async () => {
-    const {data} = await api<Playlist[]>(['spotify', 'playlists']);
+    const {data} = await api<Playlist[]>(['spotify', 'playlist']);
     setPlaylists(data);
   };
 
@@ -118,9 +118,10 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
   };
 
   const handleError = useCallback(
-    (error: ServerError) => {
+    async (error: ServerError) => {
       if ('Device not found' === error.name) {
         snack('😳 Device not found');
+        await api(['raspotify', 'restart']);
         fetchDevices();
       }
     },

@@ -105,8 +105,6 @@ const Spotify = () => {
         setLoading(true);
         emit('transfer_playback', {id: PI});
         snack('π', 1000, 'transparent');
-      } else if (error.name === 'Device not found') {
-        await api(['raspotify', 'restart']);
       } else if (error.name === 'The access token expired') {
         disconnect();
         setLoading(true);

@@ -99,20 +99,24 @@ const Tune = ({isPlaying}: TuneProps) => {
 
   const loadArtwork = useCallback(
     async (src?: string) => {
-      const base64 = src ? await fetchImage(src) : I.GRAY;
+      try {
+        const base64 = src ? await fetchImage(src) : I.GRAY;
 
-      if (base64 !== prevSrc) {
-        clearTimeout(prevSrcTimer);
-        const colors = src ? await splashy(base64) : ['#777', '#777'];
-        setCurrentSrc(base64);
-        setHidden(true);
-        setPalette(colors);
-        prevSrcTimer = setTimeout(() => {
-          setPrevSrc(base64);
-          setHidden(false);
-        }, ARTWORK_TRANSITION);
+        if (base64 !== prevSrc) {
+          clearTimeout(prevSrcTimer);
+          const colors = src ? await splashy(base64) : ['#777', '#777'];
+          setCurrentSrc(base64);
+          setHidden(true);
+          setPalette(colors);
+          prevSrcTimer = setTimeout(() => {
+            setPrevSrc(base64);
+            setHidden(false);
+          }, ARTWORK_TRANSITION);
 
-        return () => clearTimeout(prevSrcTimer);
+          return () => clearTimeout(prevSrcTimer);
+        }
+      } catch (error) {
+        console.error(`Failed to load src: ${src}`);
       }
     },
     [setPalette, prevSrc]
@@ -160,7 +164,9 @@ const Tune = ({isPlaying}: TuneProps) => {
       </ArtworkContainer>
       {activeTrack ? (
         <TrackContainer
-          onClick={() => snackedApi(['spotify', 'addok', activeTrack.uri], () => `👌 ${activeTrack.name} added`)}
+          onClick={() =>
+            snackedApi(['spotify', 'playlist', 'add', activeTrack.uri], () => `👌 ${activeTrack.name} added`)
+          }
         >
           {activeTrack.name}
           <Artist>{activeTrack.artists[0].name}</Artist>

@@ -42,7 +42,7 @@ const SecondaryTab = styled(TabContainer)`
 const App = () => {
   const [currentTabIndex, setCurrentTabIndex] = useState<number>(0);
   const snackedApi = useSnackedApi<string>();
-  const ok = () => '👍';
+  const temo = (emoji: string = '👍'): [() => string, string] => [() => emoji, 'transparent'];
 
   useShortcut('ArrowLeft', () => setCurrentTabIndex(index => Math.max(0, index - 1)));
   useShortcut('ArrowRight', () => setCurrentTabIndex(index => Math.min(2, index + 1)));
@@ -56,11 +56,11 @@ const App = () => {
             <Span size="large">
               <IconButton
                 children={<VolumeDownRounded />}
-                onClick={() => snackedApi(['hk', 'volume', 'down'], () => '👇')}
+                onClick={() => snackedApi(['hk', 'volume', 'down'], ...temo('👇'))}
               />
               <IconButton
                 children={<VolumeUpRounded />}
-                onClick={() => snackedApi(['hk', 'volume', 'up'], () => '👆')}
+                onClick={() => snackedApi(['hk', 'volume', 'up'], ...temo('👆'))}
               />
             </Span>
             <IconButton children={<MusicNoteRounded />} onClick={() => snackedApi(['hk', 'source', 'TV'])} />
@@ -71,14 +71,17 @@ const App = () => {
           <ColumnContainer>
             <IconButton
               children={<BluetoothDisabledRounded />}
-              onClick={() => snackedApi(['bluetooth', 'reset'], ok)}
+              onClick={() => snackedApi(['bluetooth', 'reset'], ...temo())}
             />
             <IconButton
               children={<BluetoothSearchingRounded />}
-              onClick={() => snackedApi(['bluetooth', 'discover'], ok)}
+              onClick={() => snackedApi(['bluetooth', 'discover'], ...temo())}
             />
-            <IconButton children={<SyncProblemRounded />} onClick={() => snackedApi(['raspotify', 'restart'], ok)} />
-            <IconButton children={<ErrorOutlineRounded />} onClick={() => snackedApi(['reboot'], ok)} />
+            <IconButton
+              children={<SyncProblemRounded />}
+              onClick={() => snackedApi(['raspotify', 'restart'], ...temo())}
+            />
+            <IconButton children={<ErrorOutlineRounded />} onClick={() => snackedApi(['reboot'], ...temo())} />
           </ColumnContainer>
           <Hues />
           <ColumnContainer>

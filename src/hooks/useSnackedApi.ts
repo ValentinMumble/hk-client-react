@@ -10,11 +10,7 @@ const useSnackedApi = <T>() => {
     async (resources: Value[], template?: (data: T) => ReactNode, backgroundColor?: string) => {
       try {
         const {data} = await api<T>(resources);
-        snack(
-          template ? template(data) : data,
-          2000,
-          backgroundColor ?? (undefined === data ? 'transparent' : undefined)
-        );
+        snack(template ? template(data) : data, 2000, backgroundColor);
       } catch (error) {
         snack(`😩 ${error.message}`);
       }

@@ -18,6 +18,10 @@ const SearchDialog = styled(Dialog)`
   .MuiDialog-container {
     align-items: flex-start;
   }
+
+  .MuiDialog-paper {
+    overflow-y: unset;
+  }
 `;
 
 const TallList = styled.ul`

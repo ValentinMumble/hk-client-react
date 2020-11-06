@@ -11,10 +11,6 @@ const SearchField = styled(TextField)`
   input {
     height: 21px;
   }
-
-  label {
-    transform: translate(7px, 5px) scale(0.7);
-  }
 `;
 
 type SearchBarProps = AutocompleteRenderInputParams & {artist?: Artist};
@@ -22,14 +18,10 @@ type SearchBarProps = AutocompleteRenderInputParams & {artist?: Artist};
 const SearchBar = forwardRef<HTMLDivElement, SearchBarProps>(({artist, InputProps, ...rest}: SearchBarProps, ref) => (
   <SearchField
     {...rest}
-    label={artist?.name}
     ref={ref}
-    variant="outlined"
     autoFocus={true}
-    //Check this shit
-    InputLabelProps={{
-      shrink: false,
-    }}
+    variant="outlined"
+    label={artist?.name}
     InputProps={
       undefined === artist
         ? InputProps
