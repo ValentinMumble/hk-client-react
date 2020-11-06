@@ -127,7 +127,7 @@ const Spotify = () => {
     });
     sub(ID, 'playback_started', () => setPlaying(true));
     sub(ID, 'playback_paused', () => setPlaying(false));
-    sub(ID, 'connect_error', handleError);
+    sub(ID, 'spo_connect_error', handleError);
 
     connect();
   }, [soca, sub, accessToken, handleError, connect]);

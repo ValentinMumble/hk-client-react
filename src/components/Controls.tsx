@@ -135,7 +135,7 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
       setCurrentDeviceId(id);
     });
     sub(ID, 'device_change', ({id}: Device) => setCurrentDeviceId(id));
-    sub(ID, 'connect_error', handleError);
+    sub(ID, 'spo_connect_error', handleError);
   }, [sub, handleError]);
 
   useEffect(() => {
