@@ -4,6 +4,7 @@ export * from './light';
 export * from './image';
 export * from './player-state';
 export * from './playlist';
+export * from './search';
 export * from './server-error';
 export * from './track';
 export * from './value';

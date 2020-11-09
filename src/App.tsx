@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import SwipeableViews from 'react-swipeable-views';
 import {IconButton, Tabs, Tab} from '@material-ui/core';
@@ -16,9 +16,10 @@ import {
   ChatRounded,
   SyncProblemRounded,
   ErrorOutlineRounded,
+  SearchRounded,
 } from '@material-ui/icons';
-import {Hues, Span, Spotify, Lyrics} from 'components';
-import {useSnackedApi, useShortcut} from 'hooks';
+import {Hues, Span, Spotify, Lyrics, SearchTab} from 'components';
+import {useSnackedApi, useShortcut, useTab} from 'hooks';
 
 const RowContainer = styled.div`
   display: flex;
@@ -40,16 +41,26 @@ const SecondaryTab = styled(TabContainer)`
 `;
 
 const App = () => {
-  const [currentTabIndex, setCurrentTabIndex] = useState<number>(0);
+  const [tab, setTab] = useTab();
   const snackedApi = useSnackedApi<string>();
   const temo = (emoji: string = '👍'): [() => string, string] => [() => emoji, 'transparent'];
 
-  useShortcut('ArrowLeft', () => setCurrentTabIndex(index => Math.max(0, index - 1)));
-  useShortcut('ArrowRight', () => setCurrentTabIndex(index => Math.min(2, index + 1)));
+  const tabs = [
+    <Tab key={0} icon={<SearchRounded />} />,
+    <Tab key={1} icon={<MusicNoteRounded />} />,
+    <Tab key={2} icon={<WbIncandescentRounded />} />,
+    <Tab key={3} icon={<ChatRounded />} />,
+  ];
+
+  useShortcut('ArrowLeft', () => setTab(index => Math.max(0, index - 1)));
+  useShortcut('ArrowRight', () => setTab(index => Math.min(tabs.length - 1, index + 1)));
 
   return (
     <>
-      <SwipeableViews enableMouseEvents index={currentTabIndex} onChangeIndex={setCurrentTabIndex}>
+      <SwipeableViews enableMouseEvents index={tab} onChangeIndex={setTab}>
+        <TabContainer>
+          <SearchTab />
+        </TabContainer>
         <TabContainer>
           <RowContainer>
             <IconButton children={<RadioRounded />} onClick={() => snackedApi(['hk', 'source', 'Radio'])} />
@@ -98,12 +109,10 @@ const App = () => {
         variant="fullWidth"
         textColor="primary"
         indicatorColor="primary"
-        value={currentTabIndex}
-        onChange={(_, tab) => setCurrentTabIndex(tab)}
+        value={tab}
+        onChange={(_, tab) => setTab(tab)}
       >
-        <Tab icon={<MusicNoteRounded />} />
-        <Tab icon={<WbIncandescentRounded />} />
-        <Tab icon={<ChatRounded />} />
+        {tabs}
       </Tabs>
     </>
   );

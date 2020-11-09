@@ -58,7 +58,7 @@ const withColors = (primary = '#000', secondary = '#000') =>
     },
   });
 
-const postPalette = (palette: string[]) => api(['palette'], {}, {method: 'POST', body: JSON.stringify(palette)});
+const postPalette = (palette: string[]) => api(['palette'], undefined, {method: 'POST', body: JSON.stringify(palette)});
 
 type HKThemeProviderProps = {
   children?: ReactNode;

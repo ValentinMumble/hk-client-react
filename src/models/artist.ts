@@ -6,4 +6,6 @@ type Artist = {
   images: Image[];
 };
 
-export type {Artist};
+type ArtistLight = Omit<Artist, 'images'>;
+
+export type {Artist, ArtistLight};

@@ -1,4 +1,4 @@
-import {Artist, Image} from 'models';
+import {ArtistLight, Image} from 'models';
 
 type Album = {
   images: Image[];
@@ -7,7 +7,7 @@ type Album = {
 type Track = {
   uri: string;
   name: string;
-  artists: Artist[];
+  artists: ArtistLight[];
   album: Album;
   duration_ms: number;
 };

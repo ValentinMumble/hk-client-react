@@ -10,7 +10,7 @@ import {
 } from '@material-ui/icons';
 import {Light} from 'models';
 import {useSnackedApi, usePalette} from 'hooks';
-import {api} from 'utils';
+import {api, emojiFirst, label} from 'utils';
 
 const DEFAULT_COLORS = ['#ffffff', '#ffaa71', '#01a7c2', '#57b133', '#b13333', '#ff96ca'];
 
@@ -90,7 +90,7 @@ const Hues = () => {
 
   return (
     <Container>
-      <IconButton color="inherit" onClick={() => handleHueClick()}>
+      <IconButton color="inherit" onClick={() => handleHueClick(undefined)}>
         <PowerSettingsNewRounded />
       </IconButton>
       <HueGrid>
@@ -106,7 +106,11 @@ const Hues = () => {
               key={id}
               color="secondary"
               onClick={() =>
-                snackedApi(['hue', 'toggle', id], on => `🔮 Toggling ${name} ${on ? 'on' : 'off'}...`, '#000')
+                snackedApi(
+                  ['hue', 'toggle', id],
+                  on => emojiFirst(`Toggling ${label(name)} ${on ? 'on' : 'off'}...`),
+                  '#000'
+                )
               }
             >
               {React.cloneElement(getLightIcon(id))}

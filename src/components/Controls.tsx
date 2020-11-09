@@ -1,4 +1,4 @@
-import React, {useEffect, useState, MouseEvent, Dispatch, SetStateAction, useCallback, useRef} from 'react';
+import React, {useEffect, useState, MouseEvent, Dispatch, SetStateAction, useCallback} from 'react';
 import styled, {css} from 'styled-components';
 import {IconButton, Menu, MenuItem, Slider} from '@material-ui/core';
 import {
@@ -9,21 +9,12 @@ import {
   QueueMusicRounded,
   SpeakerRounded,
 } from '@material-ui/icons';
-import {useSnackbar, useSocket, useShortcut} from 'hooks';
-import {Emoji, Search} from 'components';
+import {useSnackbar, useSocket, useShortcut, useTab} from 'hooks';
+import {Emoji} from 'components';
 import {PlayerState, Device, Playlist, ServerError} from 'models';
-import {api, emojiFirst} from 'utils';
+import {api, emojiFirst, label} from 'utils';
 
 const ID = 'Controls';
-const labels: {[key: string]: string} = {
-  OK: '👌 OK',
-  'Discover Weekly': '✨ Discover',
-  '<3': '❤️ Likes',
-  Pi: '🔈 π',
-  MacMumble: '💻 MacMumble',
-  'ONEPLUS A6013': '📱 OnePlus',
-  'Akeneo Mumble 16': '👾 Akeneo Mumble',
-};
 
 const ControlsContainer = styled.div`
   display: flex;
@@ -69,10 +60,10 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
   const [playlistMenuAnchor, setPlaylistMenuAnchor] = useState<HTMLElement>();
   const [volume, setVolume] = useState<number>(-1);
   const [currentDeviceId, setCurrentDeviceId] = useState<string>('');
-  const searchRef = useRef<HTMLDivElement>(null);
 
   const snack = useSnackbar();
   const [, emit, sub] = useSocket();
+  const [tab] = useTab();
 
   const togglePlayback = () => {
     emit(isPlaying ? 'pause' : 'play');
@@ -96,18 +87,18 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
     setPlaylistMenuAnchor(undefined);
   };
 
-  const setDevice = (device: Device) => {
+  const setDevice = ({id, name}: Device) => {
     closeMenus();
 
-    if (device.id === currentDeviceId) return;
+    if (id === currentDeviceId) return;
 
-    emit('transfer_playback', {id: device.id, play: isPlaying});
-    snack(emojiFirst(`Listening on ${labels[device.name] ?? device.name}`));
+    emit('transfer_playback', {id, play: isPlaying});
+    snack(emojiFirst(`Listening on ${label(name)}`));
   };
 
-  const setPlaylist = (playlist: Playlist) => {
-    emit('play', {context_uri: playlist.uri});
-    snack(emojiFirst(`Playing ${labels[playlist.name] ?? playlist.name}`));
+  const setPlaylist = ({uri, name}: Playlist) => {
+    emit('play', {context_uri: uri});
+    snack(emojiFirst(`Playing ${label(name)}`));
     closeMenus();
   };
 
@@ -143,7 +134,7 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
     fetchPlaylists();
   }, []);
 
-  useShortcut('Space', togglePlayback, false, () => null === searchRef.current);
+  useShortcut('Space', togglePlayback, 1 === tab, () => 1 === tab);
 
   return (
     <>
@@ -152,7 +143,7 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
         <Menu anchorEl={deviceMenuAnchor} keepMounted open={Boolean(deviceMenuAnchor)} onClose={closeMenus}>
           {devices.map(device => (
             <MenuItem selected={currentDeviceId === device.id} key={device.id} onClick={() => setDevice(device)}>
-              {labels[device.name] ?? device.name}
+              {label(device.name)}
             </MenuItem>
           ))}
         </Menu>
@@ -174,7 +165,7 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
           </MenuItem>
           {playlists.map(playlist => (
             <MenuItem key={playlist.id} onClick={() => setPlaylist(playlist)}>
-              {labels[playlist.name] ?? playlist.name}
+              {label(playlist.name)}
             </MenuItem>
           ))}
         </Menu>
@@ -185,7 +176,6 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
         onChange={(_event, volume) => setVolume(Number(volume))}
         onChangeCommitted={(_event, volume) => emit('set_volume', Number(volume))}
       />
-      <Search ref={searchRef} />
     </>
   );
 };

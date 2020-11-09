@@ -66,6 +66,21 @@ const emojiFirst = (string: string): string => {
   return array.join('').replace(/ +(?= )/g, '');
 };
 
+const LABELS: {[key: string]: string} = {
+  OK: '👌 OK',
+  'Discover Weekly': '✨ Discover',
+  '<3': '❤️ Likes',
+  Pi: '🔈 π',
+  MacMumble: '💻 MacMumble',
+  'ONEPLUS A6013': '📱 OnePlus',
+  'Akeneo Mumble 16': '👾 Akemumble',
+  'Hue lightstrip': '🌈 Strip',
+  'Hue Boule': '🔮 Boule',
+  'Lux Pied': '🛋 Pied',
+};
+
+const label = (key: string): string => LABELS[key] ?? key;
+
 const I = {
   BLACK:
     'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
@@ -73,4 +88,4 @@ const I = {
     'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mMs/w8AAfMBeIBXwkoAAAAASUVORK5CYII=',
 };
 
-export {api, fetchImage, I, emojiFirst};
+export {api, fetchImage, I, emojiFirst, label};

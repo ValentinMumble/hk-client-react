@@ -2,7 +2,7 @@ import React, {useEffect, useState, useCallback} from 'react';
 import styled, {css} from 'styled-components';
 import splashy from 'splashy';
 import {I, fetchImage} from 'utils';
-import {usePalette, useSocket, useSnackedApi, useTrack} from 'hooks';
+import {usePalette, useSocket, useSnackedApi, useTrack, useTab, useSearch} from 'hooks';
 import {PlayerState} from 'models';
 
 const ID = 'Tune';
@@ -77,7 +77,7 @@ const Artist = styled.span`
   opacity: 0.6;
   font-style: italic;
   font-size: 0.8em;
-  margin-top: 0.6vh;
+  margin-top: 1vh;
 `;
 
 let prevSrcTimer: number;
@@ -93,10 +93,19 @@ const Tune = ({isPlaying}: TuneProps) => {
   const [progress, setProgress] = useState<number>(0);
   const [isHidden, setHidden] = useState<boolean>(false);
 
+  const [, setSearch] = useSearch();
+  const [, setTab] = useTab();
   const [activeTrack, setActiveTrack] = useTrack();
   const [, setPalette] = usePalette();
   const [, , sub] = useSocket();
   const snackedApi = useSnackedApi<number>();
+
+  const handleArtistClick = () => {
+    if (!activeTrack) return;
+
+    setTab(0);
+    setSearch(search => ({...search, artist: activeTrack.artists[0]}));
+  };
 
   const loadArtwork = useCallback(
     async (src?: string) => {
@@ -161,17 +170,19 @@ const Tune = ({isPlaying}: TuneProps) => {
         </Progress>
       </ArtworkContainer>
       {activeTrack ? (
-        <TrackContainer
-          onClick={() =>
-            snackedApi(['spotify', 'playlist', 'add', activeTrack.uri], () => `👌 ${activeTrack.name} added`)
-          }
-        >
-          {activeTrack.name}
-          <Artist>{activeTrack.artists[0].name}</Artist>
+        <TrackContainer>
+          <span
+            onClick={() =>
+              snackedApi(['spotify', 'playlist', 'add', activeTrack.uri], () => `👌 ${activeTrack.name} added`)
+            }
+          >
+            {activeTrack.name}
+          </span>
+          <Artist onClick={handleArtistClick}>{activeTrack.artists[0].name}</Artist>
         </TrackContainer>
       ) : (
         <TrackContainer>
-          This is<Artist>loading...</Artist>
+          &nbsp;<Artist>loading...</Artist>
         </TrackContainer>
       )}
     </>
