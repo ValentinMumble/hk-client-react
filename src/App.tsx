@@ -54,6 +54,12 @@ const App = () => {
 
   useShortcut('ArrowLeft', () => setTab(index => Math.max(0, index - 1)));
   useShortcut('ArrowRight', () => setTab(index => Math.min(tabs.length - 1, index + 1)));
+  useShortcut(
+    'KeyS',
+    () => setTab(0),
+    0 !== tab,
+    () => 0 !== tab
+  );
 
   return (
     <>
