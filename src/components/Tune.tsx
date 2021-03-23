@@ -1,9 +1,9 @@
-import React, {useEffect, useState, useCallback} from 'react';
+import {useEffect, useState, useCallback} from 'react';
 import styled, {css} from 'styled-components';
 import splashy from 'splashy';
 import {I, fetchImage} from 'utils';
 import {usePalette, useSocket, useSnackedApi, useTrack, useTab, useSearch} from 'hooks';
-import {PlayerState} from 'models';
+import {PlayerState, Track} from 'models';
 
 const ID = 'Tune';
 const PROGRESS_DELAY = 500;
@@ -27,19 +27,13 @@ const ArtworkContainer = styled.div<{isPlaying: boolean}>`
     `}
 `;
 
-type ImageProps = {isHidden?: boolean};
-const Image = styled.img<ImageProps>`
+const Image = styled.img<{isHidden: boolean}>`
   position: absolute;
   top: 0;
   width: 100%;
   border-radius: 50%;
-
-  ${({isHidden}) =>
-    isHidden &&
-    css`
-      opacity: 0;
-      transition: all ${ARTWORK_TRANSITION}ms ease;
-    `};
+  transition: all ${ARTWORK_TRANSITION}ms ease;
+  opacity: ${({isHidden}) => (isHidden ? 0 : 1)};
 `;
 
 const Progress = styled.svg.attrs(({ratio}: {ratio: number}) => ({
@@ -118,7 +112,7 @@ const Tune = ({isPlaying}: TuneProps) => {
           setCurrentSrc(base64);
           setHidden(true);
           setPalette(colors);
-          prevSrcTimer = setTimeout(() => {
+          prevSrcTimer = window.setTimeout(() => {
             setPrevSrc(base64);
             setHidden(false);
           }, ARTWORK_TRANSITION);
@@ -163,7 +157,7 @@ const Tune = ({isPlaying}: TuneProps) => {
           )
         }
       >
-        <Image src={currentSrc} alt="" />
+        <Image isHidden={false} src={currentSrc} alt="" />
         <Image isHidden={isHidden} src={prevSrc} alt="" />
         <Progress ratio={activeTrack ? progress / activeTrack.duration_ms : 0}>
           <circle r="49.1%" cx="50%" cy="50%" />

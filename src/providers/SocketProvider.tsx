@@ -1,10 +1,10 @@
-import React, {useRef, ReactNode} from 'react';
+import {useRef, ReactNode} from 'react';
 import {Manager} from 'socket.io-client';
 import {ManagerOptions} from 'socket.io-client/build/manager';
 import {Socket} from 'socket.io-client/build/socket';
 import {SocketContext, Payload} from 'contexts';
 
-const dico: {[event: string]: {[key: string]: Function}} = {};
+const dico: {[event: string]: {[key: string]: any}} = {};
 
 type SocketProviderProps = {
   url: string;
@@ -21,7 +21,7 @@ const SocketProvider = ({url, namespace, opts, children}: SocketProviderProps) =
     soca.current?.emit(event, payload);
   };
 
-  const subscribe = (key: string, event: string, callback: Function) => {
+  const subscribe = (key: string, event: string, callback: any) => {
     if (soca.current) {
       if (!(event in dico)) {
         dico[event] = {};
