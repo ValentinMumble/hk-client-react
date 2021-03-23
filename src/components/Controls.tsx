@@ -11,7 +11,7 @@ import {
 } from '@material-ui/icons';
 import {useSnackbar, useSocket, useShortcut, useTab} from 'hooks';
 import {Emoji} from 'components';
-import {PlayerState, Device, Playlist, ServerError} from 'models';
+import {PlayerState, Device, Playlist} from 'models';
 import {api, emojiFirst, label} from 'utils';
 
 const ID = 'Controls';
@@ -108,17 +108,6 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
     closeMenus();
   };
 
-  const handleError = useCallback(
-    async (error: ServerError) => {
-      if ('Device not found' === error.name) {
-        snack('😳 Device not found');
-        await api(['raspotify', 'restart']);
-        fetchDevices();
-      }
-    },
-    [snack]
-  );
-
   useEffect(() => {
     sub(ID, 'volume_change', setVolume);
     sub(ID, 'initial_state', ({device: {volume_percent, id}}: PlayerState) => {
@@ -126,8 +115,7 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
       setCurrentDeviceId(id);
     });
     sub(ID, 'device_change', ({id}: Device) => setCurrentDeviceId(id));
-    sub(ID, 'spo_connect_error', handleError);
-  }, [sub, handleError]);
+  }, [sub]);
 
   useEffect(() => {
     fetchDevices();

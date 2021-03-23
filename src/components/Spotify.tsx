@@ -5,11 +5,10 @@ import {LockRounded} from '@material-ui/icons';
 import {usePalette, useSocket, useSnackbar, useIdle} from 'hooks';
 import {Tune, Controls} from 'components';
 import {api} from 'utils';
-import {ServerError, PlayerState, Welcome} from 'models';
+import {PlayerState, Welcome} from 'models';
 
 const ID = 'Spotify';
 const MITIGATE = 100;
-const {REACT_APP_SPO_PI_ID: PI = ''} = process.env;
 
 const Container = styled.div`
   display: flex;
@@ -88,7 +87,7 @@ const Spotify = () => {
       setTimeout(() => {
         console.info('Connecting');
         soca.connect();
-        emit('initiate', {accessToken});
+        emit('initiate');
       }, MITIGATE);
     }
   }, [accessToken, soca, emit]);
@@ -97,26 +96,6 @@ const Spotify = () => {
     console.info('Disconnecting');
     if (soca) soca.disconnect();
   }, [soca]);
-
-  const handleError = useCallback(
-    async (error: ServerError) => {
-      console.log('Connect error', error);
-      if (error.name === 'NoActiveDeviceError') {
-        setLoading(true);
-        emit('transfer_playback', {id: PI});
-        snack('π', 1000, 'transparent');
-      } else if (error.name === 'The access token expired') {
-        disconnect();
-        setLoading(true);
-        snack('♻️', 1000, 'transparent');
-        const {
-          data: {accessToken},
-        } = await api<Welcome>(['spotify', 'refresh-token']);
-        setAccessToken(accessToken);
-      }
-    },
-    [snack, disconnect, emit]
-  );
 
   useEffect(() => {
     if (soca.connected || !accessToken) return;
@@ -127,10 +106,9 @@ const Spotify = () => {
     });
     sub(ID, 'playback_started', () => setPlaying(true));
     sub(ID, 'playback_paused', () => setPlaying(false));
-    sub(ID, 'spo_connect_error', handleError);
 
     connect();
-  }, [soca, sub, accessToken, handleError, connect]);
+  }, [soca, sub, accessToken, connect]);
 
   useEffect(() => {
     if (!authorizeUrl && !accessToken) fetchToken();
