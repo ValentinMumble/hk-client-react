@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import styled from 'styled-components';
 import {IconButton, CircularProgress} from '@material-ui/core';
-import {SearchRounded} from '@material-ui/icons';
+import {ReceiptRounded, SearchRounded} from '@material-ui/icons';
 import {useSnackbar, useTrack} from 'hooks';
 import {api} from 'utils';
 
@@ -38,6 +38,7 @@ const Loader = styled.div<{isLoading: boolean}>`
   transition: opacity 400ms ease;
 `;
 
+//TODO extract subcomponents
 const Lyrics = () => {
   const [isLoading, setLoading] = useState<boolean>(false);
   const [lyrics, setLyrics] = useState<string>();
@@ -63,10 +64,30 @@ const Lyrics = () => {
     setLoading(false);
   };
 
+  const fetchLogs = async () => {
+    setLoading(true);
+
+    try {
+      const {data} = await api<string>(['logs']);
+      setLyrics(data);
+    } catch (error) {
+      snack(`🥺 ${error.message}`);
+      setLyrics(undefined);
+    }
+
+    setLoading(false);
+  };
+
   return (
     <Container>
       <IconButton onClick={fetchLyrics}>
         <SearchRounded />
+        <Loader isLoading={isLoading}>
+          <CircularProgress size="100%" />
+        </Loader>
+      </IconButton>
+      <IconButton onClick={fetchLogs}>
+        <ReceiptRounded />
         <Loader isLoading={isLoading}>
           <CircularProgress size="100%" />
         </Loader>
