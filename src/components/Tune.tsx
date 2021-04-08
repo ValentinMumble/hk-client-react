@@ -85,7 +85,7 @@ const Tune = ({isPlaying}: TuneProps) => {
   const [currentSrc, setCurrentSrc] = useState<string>('');
   const [prevSrc, setPrevSrc] = useState<string>(I.BLACK);
   const [progress, setProgress] = useState<number>(0);
-  const [isHidden, showArtwork, hideArtwork] = useToggle();
+  const [isHidden, , showArtwork, hideArtwork] = useToggle();
 
   const [, setSearch] = useSearch();
   const [, setTab] = useTab();

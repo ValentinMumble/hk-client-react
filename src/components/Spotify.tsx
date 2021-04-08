@@ -45,7 +45,7 @@ const login = (authorizeUrl: string): Promise<string> =>
   });
 
 const Spotify = () => {
-  const [isLoading, showLoading, hideLoading] = useToggle();
+  const [isLoading, , showLoading, hideLoading] = useToggle();
   const [isPlaying, setPlaying] = useState<boolean>(false);
   const [accessToken, setAccessToken] = useState<string>();
   const [authorizeUrl, setAuthorizeUrl] = useState<string>();

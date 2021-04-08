@@ -25,7 +25,7 @@ type SnackbarProviderProps = {
 
 const SnackbarProvider = ({children}: SnackbarProviderProps) => {
   const [snackbar, setSnackbar] = useState<Snack>({});
-  const [isOpen, showSnack, hideSnack] = useToggle();
+  const [isOpen, , showSnack, hideSnack] = useToggle();
   const theme = useTheme();
 
   const snack = useCallback(
