@@ -2,7 +2,7 @@ import {useEffect, useState, useCallback} from 'react';
 import styled, {css} from 'styled-components';
 import splashy from 'splashy';
 import {I, fetchImage} from 'utils';
-import {usePalette, useSocket, useSnackedApi, useTrack, useTab, useSearch} from 'hooks';
+import {usePalette, useSocket, useSnackedApi, useTrack, useTab, useSearch, useToggle} from 'hooks';
 import {PlayerState, Track} from 'models';
 
 const ID = 'Tune';
@@ -85,7 +85,7 @@ const Tune = ({isPlaying}: TuneProps) => {
   const [currentSrc, setCurrentSrc] = useState<string>('');
   const [prevSrc, setPrevSrc] = useState<string>(I.BLACK);
   const [progress, setProgress] = useState<number>(0);
-  const [isHidden, setHidden] = useState<boolean>(false);
+  const [isHidden, showArtwork, hideArtwork] = useToggle();
 
   const [, setSearch] = useSearch();
   const [, setTab] = useTab();
@@ -110,11 +110,11 @@ const Tune = ({isPlaying}: TuneProps) => {
           clearTimeout(prevSrcTimer);
           const colors = src ? await splashy(base64) : ['#777', '#777'];
           setCurrentSrc(base64);
-          setHidden(true);
+          showArtwork();
           setPalette(colors);
           prevSrcTimer = window.setTimeout(() => {
             setPrevSrc(base64);
-            setHidden(false);
+            hideArtwork();
           }, ARTWORK_TRANSITION);
 
           return () => clearTimeout(prevSrcTimer);

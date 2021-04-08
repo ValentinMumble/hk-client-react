@@ -1,7 +1,7 @@
 import {EffectCallback, useCallback, useState, SetStateAction, Dispatch} from 'react';
 
 const useToggle = (
-  initial: boolean
+  initial: boolean = false
 ): [boolean, EffectCallback, EffectCallback, EffectCallback, Dispatch<SetStateAction<boolean>>] => {
   const [value, setValue] = useState<boolean>(initial);
 

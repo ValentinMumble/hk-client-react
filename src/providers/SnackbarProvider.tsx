@@ -1,7 +1,8 @@
-import React, {useState, useEffect, ReactNode, useCallback} from 'react';
+import {useState, useEffect, ReactNode, useCallback} from 'react';
 import styled from 'styled-components';
 import {Snackbar, SnackbarContent, useTheme} from '@material-ui/core';
 import {SnackbarContext} from 'contexts';
+import {useToggle} from 'hooks';
 
 type Snack = {
   message?: ReactNode;
@@ -24,10 +25,8 @@ type SnackbarProviderProps = {
 
 const SnackbarProvider = ({children}: SnackbarProviderProps) => {
   const [snackbar, setSnackbar] = useState<Snack>({});
-  const [isOpen, setOpen] = useState<boolean>(false);
+  const [isOpen, showSnack, hideSnack] = useToggle();
   const theme = useTheme();
-
-  const handleClose = useCallback(() => setOpen(false), [setOpen]);
 
   const snack = useCallback(
     (message: ReactNode, duration = 2000, backgroundColor = theme.palette.primary.main) => {
@@ -44,7 +43,7 @@ const SnackbarProvider = ({children}: SnackbarProviderProps) => {
   );
 
   useEffect(() => {
-    if (snackbar.message) setOpen(true);
+    if (snackbar.message) showSnack();
   }, [snackbar]);
 
   return (
@@ -54,7 +53,7 @@ const SnackbarProvider = ({children}: SnackbarProviderProps) => {
         anchorOrigin={{vertical: 'bottom', horizontal: 'center'}}
         open={isOpen}
         autoHideDuration={snackbar.duration}
-        onClose={handleClose}
+        onClose={hideSnack}
       >
         <Snickers background={snackbar.backgroundColor} color={snackbar.color} message={snackbar.message} />
       </Snackbar>

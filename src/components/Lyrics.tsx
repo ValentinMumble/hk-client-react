@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import styled from 'styled-components';
 import {IconButton, CircularProgress} from '@material-ui/core';
 import {ReceiptRounded, SearchRounded} from '@material-ui/icons';
@@ -18,8 +18,8 @@ type LyricsContainerProps = {stale: boolean; isLoading: boolean};
 const LyricsContainer = styled.div<LyricsContainerProps>`
   margin-top: 10px;
   font-size: 2vh;
-  white-space: pre-wrap;
-  line-height: 1.5;
+  white-space: pre;
+  line-height: 1.8;
   padding: 0 8vw;
   overflow: auto;
   width: 100%;
@@ -28,6 +28,8 @@ const LyricsContainer = styled.div<LyricsContainerProps>`
   opacity: ${({isLoading}) => (isLoading ? 0 : 1)};
   color: ${({stale, theme}) => (stale ? '#777' : theme.palette.primary.main)};
   transition: all 400ms ease;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
 `;
 
 const Loader = styled.div<{isLoading: boolean}>`
@@ -41,8 +43,10 @@ const Loader = styled.div<{isLoading: boolean}>`
 //TODO extract subcomponents
 const Lyrics = () => {
   const [isLoading, setLoading] = useState<boolean>(false);
+  const [isLogsLoading, setLogsLoading] = useState<boolean>(false);
   const [lyrics, setLyrics] = useState<string>();
   const [displayedTrack, setDisplayedTrack] = useState<string>();
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const snack = useSnackbar();
   const [track] = useTrack();
@@ -65,34 +69,40 @@ const Lyrics = () => {
   };
 
   const fetchLogs = async () => {
-    setLoading(true);
+    setLogsLoading(true);
 
     try {
       const {data} = await api<string>(['logs']);
       setLyrics(data);
+
+      if (scrollRef.current) {
+        scrollRef.current.scrollTo(0, scrollRef.current.scrollHeight);
+      }
     } catch (error) {
       snack(`🥺 ${error.message}`);
       setLyrics(undefined);
     }
 
-    setLoading(false);
+    setLogsLoading(false);
   };
 
   return (
     <Container>
-      <IconButton onClick={fetchLyrics}>
-        <SearchRounded />
-        <Loader isLoading={isLoading}>
-          <CircularProgress size="100%" />
-        </Loader>
-      </IconButton>
-      <IconButton onClick={fetchLogs}>
-        <ReceiptRounded />
-        <Loader isLoading={isLoading}>
-          <CircularProgress size="100%" />
-        </Loader>
-      </IconButton>
-      <LyricsContainer stale={track.name !== displayedTrack} isLoading={isLoading}>
+      <div>
+        <IconButton onClick={fetchLyrics}>
+          <SearchRounded />
+          <Loader isLoading={isLoading}>
+            <CircularProgress size="100%" />
+          </Loader>
+        </IconButton>
+        <IconButton onClick={fetchLogs}>
+          <ReceiptRounded />
+          <Loader isLoading={isLogsLoading}>
+            <CircularProgress size="100%" />
+          </Loader>
+        </IconButton>
+      </div>
+      <LyricsContainer ref={scrollRef} stale={track.name !== displayedTrack} isLoading={isLoading || isLogsLoading}>
         {lyrics}
       </LyricsContainer>
     </Container>

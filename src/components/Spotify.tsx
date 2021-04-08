@@ -1,8 +1,8 @@
-import React, {useEffect, useState, useCallback} from 'react';
+import {useEffect, useState, useCallback} from 'react';
 import styled from 'styled-components';
 import {LinearProgress, IconButton} from '@material-ui/core';
 import {LockRounded} from '@material-ui/icons';
-import {usePalette, useSocket, useSnackbar, useIdle} from 'hooks';
+import {usePalette, useSocket, useSnackbar, useIdle, useToggle} from 'hooks';
 import {Tune, Controls} from 'components';
 import {api} from 'utils';
 import {PlayerState, Welcome} from 'models';
@@ -45,7 +45,7 @@ const login = (authorizeUrl: string): Promise<string> =>
   });
 
 const Spotify = () => {
-  const [isLoading, setLoading] = useState<boolean>(false);
+  const [isLoading, showLoading, hideLoading] = useToggle();
   const [isPlaying, setPlaying] = useState<boolean>(false);
   const [accessToken, setAccessToken] = useState<string>();
   const [authorizeUrl, setAuthorizeUrl] = useState<string>();
@@ -83,7 +83,7 @@ const Spotify = () => {
 
   const connect = useCallback(() => {
     if (soca && soca.disconnected && accessToken) {
-      setLoading(true);
+      showLoading();
       setTimeout(() => {
         console.info('Connecting');
         soca.connect();
@@ -101,7 +101,7 @@ const Spotify = () => {
     if (soca.connected || !accessToken) return;
 
     sub(ID, 'initial_state', (state: PlayerState) => {
-      setLoading(false);
+      hideLoading();
       setPlaying(state.is_playing);
     });
     sub(ID, 'playback_started', () => setPlaying(true));
