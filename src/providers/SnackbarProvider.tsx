@@ -26,20 +26,20 @@ type SnackbarProviderProps = {
 const SnackbarProvider = ({children}: SnackbarProviderProps) => {
   const [snackbar, setSnackbar] = useState<Snack>({});
   const [isOpen, , showSnack, hideSnack] = useToggle();
-  const theme = useTheme();
+  const {palette} = useTheme();
 
   const snack = useCallback(
-    (message: ReactNode, duration = 2000, backgroundColor = theme.palette.primary.main) => {
+    (message: ReactNode, duration = 2000, backgroundColor = palette.primary.main) => {
       if (message)
         setSnackbar(snackbar => ({
           ...snackbar,
           message,
           duration,
           backgroundColor,
-          color: 'transparent' === backgroundColor ? 'inherit' : theme.palette.getContrastText(backgroundColor),
+          color: 'transparent' === backgroundColor ? 'inherit' : palette.getContrastText(backgroundColor),
         }));
     },
-    [theme.palette]
+    [palette]
   );
 
   useEffect(() => {

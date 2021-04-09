@@ -1,4 +1,4 @@
-import React, {HTMLAttributes, ReactNode} from 'react';
+import {HTMLAttributes, ReactNode} from 'react';
 import styled from 'styled-components';
 
 const EmojiContainer = styled.span`
@@ -7,10 +7,7 @@ const EmojiContainer = styled.span`
   display: inline-flex;
   justify-content: center;
   width: 1.2em;
-
-  :first-child {
-    margin-right: 10px;
-  }
+  gap: 10px;
 `;
 
 type EmojiProps = {

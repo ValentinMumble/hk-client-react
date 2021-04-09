@@ -1,4 +1,4 @@
-import React, {ReactElement, useCallback, useEffect, useState} from 'react';
+import {ReactElement, useCallback, useEffect, useState} from 'react';
 import styled from 'styled-components';
 import {IconButton, ButtonBase, Slider} from '@material-ui/core';
 import {
@@ -29,8 +29,8 @@ const HueGrid = styled.div`
   grid-gap: 2vh;
 
   button {
-    width: 10vh;
-    height: 10vh;
+    width: 9vh;
+    height: 9vh;
     border-radius: 50%;
   }
 `;
@@ -100,7 +100,7 @@ const Hues = () => {
       </HueGrid>
       <Lights>
         {lights
-          .filter(light => light.isReachable)
+          .filter(({isReachable}) => isReachable)
           .map(({id, name}) => (
             <IconButton
               key={id}
@@ -113,14 +113,14 @@ const Hues = () => {
                 )
               }
             >
-              {React.cloneElement(getLightIcon(id))}
+              {getLightIcon(id)}
             </IconButton>
           ))}
       </Lights>
       <Brightness
         defaultValue={100}
         valueLabelDisplay="auto"
-        onChangeCommitted={(_, v) => api(['hue', 'brightness', Number(v)])}
+        onChangeCommitted={(_event, brightness) => api(['hue', 'brightness', Number(brightness)])}
       />
     </Container>
   );

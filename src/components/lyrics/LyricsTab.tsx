@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import {useRef, useState} from 'react';
 import styled from 'styled-components';
 import {IconButton, CircularProgress} from '@material-ui/core';
 import {ReceiptRounded, SearchRounded} from '@material-ui/icons';
@@ -40,8 +40,7 @@ const Loader = styled.div<{isLoading: boolean}>`
   transition: opacity 400ms ease;
 `;
 
-//TODO extract subcomponents
-const Lyrics = () => {
+const LyricsTab = () => {
   const [isLoading, setLoading] = useState<boolean>(false);
   const [isLogsLoading, setLogsLoading] = useState<boolean>(false);
   const [lyrics, setLyrics] = useState<string>();
@@ -109,4 +108,4 @@ const Lyrics = () => {
   );
 };
 
-export {Lyrics};
+export {LyricsTab};

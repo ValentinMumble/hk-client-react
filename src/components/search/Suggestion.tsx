@@ -1,21 +1,17 @@
-import React, {ReactElement, SyntheticEvent, useState} from 'react';
+import {ReactElement, SyntheticEvent, useState} from 'react';
 import {Avatar, IconButton, ListItem, ListItemAvatar, ListItemSecondaryAction, ListItemText} from '@material-ui/core';
 import {PlaylistAddCheckRounded, PlaylistAddRounded} from '@material-ui/icons';
 import {ArtistLight, Track} from 'models';
 import {api} from 'utils';
 
-enum State {
-  NOT_ADDED,
-  ADDED,
-  LOADING,
-}
+type State = 'added' | 'not-added' | 'loading';
 
 const getIcon = (state: State): ReactElement => {
   switch (state) {
-    case State.ADDED:
+    case 'added':
       return <PlaylistAddCheckRounded />;
-    case State.NOT_ADDED:
-    case State.LOADING:
+    case 'not-added':
+    case 'loading':
       return <PlaylistAddRounded />;
   }
 };
@@ -27,7 +23,7 @@ type SuggestionProps = {
 };
 
 const Suggestion = ({track, onTrackSelect, onArtistSelect}: SuggestionProps) => {
-  const [state, setState] = useState<State>(State.NOT_ADDED);
+  const [state, setState] = useState<State>('not-added');
   const artistLight = track.artists[0];
 
   const handleTrackSelect = () => onTrackSelect(track);
@@ -38,9 +34,9 @@ const Suggestion = ({track, onTrackSelect, onArtistSelect}: SuggestionProps) => 
   };
 
   const handleQueue = async () => {
-    setState(State.LOADING);
+    setState('loading');
     const {status} = await api(['spotify', 'queue', track.uri]);
-    setState(204 === status ? State.ADDED : State.NOT_ADDED);
+    setState(204 === status ? 'added' : 'not-added');
   };
 
   return (
@@ -53,7 +49,7 @@ const Suggestion = ({track, onTrackSelect, onArtistSelect}: SuggestionProps) => 
       </ListItemAvatar>
       <ListItemText primary={track.name} secondary={artistLight.name} />
       <ListItemSecondaryAction>
-        <IconButton disabled={State.NOT_ADDED !== state} onClick={handleQueue} children={getIcon(state)} />
+        <IconButton disabled={'not-added' !== state} onClick={handleQueue} children={getIcon(state)} />
       </ListItemSecondaryAction>
     </ListItem>
   );

@@ -13,7 +13,6 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-size: 4vh;
 `;
 
 const SearchField = styled(TextField)`

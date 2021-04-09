@@ -1,4 +1,4 @@
-import React, {useEffect, useState, MouseEvent, Dispatch, SetStateAction, useCallback} from 'react';
+import {useEffect, useState, MouseEvent, Dispatch, SetStateAction} from 'react';
 import styled, {css} from 'styled-components';
 import {IconButton, Menu, MenuItem, Slider} from '@material-ui/core';
 import {
