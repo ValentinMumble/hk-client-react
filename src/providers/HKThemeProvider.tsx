@@ -1,4 +1,4 @@
-import React, {useState, ReactNode, useEffect} from 'react';
+import {useState, ReactNode, useEffect} from 'react';
 import {ThemeProvider} from 'styled-components';
 import {createMuiTheme, Theme, MuiThemeProvider, StylesProvider} from '@material-ui/core';
 import {PaletteContext} from 'contexts';

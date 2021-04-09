@@ -167,7 +167,11 @@ const Tune = ({isPlaying}: TuneProps) => {
         <TrackContainer>
           <span
             onClick={() =>
-              snackedApi(['spotify', 'playlist', 'add', activeTrack.uri], () => `👌 ${activeTrack.name} added`)
+              snackedApi(
+                ['spotify', 'playlist', 'add', activeTrack.uri],
+                () => `👌 ${activeTrack.name} added`,
+                'primary'
+              )
             }
           >
             {activeTrack.name}
