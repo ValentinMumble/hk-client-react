@@ -10,7 +10,6 @@ import {
   SpeakerRounded,
 } from '@material-ui/icons';
 import {useSnackbar, useSocket, useShortcut, useTab} from 'hooks';
-import {Emoji} from 'components';
 import {PlayerState, Device, Playlist} from 'models';
 import {api, emojiFirst, label} from 'utils';
 
@@ -80,7 +79,12 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
     setPlaylists(data);
   };
 
-  const openDeviceMenu = (event: MouseEvent<HTMLButtonElement>) => setDeviceMenuAnchor(event.currentTarget);
+  const openDeviceMenu = async (event: MouseEvent<HTMLButtonElement>) => {
+    const target = event.currentTarget;
+    await fetchDevices();
+    setDeviceMenuAnchor(target);
+  };
+
   const openPlaylistMenu = (event: MouseEvent<HTMLButtonElement>) => setPlaylistMenuAnchor(event.currentTarget);
   const closeMenus = () => {
     setDeviceMenuAnchor(undefined);
@@ -118,7 +122,6 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
   }, [sub]);
 
   useEffect(() => {
-    fetchDevices();
     fetchPlaylists();
   }, []);
 
@@ -148,9 +151,7 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
         <IconButton children={<SkipNextRounded />} onClick={() => emit('next_track')} />
         <IconButton children={<QueueMusicRounded />} onClick={openPlaylistMenu} />
         <Menu anchorEl={playlistMenuAnchor} keepMounted open={Boolean(playlistMenuAnchor)} onClose={closeMenus}>
-          <MenuItem onClick={playRadio}>
-            <Emoji e="📻" /> Song radio
-          </MenuItem>
+          <MenuItem onClick={playRadio}>📻 Song radio</MenuItem>
           {playlists.map(playlist => (
             <MenuItem key={playlist.id} onClick={() => setPlaylist(playlist)}>
               {label(playlist.name)}

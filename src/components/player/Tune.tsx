@@ -3,7 +3,7 @@ import styled, {css} from 'styled-components';
 import splashy from 'splashy';
 import {I, fetchImage} from 'utils';
 import {usePalette, useSocket, useSnackedApi, useTrack, useTab, useSearch, useToggle} from 'hooks';
-import {PlayerState, Track} from 'models';
+import {PlayerState} from 'models';
 
 const ID = 'Tune';
 const PROGRESS_DELAY = 500;
@@ -36,9 +36,10 @@ const Image = styled.img<{isHidden: boolean}>`
   opacity: ${({isHidden}) => (isHidden ? 0 : 1)};
 `;
 
-const Progress = styled.svg.attrs(({ratio}: {ratio: number}) => ({
+type ProgressProps = {ratio: number};
+const Progress = styled.svg.attrs(({ratio}: ProgressProps) => ({
   style: {strokeDashoffset: `calc(100% * ${Math.PI} - 98% * ${Math.PI * ratio})`},
-}))<{ratio: number}>`
+}))<ProgressProps>`
   position: absolute;
   top: 0;
   width: 100%;
@@ -151,11 +152,12 @@ const Tune = ({isPlaying}: TuneProps) => {
     <>
       <ArtworkContainer
         isPlaying={isPlaying}
-        onClick={() =>
+        onClick={() => {
+          loadArtwork(activeTrack?.album.images[0]?.url);
           snackedApi(['soca', 'count'], clientCount =>
             clientCount ? `🤵 ${clientCount} client${clientCount > 1 ? 's' : ''} connected` : '🔌'
-          )
-        }
+          );
+        }}
       >
         <Image isHidden={false} src={currentSrc} alt="" />
         <Image isHidden={isHidden} src={prevSrc} alt="" />

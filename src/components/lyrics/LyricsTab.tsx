@@ -18,7 +18,7 @@ type LyricsContainerProps = {stale: boolean; isLoading: boolean};
 const LyricsContainer = styled.div<LyricsContainerProps>`
   margin-top: 10px;
   font-size: 2vh;
-  white-space: pre;
+  white-space: pre-wrap;
   line-height: 1.8;
   padding: 0 8vw;
   overflow: auto;
@@ -28,8 +28,6 @@ const LyricsContainer = styled.div<LyricsContainerProps>`
   opacity: ${({isLoading}) => (isLoading ? 0 : 1)};
   color: ${({stale, theme}) => (stale ? '#777' : theme.palette.primary.main)};
   transition: all 400ms ease;
-  overflow-x: hidden;
-  text-overflow: ellipsis;
 `;
 
 const Loader = styled.div<{isLoading: boolean}>`
@@ -39,6 +37,18 @@ const Loader = styled.div<{isLoading: boolean}>`
   opacity: ${({isLoading}) => (isLoading ? 0.3 : 0)};
   transition: opacity 400ms ease;
 `;
+
+type SearchResult = {
+  id: number;
+  url: string;
+  title: string;
+  albumArt: string;
+};
+
+type LyricsSearch = {
+  results: SearchResult[];
+  top: string;
+};
 
 const LyricsTab = () => {
   const [isLoading, setLoading] = useState<boolean>(false);
@@ -50,15 +60,15 @@ const LyricsTab = () => {
   const snack = useSnackbar();
   const [track] = useTrack();
 
-  if (!track) return null;
-
   const fetchLyrics = async () => {
+    if (undefined === track) return;
+
     setLoading(true);
     setDisplayedTrack(track.name);
 
     try {
-      const {data} = await api<string>(['lyrics', track.artists[0].name, track.name]);
-      setLyrics(data);
+      const {data} = await api<LyricsSearch>(['lyrics', track.artists[0].name, track.name]);
+      setLyrics(data.top);
     } catch (error) {
       snack(`🥺 ${error.message}`);
       setLyrics(undefined);
@@ -88,12 +98,14 @@ const LyricsTab = () => {
   return (
     <Container>
       <div>
-        <IconButton onClick={fetchLyrics}>
-          <SearchRounded />
-          <Loader isLoading={isLoading}>
-            <CircularProgress size="100%" />
-          </Loader>
-        </IconButton>
+        {undefined !== track && (
+          <IconButton onClick={fetchLyrics}>
+            <SearchRounded />
+            <Loader isLoading={isLoading}>
+              <CircularProgress size="100%" />
+            </Loader>
+          </IconButton>
+        )}
         <IconButton onClick={fetchLogs}>
           <ReceiptRounded />
           <Loader isLoading={isLogsLoading}>
@@ -101,7 +113,7 @@ const LyricsTab = () => {
           </Loader>
         </IconButton>
       </div>
-      <LyricsContainer ref={scrollRef} stale={track.name !== displayedTrack} isLoading={isLoading || isLogsLoading}>
+      <LyricsContainer ref={scrollRef} stale={track?.name !== displayedTrack} isLoading={isLoading || isLogsLoading}>
         {lyrics}
       </LyricsContainer>
     </Container>
