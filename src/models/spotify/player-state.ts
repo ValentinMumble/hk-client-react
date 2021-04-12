@@ -1,4 +1,5 @@
-import {Track, Device} from 'models';
+import {Device} from './device';
+import {Track} from './track';
 
 type PlayerState = {
   device: Device;

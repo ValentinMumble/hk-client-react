@@ -36,7 +36,7 @@ const App = () => {
 
   return (
     <>
-      <SwipeableViews enableMouseEvents={true} index={tab} onChangeIndex={setTab}>
+      <SwipeableViews ignoreNativeScroll={true} enableMouseEvents={true} index={tab} onChangeIndex={setTab}>
         {tabs.map(({key, content}) => (
           <TabContainer key={key}>{content}</TabContainer>
         ))}

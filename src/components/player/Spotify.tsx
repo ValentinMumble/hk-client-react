@@ -2,7 +2,7 @@ import {useEffect, useState, useCallback} from 'react';
 import styled from 'styled-components';
 import {LinearProgress, IconButton} from '@material-ui/core';
 import {LockRounded} from '@material-ui/icons';
-import {usePalette, useSocket, useSnackbar, useIdle, useToggle} from 'hooks';
+import {usePalette, useSocket, useSnackbar, useIdle, useBool} from 'hooks';
 import {Tune, Controls} from 'components';
 import {api} from 'utils';
 import {PlayerState, Welcome} from 'models';
@@ -45,7 +45,7 @@ const login = (authorizeUrl: string): Promise<string> =>
   });
 
 const Spotify = () => {
-  const [isLoading, , showLoading, hideLoading] = useToggle();
+  const [isLoading, showLoading, hideLoading] = useBool();
   const [isPlaying, setPlaying] = useState<boolean>(false);
   const [accessToken, setAccessToken] = useState<string>();
   const [authorizeUrl, setAuthorizeUrl] = useState<string>();

@@ -2,7 +2,7 @@ import {useEffect, useState, useCallback} from 'react';
 import styled, {css} from 'styled-components';
 import splashy from 'splashy';
 import {I, fetchImage} from 'utils';
-import {usePalette, useSocket, useSnackedApi, useTrack, useTab, useSearch, useToggle} from 'hooks';
+import {usePalette, useSocket, useSnackedApi, useTrack, useTab, useSearch, useBool} from 'hooks';
 import {PlayerState} from 'models';
 
 const ID = 'Tune';
@@ -64,7 +64,7 @@ const TrackContainer = styled.label`
   color: ${({theme}) => theme.palette.primary.main};
   font-size: 0.5em;
   text-align: center;
-  max-width: 450px;
+  max-width: min(450px, 95vw);
 `;
 
 const Artist = styled.span`
@@ -86,7 +86,7 @@ const Tune = ({isPlaying}: TuneProps) => {
   const [currentSrc, setCurrentSrc] = useState<string>('');
   const [prevSrc, setPrevSrc] = useState<string>(I.BLACK);
   const [progress, setProgress] = useState<number>(0);
-  const [isHidden, , showArtwork, hideArtwork] = useToggle();
+  const [isHidden, showArtwork, hideArtwork] = useBool();
 
   const [, setSearch] = useSearch();
   const [, setTab] = useTab();

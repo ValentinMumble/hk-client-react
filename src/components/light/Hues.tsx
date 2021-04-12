@@ -47,15 +47,15 @@ const Lights = styled.div`
   margin: 10px 0;
 `;
 
-const getLightIcon = (id: number): ReactElement => {
+const getLightIcon = (id: string): ReactElement => {
   switch (id) {
-    case 1:
+    case '1':
       return <EmojiObjectsRounded />;
-    case 3:
+    case '3':
       return <GestureRounded />;
-    case 5:
+    case '5':
       return <HighlightRounded />;
-    case 4:
+    case '4':
     default:
       return <PanoramaFishEye />;
   }

@@ -2,7 +2,7 @@ import {useState, useEffect, ReactNode, useCallback} from 'react';
 import styled from 'styled-components';
 import {Snackbar, SnackbarContent, useTheme} from '@material-ui/core';
 import {SnackbarContext} from 'contexts';
-import {useToggle} from 'hooks';
+import {useBool} from 'hooks';
 
 type Snack = {
   message?: ReactNode;
@@ -25,7 +25,7 @@ type SnackbarProviderProps = {
 
 const SnackbarProvider = ({children}: SnackbarProviderProps) => {
   const [snackbar, setSnackbar] = useState<Snack>({});
-  const [isOpen, , showSnack, hideSnack] = useToggle();
+  const [isOpen, showSnack, hideSnack] = useBool();
   const {palette} = useTheme();
 
   const snack = useCallback(

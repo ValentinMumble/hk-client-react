@@ -1,4 +1,5 @@
-import {ArtistLight, Image} from 'models';
+import {ArtistLight} from './artist';
+import {Image} from './image';
 
 type Album = {
   images: Image[];
