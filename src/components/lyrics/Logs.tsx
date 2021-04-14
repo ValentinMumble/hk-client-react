@@ -48,6 +48,7 @@ const Logs = ({scrollRef, setContent, setLoading}: ContentProps) => {
 
     try {
       const {data} = await api<Log[]>(['logs']);
+
       setContent(
         <LogsContainer>
           {data.map((log, index) => (
@@ -67,7 +68,6 @@ const Logs = ({scrollRef, setContent, setLoading}: ContentProps) => {
       }
     } catch (error) {
       snack(`🥺 ${error.message}`);
-      setContent(undefined);
     } finally {
       setLoading?.(false);
       stopLoading();

@@ -1,5 +1,21 @@
-import React, {useEffect, useState} from 'react';
+import {useEffect, useState} from 'react';
 import {api} from 'utils';
+
+const login = (authorizeUrl: string): Promise<string> =>
+  new Promise(resolve => {
+    const popup = window.open(authorizeUrl, '_blank', 'width=500,height=500,location=0,resizable=0');
+    const listener = setInterval(() => {
+      if (popup) popup.postMessage('login', window.location.toString());
+    }, 500);
+    window.onmessage = (event: any) => {
+      if (popup === event.source) {
+        clearInterval(listener);
+        window.onmessage = null;
+
+        return resolve(event.data);
+      }
+    };
+  });
 
 const Callback = () => {
   const params = new URLSearchParams(window.location.search);
@@ -31,4 +47,4 @@ const Callback = () => {
   return <div>Logging in...</div>;
 };
 
-export {Callback};
+export {Callback, login};

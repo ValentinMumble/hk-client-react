@@ -1,4 +1,3 @@
-import {useState} from 'react';
 import styled from 'styled-components';
 import {IconButton, CircularProgress} from '@material-ui/core';
 import {SearchRounded} from '@material-ui/icons';
@@ -7,10 +6,9 @@ import {LyricsSearch} from 'models';
 import {api} from 'utils';
 import {ContentProps} from './ContentProps';
 
-const LyricsContainer = styled.div<{stale: boolean}>`
+const LyricsContainer = styled.div`
   white-space: pre-wrap;
   line-height: 1.8;
-  color: ${({stale, theme}) => (stale ? '#aaa' : theme.palette.primary.main)};
 `;
 
 const Loader = styled.div<{isLoading: boolean}>`
@@ -23,7 +21,6 @@ const Loader = styled.div<{isLoading: boolean}>`
 
 const Lyrics = ({scrollRef, setContent, setLoading}: ContentProps) => {
   const [isLoading, startLoading, stopLoading] = useBool();
-  const [displayedTrack, setDisplayedTrack] = useState<string>();
 
   const snack = useSnackbar();
   const [track] = useTrack();
@@ -33,18 +30,17 @@ const Lyrics = ({scrollRef, setContent, setLoading}: ContentProps) => {
 
     startLoading();
     setLoading?.(true);
-    setDisplayedTrack(track.name);
 
     try {
       const {data} = await api<LyricsSearch>(['lyrics', track.artists[0].name, track.name]);
-      setContent(<LyricsContainer stale={track?.name !== displayedTrack}>{data.top}</LyricsContainer>);
+
+      setContent(<LyricsContainer>{data.top}</LyricsContainer>);
 
       if (scrollRef?.current) {
         scrollRef.current.scrollTo(0, 0);
       }
     } catch (error) {
       snack(`🥺 ${error.message}`);
-      setContent(undefined);
     } finally {
       setLoading?.(false);
       stopLoading();

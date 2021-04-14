@@ -6,6 +6,7 @@ import {usePalette, useSocket, useSnackbar, useIdle, useBool} from 'hooks';
 import {Tune, Controls} from 'components';
 import {api} from 'utils';
 import {PlayerState, Welcome} from 'models';
+import {login} from 'Callback';
 
 const ID = 'Spotify';
 const MITIGATE = 100;
@@ -27,22 +28,6 @@ const Loader = styled.div<{isLoading: boolean}>`
   opacity: ${({isLoading}) => (isLoading ? 1 : 0)};
   transition: opacity 400ms ease;
 `;
-
-const login = (authorizeUrl: string): Promise<string> =>
-  new Promise(resolve => {
-    const popup = window.open(authorizeUrl, '_blank', 'width=500,height=500,location=0,resizable=0');
-    const listener = setInterval(() => {
-      if (popup) popup.postMessage('login', window.location.toString());
-    }, 500);
-    window.onmessage = (event: any) => {
-      if (popup === event.source) {
-        clearInterval(listener);
-        window.onmessage = null;
-
-        return resolve(event.data);
-      }
-    };
-  });
 
 const Spotify = () => {
   const [isLoading, showLoading, hideLoading] = useBool();

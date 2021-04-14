@@ -12,7 +12,8 @@ const Container = styled.div`
 
 const Content = styled.div<{isVisible: boolean}>`
   font-size: 1rem;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   max-width: min(450px, 90vw);
   max-height: ${({isVisible}) => (isVisible ? 80 : 0)}vh;
   opacity: ${({isVisible}) => (isVisible ? 1 : 0)};
@@ -26,13 +27,13 @@ const LyricsTab = () => {
 
   return (
     <Container>
+      <Content ref={scrollRef} isVisible={!isLoading}>
+        {content}
+      </Content>
       <div>
         <Lyrics scrollRef={scrollRef} setContent={setContent} setLoading={setLoading} />
         <Logs scrollRef={scrollRef} setContent={setContent} setLoading={setLoading} />
       </div>
-      <Content ref={scrollRef} isVisible={!isLoading}>
-        {content}
-      </Content>
     </Container>
   );
 };
