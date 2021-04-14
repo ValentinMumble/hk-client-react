@@ -14,6 +14,7 @@ const Content = styled.div<{isVisible: boolean}>`
   font-size: 1rem;
   overflow-x: hidden;
   overflow-y: auto;
+  min-width: 320px;
   max-width: min(450px, 90vw);
   max-height: ${({isVisible}) => (isVisible ? 80 : 0)}vh;
   opacity: ${({isVisible}) => (isVisible ? 1 : 0)};
@@ -22,7 +23,7 @@ const Content = styled.div<{isVisible: boolean}>`
 
 const LyricsTab = () => {
   const [content, setContent] = useState<ReactNode>();
-  const [isLoading, setLoading] = useState<boolean>(false);
+  const [isLoading, setLoading] = useState<boolean>(true);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   return (

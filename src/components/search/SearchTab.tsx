@@ -30,7 +30,7 @@ const SearchTab = () => {
   const [artist, setArtist] = useState<Artist>();
   const [search, setSearch] = useSearch();
   const [, emit] = useSocket();
-  const [tab] = useTab();
+  const [tab, setTab] = useTab();
 
   const fetchTracks = async (search: string) => {
     const {data} = await api<Track[]>(['spotify', 'search', search]);
@@ -47,7 +47,10 @@ const SearchTab = () => {
 
   const handleSearchChange = ({target: {value}}: React.ChangeEvent<HTMLInputElement>) => setSearch({value});
   const handleArtistSelect = (artist: ArtistLight) => setSearch(search => ({...search, artist}));
-  const playTrack = ({uri}: Track) => emit('play', {uris: [uri]});
+  const playTrack = ({uri}: Track) => {
+    emit('play', {uris: [uri]});
+    setTab(1);
+  };
 
   useEffect(() => {
     if ('' === search.value) return;

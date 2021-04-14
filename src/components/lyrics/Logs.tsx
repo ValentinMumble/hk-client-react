@@ -44,7 +44,6 @@ const Logs = ({scrollRef, setContent, setLoading}: ContentProps) => {
 
   const fetchLogs = async () => {
     startLoading();
-    setLoading?.(true);
 
     try {
       const {data} = await api<Log[]>(['logs']);
