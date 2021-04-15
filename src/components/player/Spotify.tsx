@@ -2,7 +2,7 @@ import {useEffect, useState, useCallback} from 'react';
 import styled from 'styled-components';
 import {LinearProgress, IconButton} from '@material-ui/core';
 import {LockRounded} from '@material-ui/icons';
-import {usePalette, useSocket, useSnackbar, useIdle, useBool} from 'hooks';
+import {usePalette, useSocket, useSnackbar, useIdle, useBool, useTab} from 'hooks';
 import {Tune, Controls} from 'components';
 import {api} from 'utils';
 import {PlayerState, Welcome} from 'models';
@@ -40,6 +40,7 @@ const Spotify = () => {
   const snack = useSnackbar();
   const [, setPalette] = usePalette();
   const [soca, emit, sub] = useSocket();
+  const [, setTab] = useTab();
 
   const fetchToken = useCallback(async () => {
     console.info('Fetching token...');
@@ -73,6 +74,7 @@ const Spotify = () => {
   const connect = useCallback(() => {
     if (soca && soca.disconnected && accessToken && !isLoading) {
       showLoading();
+      setTab(1);
       window.setTimeout(() => {
         console.info('Connecting');
         soca.connect();
@@ -89,6 +91,7 @@ const Spotify = () => {
 
   const disconnect = useCallback(() => {
     console.info('Disconnecting');
+    window.clearTimeout(connectionTimeoutId);
     soca?.disconnect();
     hideLoading();
   }, [soca]);

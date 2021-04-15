@@ -22,7 +22,7 @@ const api = async <T>(resource: Value[], params: Params = {}, options?: RequestI
   const data = 204 === response.status ? undefined : await response.json();
 
   if (500 === response.status) {
-    throw new Error(data ?? response.statusText);
+    throw new Error(data?.message ?? data ?? response.statusText);
   }
 
   return {
@@ -63,16 +63,22 @@ const emojiFirst = (string: string): string => {
 };
 
 const LABELS: {[key: string]: string} = {
+  // Playlists
   OK: '👌 OK',
   'Discover Weekly': '✨ Discover',
   '<3': '❤️ Likes',
+  // Devices
   Pi: '🔈 π',
   MacMumble: '💻 MacMumble',
   'ONEPLUS A6013': '📱 OnePlus',
   'Akeneo Mumble 16': '👾 Akemumble',
+  // Lights
   'Hue lightstrip': '🌈 Strip',
   'Hue Boule': '🔮 Boule',
   'Lux Pied': '🛋 Pied',
+  // Logs
+  'No active device\n': 'No active device... 🏜',
+  'Transfering playback to Pi\n': 'Transfering ➡️ π',
 };
 
 const label = (key: string): string => LABELS[key] ?? key;

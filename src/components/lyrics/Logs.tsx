@@ -5,6 +5,7 @@ import {useSnackbar, useBool} from 'hooks';
 import {Log} from 'models';
 import {api} from 'utils';
 import {ContentProps} from './ContentProps';
+import {LogEntry} from './LogEntry';
 
 const LogsContainer = styled.div`
   display: flex;
@@ -18,23 +19,6 @@ const Loader = styled.div<{isLoading: boolean}>`
   height: 100%;
   opacity: ${({isLoading}) => (isLoading ? 0.3 : 0)};
   transition: opacity 400ms ease;
-`;
-
-const LogEntry = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-`;
-
-const Timestamp = styled.span<{hasError: boolean}>`
-  color: ${({theme, hasError}) => (hasError ? theme.palette.primary.main : theme.palette.secondary.main)};
-  font-size: 0.7rem;
-`;
-
-const Meta = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 5px;
 `;
 
 const Logs = ({scrollRef, setContent, setLoading}: ContentProps) => {
@@ -51,13 +35,7 @@ const Logs = ({scrollRef, setContent, setLoading}: ContentProps) => {
       setContent(
         <LogsContainer>
           {data.map((log, index) => (
-            <LogEntry key={index}>
-              <Meta>
-                {'err' === log.type && '⚡️'}
-                <Timestamp hasError={'err' === log.type}>{new Date(log.timestamp).toLocaleString('fr-FR')}</Timestamp>
-              </Meta>
-              {log.message}
-            </LogEntry>
+            <LogEntry key={index} log={log} />
           ))}
         </LogsContainer>
       );
