@@ -10,6 +10,8 @@ import {login} from 'Callback';
 
 const ID = 'Spotify';
 const MITIGATE = 100;
+const CONNECTION_TIMEOUT = 4000;
+let connectionTimeoutId: number;
 
 const Container = styled.div`
   display: flex;
@@ -40,6 +42,8 @@ const Spotify = () => {
   const [soca, emit, sub] = useSocket();
 
   const fetchToken = useCallback(async () => {
+    console.info('Fetching token...');
+
     try {
       const {
         status,
@@ -64,30 +68,38 @@ const Spotify = () => {
 
     setAccessToken(await login(authorizeUrl));
     setAuthorizeUrl(undefined);
-  }, [authorizeUrl, setPalette]);
+  }, [authorizeUrl]);
 
   const connect = useCallback(() => {
-    if (soca && soca.disconnected && accessToken) {
+    if (soca && soca.disconnected && accessToken && !isLoading) {
       showLoading();
-      setTimeout(() => {
+      window.setTimeout(() => {
         console.info('Connecting');
         soca.connect();
         emit('initiate');
+
+        connectionTimeoutId = window.setTimeout(() => {
+          snack('😖 Socket timeout...');
+          setAccessToken(undefined);
+          disconnect();
+        }, CONNECTION_TIMEOUT);
       }, MITIGATE);
     }
-  }, [accessToken, soca, emit]);
+  }, [accessToken, soca, emit, isLoading]);
 
   const disconnect = useCallback(() => {
     console.info('Disconnecting');
-    if (soca) soca.disconnect();
+    soca?.disconnect();
+    hideLoading();
   }, [soca]);
 
   useEffect(() => {
     if (soca.connected || !accessToken) return;
 
-    sub(ID, 'initial_state', (state: PlayerState) => {
+    sub(ID, 'initial_state', ({is_playing}: PlayerState) => {
+      window.clearTimeout(connectionTimeoutId);
       hideLoading();
-      setPlaying(state.is_playing);
+      setPlaying(is_playing);
     });
     sub(ID, 'playback_started', () => setPlaying(true));
     sub(ID, 'playback_paused', () => setPlaying(false));

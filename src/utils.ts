@@ -21,12 +21,8 @@ const api = async <T>(resource: Value[], params: Params = {}, options?: RequestI
   const response = await fetch(url.toString(), {headers: {'Content-Type': 'application/json'}, ...options});
   const data = 204 === response.status ? undefined : await response.json();
 
-  if (!response.ok) {
-    if (!data) {
-      throw new Error(response.statusText);
-    } else if (data.error) {
-      throw new Error(data.error.message);
-    }
+  if (500 === response.status) {
+    throw new Error(data ?? response.statusText);
   }
 
   return {

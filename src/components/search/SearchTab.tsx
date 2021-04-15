@@ -89,7 +89,7 @@ const SearchTab = () => {
         value={search.value}
         onChange={handleSearchChange}
         InputProps={{
-          endAdornment: undefined === artist ? undefined : <Avatar src={artist.images[0].url} alt={artist.name} />,
+          endAdornment: undefined === artist ? undefined : <Avatar src={artist.images[0]?.url} alt={artist.name} />,
         }}
       />
       <Suggestions>
