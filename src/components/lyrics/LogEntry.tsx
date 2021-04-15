@@ -8,8 +8,8 @@ const Container = styled.div`
   gap: 2px;
 `;
 
-const Timestamp = styled.span<{hasError: boolean}>`
-  color: ${({theme, hasError}) => (hasError ? theme.palette.primary.main : theme.palette.secondary.main)};
+const Timestamp = styled.span<{isError: boolean}>`
+  color: ${({theme, isError}) => (isError ? theme.palette.primary.main : theme.palette.secondary.main)};
   font-size: 0.7rem;
 `;
 
@@ -24,11 +24,13 @@ type LogEntryProps = {
 };
 
 const LogEntry = ({log: {type, timestamp, message}}: LogEntryProps) => {
+  const isError = 'err' === type;
+
   return (
     <Container>
       <Meta>
-        {'err' === type && '⚡️'}
-        <Timestamp hasError={'err' === type}>{new Date(timestamp).toLocaleString('en-GB')}</Timestamp>
+        {isError && '⚡️'}
+        <Timestamp isError={isError}>{new Date(timestamp).toLocaleString('en-GB')}</Timestamp>
       </Meta>
       {label(message)}
     </Container>

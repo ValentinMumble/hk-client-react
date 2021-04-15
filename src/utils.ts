@@ -52,6 +52,7 @@ const fetchImage = (url: string): Promise<string> =>
 
 const emojiFirst = (string: string): string => {
   const array = Array.from(string);
+
   array.forEach((char, index) => {
     if (char.match(/\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff]/)) {
       array.splice(index, 1);
@@ -79,6 +80,8 @@ const LABELS: {[key: string]: string} = {
   // Logs
   'No active device\n': 'No active device... 🏜',
   'Transfering playback to Pi\n': 'Transfering ➡️ π',
+  'Refreshing token\n': 'Refreshing token ♻️',
+  'The access token expired\n': 'Token expired 🚪',
 };
 
 const label = (key: string): string => LABELS[key] ?? key;
