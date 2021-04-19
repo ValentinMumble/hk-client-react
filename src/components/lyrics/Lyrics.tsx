@@ -11,6 +11,23 @@ const LyricsContainer = styled.div`
   line-height: 1.8;
 `;
 
+const Track = styled.div`
+  color: ${({theme}) => theme.palette.primary.main};
+  font-size: 1.2rem;
+  position: sticky;
+  top: 0;
+  background-color: black;
+  text-align: center;
+  padding-bottom: 10px;
+  line-height: 1.5rem;
+`;
+
+const Artist = styled.div`
+  font-size: 0.8rem;
+  opacity: 0.6;
+  font-style: italic;
+`;
+
 const Loader = styled.div<{isLoading: boolean}>`
   position: absolute;
   width: 100%;
@@ -32,9 +49,18 @@ const Lyrics = ({scrollRef, setContent, setLoading}: ContentProps) => {
     setLoading?.(true);
 
     try {
-      const {data} = await api<LyricsSearch>(['lyrics', track.artists[0].name, track.name]);
+      const [trackName] = track.name.split(' - ');
+      const {data} = await api<LyricsSearch>(['lyrics', track.artists[0].name, trackName]);
 
-      setContent(<LyricsContainer>{data.top}</LyricsContainer>);
+      setContent(
+        <LyricsContainer>
+          <Track>
+            {trackName}
+            <Artist>{track.artists[0].name}</Artist>
+          </Track>
+          {data.top}
+        </LyricsContainer>
+      );
 
       if (scrollRef?.current) {
         scrollRef.current.scrollTo(0, 0);
