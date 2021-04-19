@@ -10,8 +10,6 @@ import {login} from 'Callback';
 
 const ID = 'Spotify';
 const MITIGATE = 100;
-const CONNECTION_TIMEOUT = 4000;
-let connectionTimeoutId: number;
 
 const Container = styled.div`
   display: flex;
@@ -79,19 +77,12 @@ const Spotify = () => {
         console.info('Connecting');
         soca.connect();
         emit('initiate');
-
-        connectionTimeoutId = window.setTimeout(() => {
-          snack('😖 Socket timeout...');
-          setAccessToken(undefined);
-          disconnect();
-        }, CONNECTION_TIMEOUT);
       }, MITIGATE);
     }
   }, [accessToken, soca, emit, isLoading]);
 
   const disconnect = useCallback(() => {
     console.info('Disconnecting');
-    window.clearTimeout(connectionTimeoutId);
     soca?.disconnect();
     hideLoading();
   }, [soca]);
@@ -100,12 +91,12 @@ const Spotify = () => {
     if (soca.connected || !accessToken) return;
 
     sub(ID, 'initial_state', ({is_playing}: PlayerState) => {
-      window.clearTimeout(connectionTimeoutId);
       hideLoading();
       setPlaying(is_playing);
     });
     sub(ID, 'playback_started', () => setPlaying(true));
     sub(ID, 'playback_paused', () => setPlaying(false));
+    sub(ID, 'no_token', () => setAccessToken(undefined));
 
     connect();
   }, [soca, sub, accessToken, connect]);
