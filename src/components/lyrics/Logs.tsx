@@ -1,3 +1,4 @@
+import {useState} from 'react';
 import styled from 'styled-components';
 import {IconButton, CircularProgress} from '@material-ui/core';
 import {ReceiptRounded} from '@material-ui/icons';
@@ -23,6 +24,7 @@ const Loader = styled.div<{isLoading: boolean}>`
 
 const Logs = ({scrollRef, setContent, setLoading}: ContentProps) => {
   const [isLoading, startLoading, stopLoading] = useBool();
+  const [timestamps, setTimestamps] = useState<string[]>([]);
 
   const snack = useSnackbar();
 
@@ -34,11 +36,12 @@ const Logs = ({scrollRef, setContent, setLoading}: ContentProps) => {
 
       setContent(
         <LogsContainer>
-          {data.map((log, index) => (
-            <LogEntry key={index} log={log} />
+          {data.map(log => (
+            <LogEntry key={log.timestamp + log.message.length} log={log} stale={timestamps.includes(log.timestamp)} />
           ))}
         </LogsContainer>
       );
+      setTimestamps(data.map(({timestamp}) => timestamp));
 
       if (scrollRef?.current) {
         scrollRef.current.scrollTo(0, scrollRef.current.scrollHeight);

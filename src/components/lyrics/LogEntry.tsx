@@ -2,10 +2,12 @@ import styled from 'styled-components';
 import {Log} from 'models';
 import {label} from 'utils';
 
-const Container = styled.div`
+const Container = styled.div<{stale: boolean}>`
   display: flex;
   flex-direction: column;
   gap: 2px;
+  opacity: ${({stale}) => (stale ? 0.6 : 1)};
+  transition: opacity 400ms ease;
 `;
 
 const Timestamp = styled.span<{isError: boolean}>`
@@ -21,13 +23,14 @@ const Meta = styled.div`
 
 type LogEntryProps = {
   log: Log;
+  stale: boolean;
 };
 
-const LogEntry = ({log: {type, timestamp, message}}: LogEntryProps) => {
+const LogEntry = ({stale, log: {type, timestamp, message}}: LogEntryProps) => {
   const isError = 'err' === type;
 
   return (
-    <Container>
+    <Container stale={stale}>
       <Meta>
         {isError && '⚡️'}
         <Timestamp isError={isError}>{new Date(timestamp).toLocaleString('en-GB')}</Timestamp>
