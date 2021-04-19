@@ -15,7 +15,7 @@ const LargeButtons = styled.span`
 `;
 
 const PlayerTab = () => {
-  const snackedApi = useSnackedApi<string>();
+  const snackedApi = useSnackedApi();
 
   return (
     <>

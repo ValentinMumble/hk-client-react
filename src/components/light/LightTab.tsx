@@ -23,7 +23,7 @@ const ColumnContainer = styled(RowContainer)`
 `;
 
 const LightTab = () => {
-  const snackedApi = useSnackedApi<string>();
+  const snackedApi = useSnackedApi();
   const ok = () => '👍';
 
   return (

@@ -16,11 +16,11 @@ const computeBackground = <T>(color: string | undefined, data: T | undefined): s
   return undefined === data ? 'transparent' : undefined;
 };
 
-const useSnackedApi = <T>() => {
+const useSnackedApi = () => {
   const snack = useSnackbar();
 
   return useCallback(
-    async (resources: Value[], template?: (data: T) => ReactNode, backgroundColor?: string) => {
+    async <T = string>(resources: Value[], template?: (data: T) => ReactNode, backgroundColor?: string) => {
       try {
         const {data} = await api<T>(resources);
         snack(template ? template(data) : data, 2000, computeBackground<T>(backgroundColor, data));

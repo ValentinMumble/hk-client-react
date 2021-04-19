@@ -63,7 +63,7 @@ const getLightIcon = (id: string): ReactElement => {
 
 const Hues = () => {
   const [palette] = usePalette();
-  const snackedApi = useSnackedApi<boolean>();
+  const snackedApi = useSnackedApi();
   const [lights, setLights] = useState<Light[]>([]);
 
   const fetchLights = async () => {
@@ -106,7 +106,7 @@ const Hues = () => {
               key={id}
               color="secondary"
               onClick={() =>
-                snackedApi(
+                snackedApi<boolean>(
                   ['hue', 'toggle', id],
                   on => emojiFirst(`Toggling ${label(name)} ${on ? 'on' : 'off'}...`),
                   '#000'
