@@ -1,13 +1,25 @@
 import {useEffect, useState, useCallback} from 'react';
 import styled, {css} from 'styled-components';
 import splashy from 'splashy';
-import {I, fetchImage} from 'utils';
+import {I, fetchImage, formatDuration} from 'utils';
 import {usePalette, useSocket, useSnackedApi, useTrack, useTab, useSearch, useBool} from 'hooks';
 import {PlayerState} from 'models';
 
 const ID = 'Tune';
 const PROGRESS_DELAY = 500;
 const ARTWORK_TRANSITION = 800;
+
+const Duration = styled.span`
+  color: ${({theme}) => theme.palette.primary.main};
+  padding: 5px;
+  position: absolute;
+  top: 60%;
+  width: 100%;
+  text-align: center;
+  font-size: 0.5em;
+  opacity: 0;
+  transition: opacity 1.5s ease;
+`;
 
 const ArtworkContainer = styled.div<{isPlaying: boolean}>`
   position: relative;
@@ -25,12 +37,18 @@ const ArtworkContainer = styled.div<{isPlaying: boolean}>`
       transform: scale(0.95);
       opacity: 0.8;
     `}
+
+  &:active ${Duration} {
+    opacity: 1;
+    transition-duration: 0s;
+  }
 `;
 
 const Image = styled.img<{isHidden: boolean}>`
   position: absolute;
   top: 0;
   width: 100%;
+  height: 100%;
   border-radius: 50%;
   transition: all ${ARTWORK_TRANSITION}ms ease;
   opacity: ${({isHidden}) => (isHidden ? 0 : 1)};
@@ -61,18 +79,24 @@ const TrackContainer = styled.label`
   display: flex;
   flex-direction: column;
   margin: 3vh 0;
+  height: 4vh;
   color: ${({theme}) => theme.palette.primary.main};
   font-size: 0.5em;
   text-align: center;
-  max-width: min(450px, 95vw);
+  max-width: min(450px, 92vw);
 `;
 
 const Artist = styled.span`
   justify-content: center;
-  opacity: 0.6;
+  opacity: 0.5;
   font-style: italic;
-  font-size: 0.8em;
+  font-size: 0.9em;
   margin-top: 1vh;
+`;
+
+const Meta = styled.span`
+  opacity: 0.6;
+  font-size: 0.8em;
 `;
 
 let prevSrcTimer: number;
@@ -121,7 +145,7 @@ const Tune = ({isPlaying}: TuneProps) => {
           return () => clearTimeout(prevSrcTimer);
         }
       } catch (error) {
-        console.error(`Failed to load src: ${src}`);
+        console.error('Failed to load src:', src);
       }
     },
     [setPalette, prevSrc]
@@ -148,6 +172,8 @@ const Tune = ({isPlaying}: TuneProps) => {
     });
   }, [sub, setActiveTrack]);
 
+  const [name, ...meta] = (activeTrack?.name ?? '').split(' - ');
+
   return (
     <>
       <ArtworkContainer
@@ -164,19 +190,23 @@ const Tune = ({isPlaying}: TuneProps) => {
         <Progress ratio={activeTrack ? progress / activeTrack.duration_ms : 0}>
           <circle r="49.1%" cx="50%" cy="50%" />
         </Progress>
+        <Duration>
+          {formatDuration(progress)}/{formatDuration(activeTrack?.duration_ms ?? 0)}
+        </Duration>
       </ArtworkContainer>
       {activeTrack ? (
         <TrackContainer>
           <span
             onClick={() =>
-              snackedApi(
-                ['spotify', 'playlist', 'add', activeTrack.uri],
-                () => `👌 ${activeTrack.name} added`,
-                'primary'
-              )
+              snackedApi(['spotify', 'playlist', 'add', activeTrack.uri], () => `👌 ${name} added`, 'primary')
             }
           >
-            {activeTrack.name}
+            {name}
+            <Meta>
+              {meta.map(meta => (
+                <>&nbsp;&mdash;&nbsp;{meta}</>
+              ))}
+            </Meta>
           </span>
           <Artist onClick={handleArtistClick}>{activeTrack.artists[0].name}</Artist>
         </TrackContainer>

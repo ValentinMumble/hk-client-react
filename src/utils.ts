@@ -63,6 +63,8 @@ const emojiFirst = (string: string): string => {
   return array.join('').replace(/ +(?= )/g, '');
 };
 
+const formatDuration = (duration: number) => new Date(duration).toISOString().substr(14, 5).replace(/^0/, '');
+
 const LABELS: {[key: string]: string} = {
   // Playlists
   OK: '👌 OK',
@@ -93,4 +95,4 @@ const I = {
     'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mMs/w8AAfMBeIBXwkoAAAAASUVORK5CYII=',
 };
 
-export {api, fetchImage, I, emojiFirst, label};
+export {api, fetchImage, I, emojiFirst, label, formatDuration};
