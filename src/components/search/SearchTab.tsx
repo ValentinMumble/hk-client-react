@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import {ChangeEvent, useEffect, useRef, useState} from 'react';
 import styled from 'styled-components';
 import {Avatar, List, TextField} from '@material-ui/core';
 import {MusicNoteRounded} from '@material-ui/icons';
@@ -59,7 +59,7 @@ const SearchTab = () => {
     setTracks(data);
   };
 
-  const handleSearchChange = ({target: {value}}: React.ChangeEvent<HTMLInputElement>) => setSearch({value});
+  const handleSearchChange = ({target: {value}}: ChangeEvent<HTMLInputElement>) => setSearch({value});
   const handleArtistSelect = (artist: ArtistLight) => setSearch(({value}) => ({value, artist}));
   const handleAlbumSelect = (album: Album) => setSearch(({value}) => ({value, album}));
   const playTrack = ({uri}: Track) => {

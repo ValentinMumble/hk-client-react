@@ -2,7 +2,7 @@ import {useEffect, useState, useCallback} from 'react';
 import styled, {css} from 'styled-components';
 import splashy from 'splashy';
 import {I, fetchImage, formatDuration} from 'utils';
-import {usePalette, useSocket, useSnackedApi, useTrack, useBool} from 'hooks';
+import {usePalette, useSocket, useTrack, useBool} from 'hooks';
 import {PlayerState} from 'models';
 
 const ID = 'Tune';
@@ -89,7 +89,6 @@ const Artwork = ({isPlaying}: ArtworkProps) => {
   const [, setPalette] = usePalette();
   const [, , sub] = useSocket();
   const [activeTrack, setActiveTrack] = useTrack();
-  const snackedApi = useSnackedApi();
 
   const loadArtwork = useCallback(
     async (src?: string, force: boolean = false) => {
@@ -118,12 +117,7 @@ const Artwork = ({isPlaying}: ArtworkProps) => {
     [setPalette, prevSrc]
   );
 
-  const handleArtworkClick = () => {
-    loadArtwork(activeTrack?.album?.images[0]?.url, true);
-    snackedApi<number>(['soca', 'count'], clientCount =>
-      clientCount ? `🤵 ${clientCount} client${clientCount > 1 ? 's' : ''} connected` : '🔌'
-    );
-  };
+  const handleArtworkClick = () => loadArtwork(activeTrack?.album?.images[0]?.url, true);
 
   useEffect(() => {
     if (activeTrack) loadArtwork(activeTrack.album?.images[0]?.url);
