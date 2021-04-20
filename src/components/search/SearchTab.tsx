@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import styled from 'styled-components';
 import {Avatar, List, TextField} from '@material-ui/core';
-import {Artist, ArtistLight, Track} from 'models';
+import {Artist, ArtistLight, Track, Album} from 'models';
 import {api} from 'utils';
 import {useSearch, useSocket, useTab} from 'hooks';
 import {Suggestion} from 'components';
@@ -28,6 +28,7 @@ const SearchTab = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [tracks, setTracks] = useState<Track[]>([]);
   const [artist, setArtist] = useState<Artist>();
+  const [album, setAlbum] = useState<Album>();
   const [search, setSearch] = useSearch();
   const [, emit] = useSocket();
   const [tab, setTab] = useTab();
@@ -45,8 +46,15 @@ const SearchTab = () => {
     setArtist(artist);
   };
 
+  const fetchAlbumTracks = async (album: Album) => {
+    setAlbum(album);
+    const {data} = await api<Track[]>(['spotify', 'album', album.id]);
+    setTracks(data);
+  };
+
   const handleSearchChange = ({target: {value}}: React.ChangeEvent<HTMLInputElement>) => setSearch({value});
-  const handleArtistSelect = (artist: ArtistLight) => setSearch(search => ({...search, artist}));
+  const handleArtistSelect = (artist: ArtistLight) => setSearch(({value}) => ({value, artist}));
+  const handleAlbumSelect = (album: Album) => setSearch(({value}) => ({value, album}));
   const playTrack = ({uri}: Track) => {
     emit('play', {uris: [uri]});
     setTab(1);
@@ -56,14 +64,23 @@ const SearchTab = () => {
     if ('' === search.value) return;
 
     setArtist(undefined);
+    setAlbum(undefined);
     fetchTracks(search.value);
   }, [search.value]);
 
   useEffect(() => {
     if (!search.artist) return;
 
+    setAlbum(undefined);
     fetchArtist(search.artist);
   }, [search.artist?.id]);
+
+  useEffect(() => {
+    if (!search.album) return;
+
+    setArtist(undefined);
+    fetchAlbumTracks(search.album);
+  }, [search.album?.id]);
 
   useEffect(() => {
     if (!inputRef.current) return;
@@ -74,10 +91,16 @@ const SearchTab = () => {
         inputRef.current.select();
       }
     } else {
-      setSearch(search => ({...search, artist: undefined}));
       inputRef.current.blur();
     }
   }, [tab, artist]);
+
+  const endAdornment =
+    undefined !== artist ? (
+      <Avatar src={artist.images[0]?.url} alt={artist.name} />
+    ) : undefined !== album ? (
+      <Avatar src={album.images[0]?.url} alt={album.name} />
+    ) : undefined;
 
   return (
     <Container>
@@ -85,16 +108,21 @@ const SearchTab = () => {
         inputRef={inputRef}
         variant="outlined"
         fullWidth={true}
-        label={artist?.name}
+        label={artist?.name ?? album?.name}
         value={search.value}
         onChange={handleSearchChange}
-        InputProps={{
-          endAdornment: undefined === artist ? undefined : <Avatar src={artist.images[0]?.url} alt={artist.name} />,
-        }}
+        InputProps={{endAdornment}}
       />
       <Suggestions>
         {tracks.map(track => (
-          <Suggestion key={track.uri} track={track} onTrackSelect={playTrack} onArtistSelect={handleArtistSelect} />
+          <Suggestion
+            key={track.id}
+            track={track}
+            album={album}
+            onTrackSelect={playTrack}
+            onArtistSelect={handleArtistSelect}
+            onAlbumSelect={handleAlbumSelect}
+          />
         ))}
       </Suggestions>
     </Container>

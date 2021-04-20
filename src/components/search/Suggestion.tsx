@@ -1,8 +1,18 @@
 import {ReactElement, SyntheticEvent, useState} from 'react';
+import styled from 'styled-components';
 import {Avatar, IconButton, ListItem, ListItemAvatar, ListItemSecondaryAction, ListItemText} from '@material-ui/core';
-import {PlaylistAddCheckRounded, PlaylistAddRounded} from '@material-ui/icons';
-import {ArtistLight, Track} from 'models';
+import {AlbumRounded, PlaylistAddCheckRounded, PlaylistAddRounded} from '@material-ui/icons';
+import {ArtistLight, Track, Album} from 'models';
 import {api} from 'utils';
+
+const Buttons = styled(ListItemSecondaryAction)`
+  right: 0;
+  font-size: 0.8em;
+
+  button {
+    padding: 8px;
+  }
+`;
 
 type State = 'added' | 'not-added' | 'loading';
 
@@ -18,11 +28,13 @@ const getIcon = (state: State): ReactElement => {
 
 type SuggestionProps = {
   track: Track;
+  album?: Album;
+  onAlbumSelect: (album: Album) => void;
   onArtistSelect: (artist: ArtistLight) => void;
   onTrackSelect: (track: Track) => void;
 };
 
-const Suggestion = ({track, onTrackSelect, onArtistSelect}: SuggestionProps) => {
+const Suggestion = ({album, track, onAlbumSelect, onTrackSelect, onArtistSelect}: SuggestionProps) => {
   const [state, setState] = useState<State>('not-added');
   const artistLight = track.artists[0];
 
@@ -33,6 +45,13 @@ const Suggestion = ({track, onTrackSelect, onArtistSelect}: SuggestionProps) => 
     onArtistSelect(artistLight);
   };
 
+  const handleAlbumSelect = (event: SyntheticEvent) => {
+    if (!track.album) return;
+
+    event.stopPropagation();
+    onAlbumSelect(track.album);
+  };
+
   const handleQueue = async () => {
     setState('loading');
     const {status} = await api(['spotify', 'queue', track.uri]);
@@ -40,17 +59,18 @@ const Suggestion = ({track, onTrackSelect, onArtistSelect}: SuggestionProps) => 
   };
 
   return (
-    <ListItem button={true} onClick={handleTrackSelect}>
+    <ListItem disableGutters={true} button={true} onClick={handleTrackSelect}>
       <ListItemAvatar>
         <IconButton
           onClick={handleArtistSelect}
-          children={<Avatar alt={artistLight.name} src={track.album.images[0].url} />}
+          children={<Avatar alt={artistLight.name} src={album ? album.images[0].url : track.album?.images[0].url} />}
         />
       </ListItemAvatar>
       <ListItemText primary={track.name} secondary={artistLight.name} />
-      <ListItemSecondaryAction>
+      <Buttons>
+        {track.album && <IconButton onClick={handleAlbumSelect} children={<AlbumRounded />} />}
         <IconButton disabled={'not-added' !== state} onClick={handleQueue} children={getIcon(state)} />
-      </ListItemSecondaryAction>
+      </Buttons>
     </ListItem>
   );
 };

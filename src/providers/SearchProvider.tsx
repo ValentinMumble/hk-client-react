@@ -1,4 +1,4 @@
-import React, {useState, ReactNode} from 'react';
+import {useState, ReactNode} from 'react';
 import {SearchContext} from 'contexts';
 import {Search} from 'models';
 
