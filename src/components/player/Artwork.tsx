@@ -9,16 +9,16 @@ const ID = 'Tune';
 const PROGRESS_DELAY = 500;
 const ARTWORK_TRANSITION = 800;
 
-const Duration = styled.span`
+const Duration = styled.div`
   color: ${({theme}) => theme.palette.primary.main};
-  padding: 5px;
   position: absolute;
-  top: 60%;
+  bottom: 0;
   width: 100%;
-  text-align: center;
+  display: flex;
+  justify-content: space-between;
   font-size: 0.5em;
   opacity: 0;
-  transition: opacity 1.5s ease;
+  transition: opacity 8s ease;
 `;
 
 const Container = styled.div<{isPlaying: boolean}>`
@@ -29,7 +29,6 @@ const Container = styled.div<{isPlaying: boolean}>`
   overflow: hidden;
   transition: all 0.2s ease;
   transform-origin: bottom;
-  border-radius: 50%;
 
   ${({isPlaying}) =>
     !isPlaying &&
@@ -40,7 +39,7 @@ const Container = styled.div<{isPlaying: boolean}>`
 
   &:active ${Duration} {
     opacity: 1;
-    transition-duration: 0s;
+    transition-duration: 0.1s;
   }
 `;
 
@@ -93,11 +92,11 @@ const Artwork = ({isPlaying}: ArtworkProps) => {
   const snackedApi = useSnackedApi();
 
   const loadArtwork = useCallback(
-    async (src?: string) => {
+    async (src?: string, force: boolean = false) => {
       try {
         const base64 = src ? await fetchImage(src) : I.GRAY;
 
-        if (base64 !== prevSrc) {
+        if (base64 !== prevSrc || force) {
           clearTimeout(prevSrcTimer);
           const colors = src ? await splashy(base64) : ['#777', '#777'];
           setCurrentSrc(base64);
@@ -108,7 +107,9 @@ const Artwork = ({isPlaying}: ArtworkProps) => {
             hideArtwork();
           }, ARTWORK_TRANSITION);
 
-          return () => clearTimeout(prevSrcTimer);
+          return () => {
+            window.clearTimeout(prevSrcTimer);
+          };
         }
       } catch (error) {
         console.error('Failed to load src:', src);
@@ -117,8 +118,15 @@ const Artwork = ({isPlaying}: ArtworkProps) => {
     [setPalette, prevSrc]
   );
 
+  const handleArtworkClick = () => {
+    loadArtwork(activeTrack?.album?.images[0]?.url, true);
+    snackedApi<number>(['soca', 'count'], clientCount =>
+      clientCount ? `🤵 ${clientCount} client${clientCount > 1 ? 's' : ''} connected` : '🔌'
+    );
+  };
+
   useEffect(() => {
-    if (activeTrack) loadArtwork(activeTrack.album.images[0]?.url);
+    if (activeTrack) loadArtwork(activeTrack.album?.images[0]?.url);
   }, [activeTrack, loadArtwork]);
 
   useEffect(() => {
@@ -126,7 +134,9 @@ const Artwork = ({isPlaying}: ArtworkProps) => {
       progressInterval = window.setInterval(() => setProgress(progress => progress + PROGRESS_DELAY), PROGRESS_DELAY);
     }
 
-    return () => clearInterval(progressInterval);
+    return () => {
+      window.clearInterval(progressInterval);
+    };
   }, [isPlaying]);
 
   useEffect(() => {
@@ -139,22 +149,15 @@ const Artwork = ({isPlaying}: ArtworkProps) => {
   }, [sub, setActiveTrack]);
 
   return (
-    <Container
-      isPlaying={isPlaying}
-      onClick={() => {
-        loadArtwork(activeTrack?.album.images[0]?.url);
-        snackedApi<number>(['soca', 'count'], clientCount =>
-          clientCount ? `🤵 ${clientCount} client${clientCount > 1 ? 's' : ''} connected` : '🔌'
-        );
-      }}
-    >
+    <Container isPlaying={isPlaying} onClick={handleArtworkClick}>
       <Image isHidden={false} src={currentSrc} alt="" />
       <Image isHidden={isHidden} src={prevSrc} alt="" />
       <Progress ratio={activeTrack ? progress / activeTrack.duration_ms : 0}>
-        <circle r="49.1%" cx="50%" cy="50%" />
+        <circle r="48.8%" cx="50%" cy="50%" />
       </Progress>
       <Duration>
-        {formatDuration(progress)}/{formatDuration(activeTrack?.duration_ms ?? 0)}
+        <span>{formatDuration(progress)}</span>
+        <span>{formatDuration(activeTrack?.duration_ms ?? 0)}</span>
       </Duration>
     </Container>
   );

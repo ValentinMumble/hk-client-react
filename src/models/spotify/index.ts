@@ -1,3 +1,4 @@
+export * from './album';
 export * from './artist';
 export * from './device';
 export * from './image';
