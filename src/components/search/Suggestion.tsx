@@ -7,10 +7,10 @@ import {api} from 'utils';
 
 const Buttons = styled(ListItemSecondaryAction)`
   right: 0;
-  font-size: 0.8em;
+  font-size: 0.9em;
 
   button {
-    padding: 8px;
+    padding: 10px;
   }
 `;
 

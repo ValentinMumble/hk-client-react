@@ -4,12 +4,12 @@ import {api} from 'utils';
 const login = (authorizeUrl: string): Promise<string> =>
   new Promise(resolve => {
     const popup = window.open(authorizeUrl, '_blank', 'width=500,height=500,location=0,resizable=0');
-    const listener = setInterval(() => {
+    const listener = window.setInterval(() => {
       if (popup) popup.postMessage('login', window.location.toString());
     }, 500);
     window.onmessage = (event: any) => {
       if (popup === event.source) {
-        clearInterval(listener);
+        window.clearInterval(listener);
         window.onmessage = null;
 
         return resolve(event.data);

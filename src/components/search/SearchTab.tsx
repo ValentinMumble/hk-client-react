@@ -1,6 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import styled from 'styled-components';
 import {Avatar, List, TextField} from '@material-ui/core';
+import {MusicNoteRounded} from '@material-ui/icons';
 import {Artist, ArtistLight, Track, Album} from 'models';
 import {api} from 'utils';
 import {useSearch, useSocket, useTab} from 'hooks';
@@ -22,6 +23,12 @@ const SearchField = styled(TextField)`
 const Suggestions = styled(List)`
   width: 100%;
   overflow-y: auto;
+`;
+
+const Placeholder = styled(MusicNoteRounded)`
+  font-size: 4em;
+  height: 80%;
+  opacity: 0.4;
 `;
 
 const SearchTab = () => {
@@ -86,7 +93,7 @@ const SearchTab = () => {
     if (!inputRef.current) return;
 
     if (0 === tab) {
-      if (!search.artist) {
+      if (!search.artist && !search.album) {
         inputRef.current.focus();
         inputRef.current.select();
       }
@@ -112,19 +119,24 @@ const SearchTab = () => {
         value={search.value}
         onChange={handleSearchChange}
         InputProps={{endAdornment}}
+        placeholder="What?"
       />
-      <Suggestions>
-        {tracks.map(track => (
-          <Suggestion
-            key={track.id}
-            track={track}
-            album={album}
-            onTrackSelect={playTrack}
-            onArtistSelect={handleArtistSelect}
-            onAlbumSelect={handleAlbumSelect}
-          />
-        ))}
-      </Suggestions>
+      {0 < tracks.length ? (
+        <Suggestions>
+          {tracks.map(track => (
+            <Suggestion
+              key={track.id}
+              track={track}
+              album={album}
+              onTrackSelect={playTrack}
+              onArtistSelect={handleArtistSelect}
+              onAlbumSelect={handleAlbumSelect}
+            />
+          ))}
+        </Suggestions>
+      ) : (
+        <Placeholder color="secondary" />
+      )}
     </Container>
   );
 };

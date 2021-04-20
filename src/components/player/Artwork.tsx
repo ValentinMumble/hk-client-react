@@ -82,7 +82,7 @@ type ArtworkProps = {
 };
 
 const Artwork = ({isPlaying}: ArtworkProps) => {
-  const [currentSrc, setCurrentSrc] = useState<string>('');
+  const [currentSrc, setCurrentSrc] = useState<string>(I.BLACK);
   const [prevSrc, setPrevSrc] = useState<string>(I.BLACK);
   const [progress, setProgress] = useState<number>(0);
   const [isHidden, showArtwork, hideArtwork] = useBool();
@@ -97,7 +97,7 @@ const Artwork = ({isPlaying}: ArtworkProps) => {
         const base64 = src ? await fetchImage(src) : I.GRAY;
 
         if (base64 !== prevSrc || force) {
-          clearTimeout(prevSrcTimer);
+          window.clearTimeout(prevSrcTimer);
           const colors = src ? await splashy(base64) : ['#777', '#777'];
           setCurrentSrc(base64);
           showArtwork();
