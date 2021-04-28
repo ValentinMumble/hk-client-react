@@ -151,7 +151,7 @@ const Artwork = ({isPlaying}: ArtworkProps) => {
       </Progress>
       <Duration>
         <span>{formatDuration(progress)}</span>
-        <span>{formatDuration(activeTrack?.duration_ms ?? 0)}</span>
+        <span>&minus;{formatDuration(Math.max(0, (activeTrack?.duration_ms ?? 0) - progress))}</span>
       </Duration>
     </Container>
   );

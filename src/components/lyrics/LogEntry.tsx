@@ -21,6 +21,16 @@ const Meta = styled.div`
   gap: 5px;
 `;
 
+const getTimestampLabel = (timestamp: string, locale = 'en-GB'): string => {
+  const date = new Date(timestamp);
+
+  if (date.toUTCString().substring(0, 10) === new Date().toUTCString().substring(0, 10)) {
+    return `Today, ${date.toLocaleTimeString(locale)}`;
+  }
+
+  return date.toLocaleString(locale);
+};
+
 type LogEntryProps = {
   log: Log;
   stale: boolean;
@@ -33,7 +43,7 @@ const LogEntry = ({stale, log: {type, timestamp, message}}: LogEntryProps) => {
     <Container stale={stale}>
       <Meta>
         {isError && '⚡️'}
-        <Timestamp isError={isError}>{new Date(timestamp).toLocaleString('en-GB')}</Timestamp>
+        <Timestamp isError={isError}>{getTimestampLabel(timestamp)}</Timestamp>
       </Meta>
       {label(message)}
     </Container>

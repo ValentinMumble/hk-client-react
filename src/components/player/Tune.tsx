@@ -58,11 +58,7 @@ const Tune = ({isPlaying}: TuneProps) => {
         <TrackContainer>
           <span onClick={handleTrackClick}>
             {name}
-            <Meta>
-              {meta.map(meta => (
-                <>&nbsp;&mdash;&nbsp;{meta}</>
-              ))}
-            </Meta>
+            {0 < meta.length && <Meta>&nbsp;&mdash;&nbsp;{meta.join(', ')}</Meta>}
           </span>
           <Artist onClick={handleArtistClick}>{activeTrack.artists[0].name}</Artist>
         </TrackContainer>
