@@ -30,7 +30,7 @@ const withColors = (primary = '#000', secondary = '#000') =>
       },
       MuiSlider: {
         root: {
-          height: 25,
+          height: 8,
         },
         rail: {
           height: 7,

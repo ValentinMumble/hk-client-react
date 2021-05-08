@@ -6,6 +6,7 @@ type PlayerState = {
   progress_ms: number;
   item: Track;
   is_playing: boolean;
+  shuffle_state: boolean;
 };
 
 export type {PlayerState};

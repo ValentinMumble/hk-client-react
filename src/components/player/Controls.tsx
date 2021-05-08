@@ -8,6 +8,9 @@ import {
   SkipNextRounded,
   QueueMusicRounded,
   SpeakerRounded,
+  ShuffleRounded,
+  TrendingFlatRounded,
+  RepeatRounded,
 } from '@material-ui/icons';
 import {useSnackbar, useSocket, useShortcut, useTab} from 'hooks';
 import {PlayerState, Device, Playlist} from 'models';
@@ -19,11 +22,11 @@ const ControlsContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-evenly;
-  width: inherit;
+  width: 95%;
 `;
 
 const Volume = styled(Slider)`
-  width: 85%;
+  margin: 0 10px;
 
   ${({value}) =>
     -1 === value &&
@@ -58,6 +61,7 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
   const [deviceMenuAnchor, setDeviceMenuAnchor] = useState<HTMLElement>();
   const [playlistMenuAnchor, setPlaylistMenuAnchor] = useState<HTMLElement>();
   const [volume, setVolume] = useState<number>(-1);
+  const [isShuffle, setShuffle] = useState<boolean>(false);
   const [currentDeviceId, setCurrentDeviceId] = useState<string>('');
 
   const snack = useSnackbar();
@@ -77,6 +81,11 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
   const fetchPlaylists = async () => {
     const {data} = await api<Playlist[]>(['spotify', 'playlist']);
     setPlaylists(data);
+  };
+
+  const toggleShuffle = async () => {
+    setShuffle(!isShuffle);
+    await api(['spotify', 'shuffle', !isShuffle]);
   };
 
   const openDeviceMenu = async (event: MouseEvent<HTMLButtonElement>) => {
@@ -114,11 +123,13 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
 
   useEffect(() => {
     sub(ID, 'volume_change', setVolume);
-    sub(ID, 'initial_state', ({device: {volume_percent, id}}: PlayerState) => {
+    sub(ID, 'initial_state', ({device: {volume_percent, id}, shuffle_state}: PlayerState) => {
+      setShuffle(shuffle_state);
       setVolume(volume_percent);
       setCurrentDeviceId(id);
     });
     sub(ID, 'device_change', ({id}: Device) => setCurrentDeviceId(id));
+    sub(ID, 'shuffle_state', setShuffle);
   }, [sub]);
 
   useEffect(() => {
@@ -159,12 +170,16 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
           ))}
         </Menu>
       </ControlsContainer>
-      <Volume
-        valueLabelDisplay="auto"
-        value={volume}
-        onChange={(_event, volume) => setVolume(Number(volume))}
-        onChangeCommitted={(_event, volume) => emit('set_volume', Number(volume))}
-      />
+      <ControlsContainer>
+        <IconButton children={isShuffle ? <ShuffleRounded /> : <TrendingFlatRounded />} onClick={toggleShuffle} />
+        <Volume
+          valueLabelDisplay="auto"
+          value={volume}
+          onChange={(_event, volume) => setVolume(Number(volume))}
+          onChangeCommitted={(_event, volume) => emit('set_volume', Number(volume))}
+        />
+        <IconButton children={<RepeatRounded />} />
+      </ControlsContainer>
     </>
   );
 };

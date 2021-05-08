@@ -7,7 +7,7 @@ const login = (authorizeUrl: string): Promise<string> =>
     const listener = window.setInterval(() => {
       if (popup) popup.postMessage('login', window.location.toString());
     }, 500);
-    window.onmessage = (event: any) => {
+    window.onmessage = (event: MessageEvent<string>) => {
       if (popup === event.source) {
         window.clearInterval(listener);
         window.onmessage = null;

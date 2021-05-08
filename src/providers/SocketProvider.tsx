@@ -21,7 +21,7 @@ const SocketProvider = ({url, namespace, opts, children}: SocketProviderProps) =
     soca.current?.emit(event, payload);
   };
 
-  const subscribe = (key: string, event: string, callback: any) => {
+  const subscribe = (key: string, event: string, callback: Function) => {
     if (soca.current) {
       if (!(event in dico)) {
         dico[event] = {};

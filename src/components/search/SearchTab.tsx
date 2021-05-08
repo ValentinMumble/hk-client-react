@@ -4,7 +4,7 @@ import {Avatar, List, TextField} from '@material-ui/core';
 import {MusicNoteRounded} from '@material-ui/icons';
 import {Artist, ArtistLight, Track, Album} from 'models';
 import {api} from 'utils';
-import {useSearch, useSocket, useTab} from 'hooks';
+import {useSearch, useTab} from 'hooks';
 import {Suggestion} from 'components';
 
 const Container = styled.div`
@@ -37,7 +37,6 @@ const SearchTab = () => {
   const [artist, setArtist] = useState<Artist>();
   const [album, setAlbum] = useState<Album>();
   const [search, setSearch] = useSearch();
-  const [, emit] = useSocket();
   const [tab, setTab] = useTab();
 
   const fetchTracks = async (search: string) => {
@@ -62,9 +61,9 @@ const SearchTab = () => {
   const handleSearchChange = ({target: {value}}: ChangeEvent<HTMLInputElement>) => setSearch({value});
   const handleArtistSelect = (artist: ArtistLight) => setSearch(({value}) => ({value, artist}));
   const handleAlbumSelect = (album: Album) => setSearch(({value}) => ({value, album}));
-  const playTrack = ({uri}: Track) => {
-    emit('play', {uris: [uri]});
+  const playTrack = async ({uri}: Track) => {
     setTab(1);
+    await api(['spotify', 'play', uri], {withRadio: true});
   };
 
   useEffect(() => {
