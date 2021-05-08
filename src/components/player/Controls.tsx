@@ -9,8 +9,8 @@ import {
   QueueMusicRounded,
   SpeakerRounded,
   ShuffleRounded,
-  TrendingFlatRounded,
   RepeatRounded,
+  RepeatOneRounded,
 } from '@material-ui/icons';
 import {useSnackbar, useSocket, useShortcut, useTab} from 'hooks';
 import {api, emojiFirst, label} from 'utils';
@@ -25,7 +25,7 @@ const ControlsContainer = styled.div`
 `;
 
 const Volume = styled(Slider)`
-  margin: 0 10px;
+  margin: 0 15px;
 
   ${({value}) =>
     -1 === value &&
@@ -49,6 +49,13 @@ const PlayPauseButton = styled.div<{isHidden: boolean}>`
   transition: transform 300ms ease;
 `;
 
+const ActiveIcon = styled(IconButton)<{$isActive: boolean}>`
+  color: ${({$isActive, theme}) => ($isActive ? theme.palette.primary.main : '#333')};
+  opacity: ${({$isActive}) => ($isActive ? 1 : 0.5)};
+`;
+
+type RepeatState = 'off' | 'track' | 'context';
+
 type ControlsProps = {
   isPlaying: boolean;
   setPlaying: Dispatch<SetStateAction<boolean>>;
@@ -61,6 +68,7 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
   const [playlistMenuAnchor, setPlaylistMenuAnchor] = useState<HTMLElement>();
   const [volume, setVolume] = useState<number>(-1);
   const [isShuffle, setShuffle] = useState<boolean>(false);
+  const [repeatState, setRepeatState] = useState<RepeatState>('off');
   const [currentDeviceId, setCurrentDeviceId] = useState<string | null>(null);
 
   const snack = useSnackbar();
@@ -85,6 +93,12 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
   const toggleShuffle = async () => {
     setShuffle(!isShuffle);
     await api(['spotify', 'shuffle', !isShuffle]);
+  };
+
+  const toggleRepeat = async () => {
+    const newRepeatState = 'off' === repeatState ? 'track' : 'track' === repeatState ? 'context' : 'off';
+    setRepeatState(newRepeatState);
+    await api(['spotify', 'repeat', newRepeatState]);
   };
 
   const openDeviceMenu = async (event: MouseEvent<HTMLButtonElement>) => {
@@ -122,11 +136,16 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
 
   useEffect(() => {
     sub(ID, 'volume_change', setVolume);
-    sub(ID, 'initial_state', ({device: {volume_percent, id}, shuffle_state}: SpotifyApi.CurrentPlaybackResponse) => {
-      setShuffle(shuffle_state);
-      setVolume(volume_percent ?? 0);
-      setCurrentDeviceId(id);
-    });
+    sub(
+      ID,
+      'initial_state',
+      ({device: {volume_percent, id}, shuffle_state, repeat_state}: SpotifyApi.CurrentPlaybackResponse) => {
+        setShuffle(shuffle_state);
+        setRepeatState(repeat_state);
+        setVolume(volume_percent ?? 0);
+        setCurrentDeviceId(id);
+      }
+    );
     sub(ID, 'device_change', ({id}: SpotifyApi.UserDevice) => setCurrentDeviceId(id));
     sub(ID, 'shuffle_state', setShuffle);
   }, [sub]);
@@ -170,14 +189,18 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
         </Menu>
       </ControlsContainer>
       <ControlsContainer>
-        <IconButton children={isShuffle ? <ShuffleRounded /> : <TrendingFlatRounded />} onClick={toggleShuffle} />
+        <ActiveIcon $isActive={isShuffle} children={<ShuffleRounded />} onClick={toggleShuffle} />
         <Volume
           valueLabelDisplay="auto"
           value={volume}
           onChange={(_event, volume) => setVolume(Number(volume))}
           onChangeCommitted={(_event, volume) => emit('set_volume', Number(volume))}
         />
-        <IconButton children={<RepeatRounded />} />
+        <ActiveIcon
+          $isActive={'off' !== repeatState}
+          children={'track' === repeatState ? <RepeatOneRounded /> : <RepeatRounded />}
+          onClick={toggleRepeat}
+        />
       </ControlsContainer>
     </>
   );
