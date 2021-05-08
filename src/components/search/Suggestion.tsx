@@ -2,7 +2,6 @@ import {ReactElement, SyntheticEvent, useState} from 'react';
 import styled from 'styled-components';
 import {Avatar, IconButton, ListItem, ListItemAvatar, ListItemSecondaryAction, ListItemText} from '@material-ui/core';
 import {AlbumRounded, PlaylistAddCheckRounded, PlaylistAddRounded} from '@material-ui/icons';
-import {ArtistLight, Track, Album} from 'models';
 import {api} from 'utils';
 
 const Buttons = styled(ListItemSecondaryAction)`
@@ -27,11 +26,11 @@ const getIcon = (state: State): ReactElement => {
 };
 
 type SuggestionProps = {
-  track: Track;
-  album?: Album;
-  onAlbumSelect: (album: Album) => void;
-  onArtistSelect: (artist: ArtistLight) => void;
-  onTrackSelect: (track: Track) => void;
+  track: SpotifyApi.TrackObjectFull;
+  album?: SpotifyApi.AlbumObjectSimplified;
+  onAlbumSelect: (album: SpotifyApi.AlbumObjectSimplified) => void;
+  onArtistSelect: (artist: SpotifyApi.ArtistObjectSimplified) => void;
+  onTrackSelect: (track: SpotifyApi.TrackObjectFull) => void;
 };
 
 const Suggestion = ({album, track, onAlbumSelect, onTrackSelect, onArtistSelect}: SuggestionProps) => {

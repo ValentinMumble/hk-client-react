@@ -1,7 +1,9 @@
 import {createContext, Dispatch, SetStateAction} from 'react';
-import {Track} from 'models';
 
-type TrackContextValue = [Track | undefined, Dispatch<SetStateAction<Track | undefined>>];
+type TrackContextValue = [
+  SpotifyApi.TrackObjectFull | undefined,
+  Dispatch<SetStateAction<SpotifyApi.TrackObjectFull | undefined>>
+];
 
 const TrackContext = createContext<TrackContextValue | undefined>(undefined);
 

@@ -2,7 +2,6 @@ import {ChangeEvent, useEffect, useRef, useState} from 'react';
 import styled from 'styled-components';
 import {Avatar, List, TextField} from '@material-ui/core';
 import {MusicNoteRounded} from '@material-ui/icons';
-import {Artist, ArtistLight, Track, Album} from 'models';
 import {api} from 'utils';
 import {useSearch, useTab} from 'hooks';
 import {Suggestion} from 'components';
@@ -33,35 +32,41 @@ const Placeholder = styled(MusicNoteRounded)`
 
 const SearchTab = () => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [tracks, setTracks] = useState<Track[]>([]);
-  const [artist, setArtist] = useState<Artist>();
-  const [album, setAlbum] = useState<Album>();
+  const [tracks, setTracks] = useState<SpotifyApi.TrackObjectFull[]>([]);
+  const [artist, setArtist] = useState<SpotifyApi.ArtistObjectFull>();
+  const [album, setAlbum] = useState<SpotifyApi.AlbumObjectSimplified>();
   const [search, setSearch] = useSearch();
   const [tab, setTab] = useTab();
 
   const fetchTracks = async (search: string) => {
-    const {data} = await api<Track[]>(['spotify', 'search', search]);
+    const {data} = await api<SpotifyApi.TrackObjectFull[]>(['spotify', 'search', search]);
     setTracks(data);
   };
 
-  const fetchArtist = async ({id}: ArtistLight) => {
+  const fetchArtist = async ({id}: SpotifyApi.ArtistObjectSimplified) => {
     const {
       data: {artist, tracks},
-    } = await api<{tracks: Track[]; artist: Artist}>(['spotify', 'artist', id, 'top', 'GB']);
+    } = await api<{tracks: SpotifyApi.TrackObjectFull[]; artist: SpotifyApi.ArtistObjectFull}>([
+      'spotify',
+      'artist',
+      id,
+      'top',
+      'GB',
+    ]);
     setTracks(tracks);
     setArtist(artist);
   };
 
-  const fetchAlbumTracks = async (album: Album) => {
+  const fetchAlbumTracks = async (album: SpotifyApi.AlbumObjectSimplified) => {
     setAlbum(album);
-    const {data} = await api<Track[]>(['spotify', 'album', album.id]);
+    const {data} = await api<SpotifyApi.TrackObjectFull[]>(['spotify', 'album', album.id]);
     setTracks(data);
   };
 
   const handleSearchChange = ({target: {value}}: ChangeEvent<HTMLInputElement>) => setSearch({value});
-  const handleArtistSelect = (artist: ArtistLight) => setSearch(({value}) => ({value, artist}));
-  const handleAlbumSelect = (album: Album) => setSearch(({value}) => ({value, album}));
-  const playTrack = async ({uri}: Track) => {
+  const handleArtistSelect = (artist: SpotifyApi.ArtistObjectSimplified) => setSearch(({value}) => ({value, artist}));
+  const handleAlbumSelect = (album: SpotifyApi.AlbumObjectSimplified) => setSearch(({value}) => ({value, album}));
+  const playTrack = async ({uri}: SpotifyApi.TrackObjectFull) => {
     setTab(1);
     await api(['spotify', 'play', uri], {withRadio: true});
   };

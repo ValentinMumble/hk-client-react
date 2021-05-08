@@ -3,7 +3,6 @@ import styled, {css} from 'styled-components';
 import splashy from 'splashy';
 import {I, fetchImage, formatDuration} from 'utils';
 import {usePalette, useSocket, useTrack, useBool} from 'hooks';
-import {PlayerState} from 'models';
 
 const ID = 'Tune';
 const PROGRESS_DELAY = 500;
@@ -136,9 +135,9 @@ const Artwork = ({isPlaying}: ArtworkProps) => {
   useEffect(() => {
     sub(ID, 'seek', setProgress);
     sub(ID, 'track_change', setActiveTrack);
-    sub(ID, 'initial_state', ({progress_ms, item}: PlayerState) => {
-      setProgress(progress_ms);
-      setActiveTrack(item);
+    sub(ID, 'initial_state', ({progress_ms, item}: SpotifyApi.CurrentPlaybackResponse) => {
+      setProgress(progress_ms ?? 0);
+      if (null !== item && 'album' in item) setActiveTrack(item);
     });
   }, [sub, setActiveTrack]);
 

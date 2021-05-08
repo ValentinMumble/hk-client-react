@@ -5,7 +5,7 @@ import {LockRounded} from '@material-ui/icons';
 import {usePalette, useSocket, useSnackbar, useIdle, useBool, useTab} from 'hooks';
 import {Tune, Controls} from 'components';
 import {api} from 'utils';
-import {PlayerState, Welcome} from 'models';
+import {Welcome} from 'models';
 import {login} from 'Callback';
 
 const ID = 'Spotify';
@@ -90,7 +90,7 @@ const Spotify = () => {
   useEffect(() => {
     if (soca.connected || !accessToken) return;
 
-    sub(ID, 'initial_state', ({is_playing}: PlayerState) => {
+    sub(ID, 'initial_state', ({is_playing}: SpotifyApi.CurrentPlaybackResponse) => {
       hideLoading();
       setPlaying(is_playing);
     });

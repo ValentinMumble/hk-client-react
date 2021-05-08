@@ -13,7 +13,6 @@ import {
   RepeatRounded,
 } from '@material-ui/icons';
 import {useSnackbar, useSocket, useShortcut, useTab} from 'hooks';
-import {PlayerState, Device, Playlist} from 'models';
 import {api, emojiFirst, label} from 'utils';
 
 const ID = 'Controls';
@@ -56,13 +55,13 @@ type ControlsProps = {
 };
 
 const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
-  const [devices, setDevices] = useState<Device[]>([]);
-  const [playlists, setPlaylists] = useState<Playlist[]>([]);
+  const [devices, setDevices] = useState<SpotifyApi.UserDevice[]>([]);
+  const [playlists, setPlaylists] = useState<SpotifyApi.PlaylistBaseObject[]>([]);
   const [deviceMenuAnchor, setDeviceMenuAnchor] = useState<HTMLElement>();
   const [playlistMenuAnchor, setPlaylistMenuAnchor] = useState<HTMLElement>();
   const [volume, setVolume] = useState<number>(-1);
   const [isShuffle, setShuffle] = useState<boolean>(false);
-  const [currentDeviceId, setCurrentDeviceId] = useState<string>('');
+  const [currentDeviceId, setCurrentDeviceId] = useState<string | null>(null);
 
   const snack = useSnackbar();
   const [, emit, sub] = useSocket();
@@ -74,12 +73,12 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
   };
 
   const fetchDevices = async () => {
-    const {data} = await api<Device[]>(['spotify', 'device']);
+    const {data} = await api<SpotifyApi.UserDevice[]>(['spotify', 'device']);
     setDevices(data);
   };
 
   const fetchPlaylists = async () => {
-    const {data} = await api<Playlist[]>(['spotify', 'playlist']);
+    const {data} = await api<SpotifyApi.PlaylistBaseObject[]>(['spotify', 'playlist']);
     setPlaylists(data);
   };
 
@@ -100,16 +99,16 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
     setPlaylistMenuAnchor(undefined);
   };
 
-  const setDevice = ({id, name}: Device) => {
+  const setDevice = ({id, name}: SpotifyApi.UserDevice) => {
     closeMenus();
 
-    if (id === currentDeviceId) return;
+    if (null === id || id === currentDeviceId) return;
 
     emit('transfer_playback', {id, play: isPlaying});
     snack(emojiFirst(`Listening on ${label(name)}`));
   };
 
-  const setPlaylist = ({uri, name}: Playlist) => {
+  const setPlaylist = ({uri, name}: SpotifyApi.PlaylistBaseObject) => {
     emit('play', {context_uri: uri});
     snack(emojiFirst(`Playing ${label(name)}`));
     closeMenus();
@@ -123,12 +122,12 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
 
   useEffect(() => {
     sub(ID, 'volume_change', setVolume);
-    sub(ID, 'initial_state', ({device: {volume_percent, id}, shuffle_state}: PlayerState) => {
+    sub(ID, 'initial_state', ({device: {volume_percent, id}, shuffle_state}: SpotifyApi.CurrentPlaybackResponse) => {
       setShuffle(shuffle_state);
-      setVolume(volume_percent);
+      setVolume(volume_percent ?? 0);
       setCurrentDeviceId(id);
     });
-    sub(ID, 'device_change', ({id}: Device) => setCurrentDeviceId(id));
+    sub(ID, 'device_change', ({id}: SpotifyApi.UserDevice) => setCurrentDeviceId(id));
     sub(ID, 'shuffle_state', setShuffle);
   }, [sub]);
 
