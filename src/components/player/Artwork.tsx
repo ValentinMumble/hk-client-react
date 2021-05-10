@@ -23,8 +23,8 @@ const Duration = styled.div`
 const Container = styled.div<{isPlaying: boolean}>`
   position: relative;
   width: 100vw;
-  max-width: min(450px, 40vh);
-  padding-top: min(450px, 40vh);
+  max-width: min(460px, 45vh);
+  padding-top: min(460px, 45vh);
   overflow: hidden;
   transition: all 0.2s ease;
   transform-origin: bottom;

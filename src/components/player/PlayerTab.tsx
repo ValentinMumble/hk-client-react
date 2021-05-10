@@ -8,6 +8,7 @@ const RowContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-evenly;
+  height: 10vh;
 `;
 
 const LargeButtons = styled.span`

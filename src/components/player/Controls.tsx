@@ -21,11 +21,11 @@ const ControlsContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-evenly;
-  width: 95%;
+  width: 100%;
 `;
 
 const Volume = styled(Slider)`
-  margin: 0 15px;
+  margin: 0 10px;
 
   ${({value}) =>
     -1 === value &&
@@ -51,7 +51,8 @@ const PlayPauseButton = styled.div<{isHidden: boolean}>`
 
 const ActiveIcon = styled(IconButton)<{$isActive: boolean}>`
   color: ${({$isActive, theme}) => ($isActive ? theme.palette.primary.main : '#333')};
-  opacity: ${({$isActive}) => ($isActive ? 1 : 0.5)};
+  opacity: ${({$isActive}) => ($isActive ? 1 : 0.6)};
+  font-size: 0.7em;
 `;
 
 type RepeatState = 'off' | 'track' | 'context';
@@ -148,6 +149,7 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
     );
     sub(ID, 'device_change', ({id}: SpotifyApi.UserDevice) => setCurrentDeviceId(id));
     sub(ID, 'shuffle_state', setShuffle);
+    sub(ID, 'repeat_state', setRepeatState);
   }, [sub]);
 
   useEffect(() => {
@@ -160,7 +162,7 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
     <>
       <ControlsContainer>
         <IconButton children={<SpeakerRounded />} onClick={openDeviceMenu} />
-        <Menu anchorEl={deviceMenuAnchor} keepMounted open={Boolean(deviceMenuAnchor)} onClose={closeMenus}>
+        <Menu anchorEl={deviceMenuAnchor} keepMounted={true} open={Boolean(deviceMenuAnchor)} onClose={closeMenus}>
           {devices.map(device => (
             <MenuItem selected={currentDeviceId === device.id} key={device.id} onClick={() => setDevice(device)}>
               {label(device.name)}
@@ -179,7 +181,7 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
         </PlayPause>
         <IconButton children={<SkipNextRounded />} onClick={() => emit('next_track')} />
         <IconButton children={<QueueMusicRounded />} onClick={openPlaylistMenu} />
-        <Menu anchorEl={playlistMenuAnchor} keepMounted open={Boolean(playlistMenuAnchor)} onClose={closeMenus}>
+        <Menu anchorEl={playlistMenuAnchor} keepMounted={true} open={Boolean(playlistMenuAnchor)} onClose={closeMenus}>
           <MenuItem onClick={playRadio}>📻 Song radio</MenuItem>
           {playlists.map(playlist => (
             <MenuItem key={playlist.id} onClick={() => setPlaylist(playlist)}>

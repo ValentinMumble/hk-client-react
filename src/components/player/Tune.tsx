@@ -10,7 +10,7 @@ const TrackContainer = styled.label`
   color: ${({theme}) => theme.palette.primary.main};
   font-size: 0.5em;
   text-align: center;
-  max-width: min(450px, 92vw);
+  max-width: min(460px, 92vw);
 `;
 
 const Artist = styled.span`

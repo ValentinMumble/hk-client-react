@@ -12,7 +12,7 @@ type APIResponse<T> = {
 
 const api = async <T>(resource: Value[], params: Params = {}, options?: RequestInit): Promise<APIResponse<T>> => {
   const url = new URL(
-    resource.map(sub => encodeURIComponent(sub)).join('/'),
+    resource.map(encodeURIComponent).join('/'),
     'hk' === resource[0] ? process.env.REACT_APP_HK_API : process.env.REACT_APP_SERVER_URL
   );
   Object.keys(params).forEach(key => {

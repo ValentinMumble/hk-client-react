@@ -44,7 +44,7 @@ const withColors = (primary = '#000', secondary = '#000') =>
           width: 36,
           height: 36,
           marginTop: -15,
-          marginLeft: -18,
+          marginLeft: -22,
         },
         valueLabel: {
           left: 'calc(-50% + 19px)',

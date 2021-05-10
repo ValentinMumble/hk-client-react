@@ -15,7 +15,7 @@ const Content = styled.div<{isVisible: boolean}>`
   overflow-x: hidden;
   overflow-y: auto;
   min-width: 320px;
-  max-width: min(450px, 92vw);
+  max-width: min(460px, 92vw);
   max-height: ${({isVisible}) => (isVisible ? 80 : 0)}vh;
   opacity: ${({isVisible}) => (isVisible ? 1 : 0)};
   transition: all 400ms ease;
