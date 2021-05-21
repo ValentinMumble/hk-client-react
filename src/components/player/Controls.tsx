@@ -51,7 +51,6 @@ const PlayPauseButton = styled.div<{isHidden: boolean}>`
 
 const ActiveIcon = styled(IconButton)<{$isActive: boolean}>`
   color: ${({$isActive, theme}) => ($isActive ? theme.palette.primary.main : '#333')};
-  opacity: ${({$isActive}) => ($isActive ? 1 : 0.6)};
   font-size: 0.7em;
 `;
 

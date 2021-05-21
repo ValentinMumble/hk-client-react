@@ -94,8 +94,8 @@ const Hues = () => {
         <PowerSettingsNewRounded />
       </IconButton>
       <HueGrid>
-        {DEFAULT_COLORS.concat(palette).map((color, i) => (
-          <Hue key={i} color={color} onClick={() => handleHueClick(color)} />
+        {DEFAULT_COLORS.concat(palette).map((color, index) => (
+          <Hue key={index} color={color} onClick={() => handleHueClick(color)} />
         ))}
       </HueGrid>
       <Lights>

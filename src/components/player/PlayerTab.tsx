@@ -11,8 +11,8 @@ const RowContainer = styled.div`
   height: 10vh;
 `;
 
-const LargeButtons = styled.span`
-  font-size: 10vh;
+const LargeButton = styled(IconButton)`
+  font-size: 9vh;
 `;
 
 const PlayerTab = () => {
@@ -21,15 +21,13 @@ const PlayerTab = () => {
   return (
     <>
       <RowContainer>
+        <LargeButton
+          children={<VolumeDownRounded />}
+          onClick={() => snackedApi(['hk', 'volume', 'down'], () => '👇')}
+        />
         <IconButton children={<RadioRounded />} onClick={() => snackedApi(['hk', 'source', 'Radio'])} />
-        <LargeButtons>
-          <IconButton
-            children={<VolumeDownRounded />}
-            onClick={() => snackedApi(['hk', 'volume', 'down'], () => '👇')}
-          />
-          <IconButton children={<VolumeUpRounded />} onClick={() => snackedApi(['hk', 'volume', 'up'], () => '👆')} />
-        </LargeButtons>
         <IconButton children={<MusicNoteRounded />} onClick={() => snackedApi(['hk', 'source', 'TV'])} />
+        <LargeButton children={<VolumeUpRounded />} onClick={() => snackedApi(['hk', 'volume', 'up'], () => '👆')} />
       </RowContainer>
       <Spotify />
     </>

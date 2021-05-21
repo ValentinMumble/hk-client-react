@@ -1,6 +1,7 @@
 {
   "short_name": "HK",
   "name": "HK",
+  "description": "HK React client",
   "icons": [
     {
       "src": "icon.png",
@@ -10,6 +11,6 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000",
-  "background_color": "#000"
+  "theme_color": "#000000",
+  "background_color": "#000000"
 }

@@ -11,6 +11,7 @@ const TrackContainer = styled.label`
   font-size: 0.5em;
   text-align: center;
   max-width: min(460px, 92vw);
+  user-select: none;
 `;
 
 const Artist = styled.span`
