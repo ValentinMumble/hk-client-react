@@ -43,11 +43,9 @@ const Logs = ({scrollRef, setContent, setLoading}: ContentProps) => {
       );
       setTimestamps(data.map(({timestamp}) => timestamp));
 
-      if (scrollRef?.current) {
-        scrollRef.current.scrollTo(0, scrollRef.current.scrollHeight);
-      }
+      scrollRef?.current?.scrollTo(0, scrollRef.current.scrollHeight);
     } catch (error) {
-      snack(`🥺 ${error.message}`);
+      if (error instanceof Error) snack(`🥺 ${error.message}`);
     } finally {
       setLoading?.(false);
       stopLoading();

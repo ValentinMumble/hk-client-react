@@ -1,11 +1,11 @@
 import {useState, ReactNode, useEffect} from 'react';
 import {ThemeProvider} from 'styled-components';
-import {createMuiTheme, Theme, MuiThemeProvider, StylesProvider} from '@material-ui/core';
+import {createTheme, Theme, MuiThemeProvider, StylesProvider} from '@material-ui/core';
 import {PaletteContext} from 'contexts';
 import {api} from 'utils';
 
 const withColors = (primary = '#000', secondary = '#000') =>
-  createMuiTheme({
+  createTheme({
     typography: {
       fontFamily: 'inherit',
     },

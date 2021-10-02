@@ -62,11 +62,9 @@ const Lyrics = ({scrollRef, setContent, setLoading}: ContentProps) => {
         </LyricsContainer>
       );
 
-      if (scrollRef?.current) {
-        scrollRef.current.scrollTo(0, 0);
-      }
+      scrollRef?.current?.scrollTo(0, 0);
     } catch (error) {
-      snack(`🥺 ${error.message}`);
+      if (error instanceof Error) snack(`🥺 ${error.message}`);
     } finally {
       setLoading?.(false);
       stopLoading();

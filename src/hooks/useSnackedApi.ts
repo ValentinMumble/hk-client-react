@@ -25,7 +25,7 @@ const useSnackedApi = () => {
         const {data} = await api<T>(resources);
         snack(template ? template(data) : data, 2000, computeBackground<T>(backgroundColor, data));
       } catch (error) {
-        snack(`😩 ${error.message}`);
+        if (error instanceof Error) snack(`😩 ${error.message}`);
       }
     },
     [snack]

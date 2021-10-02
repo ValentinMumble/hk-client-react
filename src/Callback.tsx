@@ -37,7 +37,7 @@ const Callback = () => {
     if ('' !== accessToken) {
       window.addEventListener('message', event => {
         if ('login' === event.data && null !== event.source && !(event.source instanceof MessagePort)) {
-          event.source.postMessage(accessToken, event.origin);
+          event.source.postMessage(accessToken);
           window.close();
         }
       });
