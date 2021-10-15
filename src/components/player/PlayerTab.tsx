@@ -21,13 +21,13 @@ const PlayerTab = () => {
   return (
     <>
       <RowContainer>
+        <IconButton children={<RadioRounded />} onClick={() => snackedApi(['hk', 'source', 'Radio'])} />
         <LargeButton
           children={<VolumeDownRounded />}
           onClick={() => snackedApi(['hk', 'volume', 'down'], () => '👇')}
         />
-        <IconButton children={<RadioRounded />} onClick={() => snackedApi(['hk', 'source', 'Radio'])} />
-        <IconButton children={<MusicNoteRounded />} onClick={() => snackedApi(['hk', 'source', 'TV'])} />
         <LargeButton children={<VolumeUpRounded />} onClick={() => snackedApi(['hk', 'volume', 'up'], () => '👆')} />
+        <IconButton children={<MusicNoteRounded />} onClick={() => snackedApi(['hk', 'source', 'Cable Sat'])} />
       </RowContainer>
       <Spotify />
     </>
