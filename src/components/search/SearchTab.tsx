@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import {Avatar, List, TextField} from '@material-ui/core';
 import {MusicNoteRounded} from '@material-ui/icons';
 import {api} from 'utils';
-import {useSearch, useTab} from 'hooks';
+import {useDebounce, useSearch, useTab} from 'hooks';
 import {Suggestion} from 'components';
 
 const Container = styled.div`
@@ -35,6 +35,8 @@ const SearchTab = () => {
   const [tracks, setTracks] = useState<SpotifyApi.TrackObjectFull[]>([]);
   const [artist, setArtist] = useState<SpotifyApi.ArtistObjectFull>();
   const [album, setAlbum] = useState<SpotifyApi.AlbumObjectSimplified>();
+  const [searchValue, setSearchValue] = useState<string>('');
+  const debouncedSearchValue = useDebounce<string>(searchValue);
   const [search, setSearch] = useSearch();
   const [tab, setTab] = useTab();
 
@@ -63,13 +65,17 @@ const SearchTab = () => {
     setTracks(data);
   };
 
-  const handleSearchChange = ({target: {value}}: ChangeEvent<HTMLInputElement>) => setSearch({value});
+  const handleSearchChange = ({target: {value}}: ChangeEvent<HTMLInputElement>) => setSearchValue(value);
   const handleArtistSelect = (artist: SpotifyApi.ArtistObjectSimplified) => setSearch(({value}) => ({value, artist}));
   const handleAlbumSelect = (album: SpotifyApi.AlbumObjectSimplified) => setSearch(({value}) => ({value, album}));
   const playTrack = async ({uri}: SpotifyApi.TrackObjectFull) => {
     setTab(1);
     await api(['spotify', 'play', uri], {withRadio: true});
   };
+
+  useEffect(() => {
+    setSearch({value: debouncedSearchValue});
+  }, [debouncedSearchValue]);
 
   useEffect(() => {
     if ('' === search.value) return;
@@ -120,7 +126,7 @@ const SearchTab = () => {
         variant="outlined"
         fullWidth={true}
         label={artist?.name ?? album?.name}
-        value={search.value}
+        value={searchValue}
         onChange={handleSearchChange}
         InputProps={{endAdornment}}
         placeholder="What?"

@@ -1,4 +1,5 @@
 export * from './useBool';
+export * from './useDebounce';
 export * from './useIdle';
 export * from './usePalette';
 export * from './useSearch';
