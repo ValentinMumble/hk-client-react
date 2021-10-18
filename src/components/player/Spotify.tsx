@@ -1,8 +1,8 @@
 import {useEffect, useState, useCallback} from 'react';
 import styled from 'styled-components';
-import {LinearProgress, IconButton} from '@material-ui/core';
-import {LockRounded} from '@material-ui/icons';
-import {usePalette, useSocket, useSnackbar, useIdle, useBool, useTab} from 'hooks';
+import {IconButton} from '@material-ui/core';
+import {CheckCircleOutlineRounded, PriorityHighRounded, LockRounded} from '@material-ui/icons';
+import {usePalette, useSocket, useSnackbar, useIdle, useTab} from 'hooks';
 import {Tune, Controls} from 'components';
 import {api} from 'utils';
 import {Welcome} from 'models';
@@ -19,18 +19,19 @@ const Container = styled.div`
   flex-grow: 1;
 `;
 
-const Loader = styled.div<{isLoading: boolean}>`
-  width: 100%;
-  position: absolute;
-  top: 0;
+const Loader = styled.div<{isConnected: boolean}>`
+  position: fixed;
+  top: 1vh;
   z-index: 1;
+  font-size: 2.5rem;
   overflow: hidden;
-  opacity: ${({isLoading}) => (isLoading ? 1 : 0)};
-  transition: opacity 400ms ease;
+  opacity: ${({isConnected}) => (isConnected ? 0 : 0.5)};
+  transform: scale(${({isConnected}) => (isConnected ? 1 : 0.5)});
+  transition: all 400ms ease;
 `;
 
 const Spotify = () => {
-  const [isLoading, showLoading, hideLoading] = useBool();
+  const [isConnected, setConnected] = useState<boolean>(false);
   const [isPlaying, setPlaying] = useState<boolean>(false);
   const [accessToken, setAccessToken] = useState<string>();
   const [authorizeUrl, setAuthorizeUrl] = useState<string>();
@@ -70,8 +71,7 @@ const Spotify = () => {
   }, [authorizeUrl]);
 
   const connect = useCallback(() => {
-    if (soca && soca.disconnected && accessToken && !isLoading) {
-      showLoading();
+    if (soca && soca.disconnected && accessToken) {
       setTab(1);
       window.setTimeout(() => {
         console.info('Connecting');
@@ -79,19 +79,19 @@ const Spotify = () => {
         emit('initiate');
       }, MITIGATE);
     }
-  }, [accessToken, soca, emit, isLoading]);
+  }, [accessToken, soca, emit]);
 
   const disconnect = useCallback(() => {
     console.info('Disconnecting');
     soca?.disconnect();
-    hideLoading();
+    setConnected(false);
   }, [soca]);
 
   useEffect(() => {
     if (soca.connected || !accessToken) return;
 
     sub(ID, 'initial_state', ({is_playing}: SpotifyApi.CurrentPlaybackResponse) => {
-      hideLoading();
+      setConnected(true);
       setPlaying(is_playing);
     });
     sub(ID, 'playback_started', () => setPlaying(true));
@@ -113,8 +113,8 @@ const Spotify = () => {
     <IconButton children={<LockRounded />} onClick={handleLogin} />
   ) : (
     <Container>
-      <Loader isLoading={isLoading}>
-        <LinearProgress />
+      <Loader isConnected={isConnected}>
+        {isConnected ? <CheckCircleOutlineRounded color="primary" /> : <PriorityHighRounded color="primary" />}
       </Loader>
       <Tune isPlaying={isPlaying} />
       <Controls isPlaying={isPlaying} setPlaying={setPlaying} />

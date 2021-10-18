@@ -1,9 +1,16 @@
 import {useEffect, useState} from 'react';
 import {api} from 'utils';
 
+const WINDOW_WIDTH = 450;
+const WINDOW_HEIGHT = 840;
+
 const login = (authorizeUrl: string): Promise<string> =>
   new Promise(resolve => {
-    const popup = window.open(authorizeUrl, '_blank', 'width=500,height=500,location=0,resizable=0');
+    const popup = window.open(
+      authorizeUrl,
+      '_blank',
+      `width=${WINDOW_WIDTH},height=${WINDOW_HEIGHT},location=0,resizable=0`
+    );
     const listener = window.setInterval(() => {
       if (popup) popup.postMessage('login', window.location.toString());
     }, 500);

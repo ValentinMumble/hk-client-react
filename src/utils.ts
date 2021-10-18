@@ -70,6 +70,7 @@ const LABELS: {[key: string]: string} = {
   OK: '👌 OK',
   'Discover Weekly': '✨ Discover',
   '<3': '❤️ Likes',
+  'Radar des sorties': '📡 Release Radar',
   // Devices
   Pi: '🔈 π',
   MacMumble: '💻 MacMumble',
@@ -81,7 +82,7 @@ const LABELS: {[key: string]: string} = {
   'Lux Pied': '🛋 Pied',
   // Logs
   'No active device\n': 'No active device... 🏜',
-  'Transfering playback to Pi\n': 'Transfering ➡️ π',
+  'Transfering playback to a13438854aceabf5a965c5bd61f9c40684610db5\n': 'Transfering ➡️ π',
   'Refreshing token\n': 'Refreshing token ♻️',
   'The access token expired\n': 'Token expired 🚪',
 };
@@ -91,8 +92,7 @@ const label = (key: string): string => LABELS[key] ?? key;
 const I = {
   BLACK:
     'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
-  GRAY:
-    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mMs/w8AAfMBeIBXwkoAAAAASUVORK5CYII=',
+  GRAY: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mMs/w8AAfMBeIBXwkoAAAAASUVORK5CYII=',
 };
 
 export {api, fetchImage, I, emojiFirst, label, formatDuration};

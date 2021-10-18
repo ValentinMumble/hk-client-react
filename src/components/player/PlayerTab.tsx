@@ -4,6 +4,8 @@ import {RadioRounded, MusicNoteRounded, VolumeDownRounded, VolumeUpRounded} from
 import {useSnackedApi} from 'hooks';
 import {Spotify} from './Spotify';
 
+const {REACT_APP_DEFAULT_SOURCE = 'TV'} = process.env;
+
 const RowContainer = styled.div`
   display: flex;
   align-items: center;
@@ -27,7 +29,10 @@ const PlayerTab = () => {
           onClick={() => snackedApi(['hk', 'volume', 'down'], () => '👇')}
         />
         <LargeButton children={<VolumeUpRounded />} onClick={() => snackedApi(['hk', 'volume', 'up'], () => '👆')} />
-        <IconButton children={<MusicNoteRounded />} onClick={() => snackedApi(['hk', 'source', 'Cable Sat'])} />
+        <IconButton
+          children={<MusicNoteRounded />}
+          onClick={() => snackedApi(['hk', 'source', REACT_APP_DEFAULT_SOURCE])}
+        />
       </RowContainer>
       <Spotify />
     </>

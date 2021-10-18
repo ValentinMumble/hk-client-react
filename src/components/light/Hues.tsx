@@ -47,17 +47,18 @@ const Lights = styled.div`
   margin: 10px 0;
 `;
 
-const getLightIcon = (id: string): ReactElement => {
-  switch (id) {
-    case '1':
-      return <EmojiObjectsRounded />;
-    case '3':
-      return <GestureRounded />;
-    case '5':
-      return <HighlightRounded />;
-    case '4':
-    default:
+const getLightIcon = (name: string): ReactElement => {
+  switch (name) {
+    case 'Boule':
       return <PanoramaFishEye />;
+    case 'Strip':
+      return <GestureRounded />;
+    case 'Pied':
+      return <HighlightRounded />;
+    case 'Applique':
+      return <EmojiObjectsRounded />;
+    default:
+      return <EmojiObjectsRounded />;
   }
 };
 
@@ -113,7 +114,7 @@ const Hues = () => {
                 )
               }
             >
-              {getLightIcon(id)}
+              {getLightIcon(name)}
             </IconButton>
           ))}
       </Lights>
