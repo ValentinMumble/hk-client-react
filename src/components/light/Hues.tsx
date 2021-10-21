@@ -40,7 +40,7 @@ const Hue = styled(ButtonBase)<{color: string}>`
 `;
 
 const Brightness = styled(Slider)`
-  width: 140%;
+  width: 130%;
 `;
 
 const Lights = styled.div`

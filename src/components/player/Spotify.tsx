@@ -17,11 +17,12 @@ const Container = styled.div`
   align-items: center;
   justify-content: space-between;
   flex-grow: 1;
+  max-height: 82vh;
 `;
 
 const Loader = styled.div<{isConnected: boolean}>`
   position: fixed;
-  top: 1vh;
+  top: 7vh;
   z-index: 1;
   font-size: 2.5rem;
   overflow: hidden;
