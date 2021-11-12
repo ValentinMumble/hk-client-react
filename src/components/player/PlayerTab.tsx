@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import {IconButton} from '@material-ui/core';
-import {RadioRounded, MusicNoteRounded, VolumeDownRounded, VolumeUpRounded} from '@material-ui/icons';
+import {RadioRounded, MusicNoteRounded, VolumeDownRounded, VolumeUpRounded, CastRounded} from '@material-ui/icons';
 import {useSnackedApi} from 'hooks';
 import {Spotify} from './Spotify';
 
@@ -33,6 +33,7 @@ const PlayerTab = () => {
           children={<MusicNoteRounded />}
           onClick={() => snackedApi(['hk', 'source', REACT_APP_DEFAULT_SOURCE])}
         />
+        <IconButton children={<CastRounded />} onClick={() => snackedApi(['hk', 'source', 'Cable Sat'])} />
       </RowContainer>
       <Spotify />
     </>

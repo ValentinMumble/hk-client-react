@@ -89,10 +89,16 @@ const LABELS: {[key: string]: string} = {
 
 const label = (key: string): string => LABELS[key] ?? key;
 
+const short = (sentence: string) =>
+  sentence
+    .split(' ')
+    .map(word => word.substring(0, 2))
+    .join(' ');
+
 const I = {
   BLACK:
     'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
   GRAY: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mMs/w8AAfMBeIBXwkoAAAAASUVORK5CYII=',
 };
 
-export {api, fetchImage, I, emojiFirst, label, formatDuration};
+export {api, fetchImage, I, emojiFirst, label, formatDuration, short};

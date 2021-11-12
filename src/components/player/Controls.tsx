@@ -13,7 +13,7 @@ import {
   RepeatOneRounded,
 } from '@material-ui/icons';
 import {useSnackbar, useSocket, useShortcut, useTab} from 'hooks';
-import {api, emojiFirst, label} from 'utils';
+import {api, emojiFirst, label, short} from 'utils';
 
 const ID = 'Controls';
 
@@ -54,6 +54,14 @@ const ActiveIcon = styled(IconButton)<{$isActive: boolean}>`
   font-size: 0.7em;
 `;
 
+const CurrentDevice = styled.div`
+  position: absolute;
+  top: 100%;
+  font-size: 0.4em;
+  opacity: 0.4;
+  font-family: monospace;
+`;
+
 type RepeatState = 'off' | 'track' | 'context';
 
 type ControlsProps = {
@@ -70,6 +78,8 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
   const [isShuffle, setShuffle] = useState<boolean>(false);
   const [repeatState, setRepeatState] = useState<RepeatState>('off');
   const [currentDeviceId, setCurrentDeviceId] = useState<string | null>(null);
+
+  const currentDevice = devices.find(({id}) => id === currentDeviceId);
 
   const snack = useSnackbar();
   const [, emit, sub] = useSocket();
@@ -153,6 +163,7 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
 
   useEffect(() => {
     fetchPlaylists();
+    fetchDevices();
   }, []);
 
   useShortcut('Space', togglePlayback, 1 === tab, () => 1 === tab);
@@ -160,7 +171,10 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
   return (
     <>
       <ControlsContainer>
-        <IconButton children={<SpeakerRounded />} onClick={openDeviceMenu} />
+        <IconButton onClick={openDeviceMenu}>
+          <SpeakerRounded />
+          {currentDevice && <CurrentDevice>{short(currentDevice.name)}</CurrentDevice>}
+        </IconButton>
         <Menu anchorEl={deviceMenuAnchor} keepMounted={true} open={Boolean(deviceMenuAnchor)} onClose={closeMenus}>
           {devices.map(device => (
             <MenuItem selected={currentDeviceId === device.id} key={device.id} onClick={() => setDevice(device)}>
