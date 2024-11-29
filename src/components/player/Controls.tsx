@@ -198,7 +198,7 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
           <MenuItem onClick={playRadio}>📻 Song radio</MenuItem>
           {playlists.map(playlist => (
             <MenuItem key={playlist.id} onClick={() => setPlaylist(playlist)}>
-              {label(playlist.name)}
+              {label(playlist?.name ?? 'unknown')}
             </MenuItem>
           ))}
         </Menu>
