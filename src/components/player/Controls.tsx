@@ -196,11 +196,13 @@ const Controls = ({isPlaying, setPlaying}: ControlsProps) => {
         <IconButton children={<QueueMusicRounded />} onClick={openPlaylistMenu} />
         <Menu anchorEl={playlistMenuAnchor} keepMounted={true} open={Boolean(playlistMenuAnchor)} onClose={closeMenus}>
           <MenuItem onClick={playRadio}>📻 Song radio</MenuItem>
-          {playlists.map(playlist => (
-            <MenuItem key={playlist.id} onClick={() => setPlaylist(playlist)}>
-              {label(playlist?.name ?? 'unknown')}
-            </MenuItem>
-          ))}
+          {playlists
+            .filter(playlist => null !== playlist)
+            .map(playlist => (
+              <MenuItem key={playlist.id ?? 'key'} onClick={() => setPlaylist(playlist)}>
+                {label(playlist?.name ?? 'unknown')}
+              </MenuItem>
+            ))}
         </Menu>
       </ControlsContainer>
       <ControlsContainer>
